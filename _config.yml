@@ -10,7 +10,6 @@ keywords:
 author: LinsanZhu
 language: 
   - zh-CN
-  - en
 language_switcher: true
 
 timezone: ''
@@ -63,17 +62,21 @@ render_drafts: false
 post_asset_folder: false
 relative_link: false
 future: true
+syntax_highlighter: false
+# syntax_highlighter: highlight.js
+# syntax_highlighter: prismjs
 highlight:
-  enable: true
-  line_number: true
   auto_detect: false
+  line_number: true
+  line_threshold: 0
   tab_replace: ''
-  wrap: true
+  exclude_languages:
+  wrap: false
   hljs: false
 prismjs:
-  enable: false
   preprocess: true
   line_number: true
+  line_threshold: 0
   tab_replace: ''
 
 # Home page setting
@@ -117,7 +120,8 @@ ignore:
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: next
+# theme: next
+theme: shokaX
 
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
@@ -132,18 +136,18 @@ search:
   content: true
   format: html
 
-# Security
-encrypt: # hexo-blog-encrypt
-  silent: true
-  # you can use [default, blink, flip, shrink, surge, up, wave, xray]
-  theme: up
-  abstract: 通过密码校验才能记录浏览
-  message: 没有密码别想偷看
-  tags:
-  - {name: 面试, password: jrvibugqnikj}
-  - {name: Encrypted, password: zxcvb12345}
-  wrong_pass_message: 到底行不行啊，要不等会儿再试试
-  wrong_hash_message: Oh, these decrypted content cannot be verified, but you can still have a look.
+# # Security
+# encrypt: # hexo-blog-encrypt
+#   silent: true
+#   # you can use [default, blink, flip, shrink, surge, up, wave, xray]
+#   theme: up
+#   abstract: 通过密码校验才能记录浏览
+#   message: 没有密码别想偷看
+#   tags:
+#   - {name: 面试, password: jrvibugqnikj}
+#   - {name: Encrypted, password: zxcvb12345}
+#   wrong_pass_message: 到底行不行啊，要不等会儿再试试
+#   wrong_hash_message: Oh, these decrypted content cannot be verified, but you can still have a look.
 
 hide_posts:
   # 是否启用 hexo-hide-posts
@@ -163,13 +167,92 @@ hide_posts:
   # 如果同时设置了黑名单和白名单，白名单的优先级更高
   # blocklist_generators: ['*']
 
-markdown_it_plus:
-    highlight: true
-    html: true
-    xhtmlOut: true
-    breaks: true
-    langPrefix:
-    linkify: true
+# markdown_it_plus:
+#     highlight: true
+#     html: true
+#     xhtmlOut: true
+#     breaks: true
+#     langPrefix:
+#     linkify: true
+#     typographer:
+#     quotes: “”‘’
+#     pre_class: highlight
+
+# shokax
+markdown:
+  render: # 渲染器设置
+    html: false # 过滤 HTML 标签
+    xhtmlOut: true # 使用 '/' 来闭合单标签 （比如 <br />）。
+    breaks: true # 转换段落里的 '\n' 到 <br>。
+    linkify: true # 将类似 URL 的文本自动转换为链接。
     typographer:
-    quotes: “”‘’
-    pre_class: highlight
+    quotes: "“”‘’"
+  plugins: # markdown-it 插件设置
+    - plugin:
+        name: markdown-it-toc-and-anchor
+        enable: true
+        options: # 文章目录以及锚点应用的 class 名称，shoka 系主题必须设置成这样
+          tocClassName: "toc"
+          anchorClassName: "anchor"
+    - plugin:
+        name: markdown-it-multimd-table
+        enable: true
+        options:
+          multiline: true
+          rowspan: true
+          headerless: true
+    - plugin:
+        name: ./markdown-it-furigana
+        enable: true
+        options:
+          fallbackParens: "()"
+    - plugin:
+        name: ./markdown-it-spoiler
+        enable: true
+        options:
+          title: "你知道得太多了"
+
+minify:
+  js:
+    enable: false # ShokaX 自带 esbuild 优化，不建议开启，其他主题建议开启
+    exclude: # 排除文件，接受 string[]，需符合 micromatch 格式
+  css:
+    enable: true # 开启 CSS 优化
+    options:
+      targets: ">= 0.5%" # browserslist 格式的 target
+    exclude: # 排除文件，接受 string[]，需符合 micromatch 格式
+  html:
+    minifier: html-minifier
+    enable: true # 开启 HTML 优化
+    options:
+      comments: false # 是否保留注释内容
+    exclude: # 排除文件，接受 string[]，需符合 micromatch 格式
+  image:
+    enable: true # 开启图片预处理和自动 WebP 化
+    options:
+      avif: false
+      webp: true # 预留配置项，现版本无作用
+      quality: 80 # 质量，支持1-100的整数、lossless或nearLossless
+      effort: 2 # CPU 工作量，0-6之间的整数(越低越快)
+      replaceSrc: true # 自动替换生成html中的本地图片链接为webp链接
+      # 我们更建议使用 Service Worker 来在用户侧实现 replaceSrc 的功能，这将能够以一种侵入式更小的方式实现链接替换
+    exclude:
+    
+algolia:
+  appId: #Your appId
+  apiKey: #Your apiKey
+  adminApiKey: #Your adminApiKey
+  chunkSize: 5000
+  indexName: #"shokaX"
+  fields:
+    - title #必须配置
+    - path #必须配置
+    - categories #推荐配置
+    - content:strip:truncate,0,2000
+    - tags
+    # - gallery
+    # - photos
+
+autoprefixer:
+  exclude:
+    - "*.min.css"
