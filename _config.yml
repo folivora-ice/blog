@@ -7,7 +7,7 @@ title: 烂笔头
 subtitle: "If it feels easy, don't do it. Don't let the world spoil you."
 description: ''
 keywords:
-author: Bin
+author: LinsanZhu
 language: 
   - zh-CN
   - en
@@ -19,11 +19,26 @@ timezone: ''
 ## If your site is put in a subdirectory, set url as 'http://example.com/child' and root as '/child/'
 url: http://example.com
 root: /
-permalink: :year/:month/:day/:title/
+permalink: posts/:abbrlink/
 permalink_defaults:
 pretty_urls:
   trailing_index: true # Set to false to remove trailing 'index.html' from permalinks
   trailing_html: true # Set to false to remove trailing '.html' from permalinks
+
+# abbrlink config
+abbrlink:
+  alg: crc32      #support crc16(default) and crc32
+  rep: hex        #support dec(default) and hex
+  drafts: true  #(true)Process draft,(false)Do not process draft. false(default) 
+  # Generate categories from directory-tree
+  # depth: the max_depth of directory-tree you want to generate, should > 0
+  auto_category:
+     enable: true  #true(default)
+     depth:        #3(default)
+     over_write: false 
+  auto_title: false #enable auto title, it can auto fill the title by path
+  auto_date: true #enable auto date, it can auto fill the date by time today
+  force: false #enable force mode,in this mode, the plugin will ignore the cache, and calc the abbrlink for every post even it already had abbrlink. This only updates abbrlink rather than other front variables.
 
 # Directory
 source_dir: source
@@ -108,7 +123,7 @@ theme: next
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
   type: 'git'
-  repository: git@github.com:folivora-ice/folivora-ice.github.io.git
+  repository: git@github.com:linsanzhu/linsanzhu.github.io.git
   branch: master
 
 search:
@@ -116,3 +131,45 @@ search:
   field: post
   content: true
   format: html
+
+# Security
+encrypt: # hexo-blog-encrypt
+  silent: true
+  # you can use [default, blink, flip, shrink, surge, up, wave, xray]
+  theme: up
+  abstract: 通过密码校验才能记录浏览
+  message: 没有密码别想偷看
+  tags:
+  - {name: 面试, password: jrvibugqnikj}
+  - {name: Encrypted, password: zxcvb12345}
+  wrong_pass_message: 到底行不行啊，要不等会儿再试试
+  wrong_hash_message: Oh, these decrypted content cannot be verified, but you can still have a look.
+
+hide_posts:
+  # 是否启用 hexo-hide-posts
+  enable: true
+
+  # 隐藏文章的 front-matter 标识，也可以改成其他你喜欢的名字
+  filter: hidden
+
+  # 为隐藏的文章添加 noindex meta 标签，阻止搜索引擎收录
+  noindex: true
+
+  # 设置白名单，白名单中的 generator 可以访问隐藏文章
+  # 常见的 generators 有：index, tag, category, archive, sitemap, feed, etc.
+  allowlist_generators: [category]
+
+  # 设置黑名单，黑名单中的 generator 不可以访问隐藏文章
+  # 如果同时设置了黑名单和白名单，白名单的优先级更高
+  # blocklist_generators: ['*']
+
+markdown_it_plus:
+    highlight: true
+    html: true
+    xhtmlOut: true
+    breaks: true
+    langPrefix:
+    linkify: true
+    typographer:
+    quotes: “”‘’
+    pre_class: highlight

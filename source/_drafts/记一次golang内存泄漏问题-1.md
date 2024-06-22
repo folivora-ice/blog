@@ -4,7 +4,10 @@ tags:
   - Golang
   - 内存泄漏
 categories:
-  - [踩坑日志, Golang内存泄漏]
+  - - 踩坑日志
+    - Golang内存泄漏
+abbrlink: cf40bacf
+date: '2024-06-21 00:09:08'
 ---
 
 # 问题代码
