@@ -1,6 +1,83 @@
+# https://docs.kaitaku.xyz/guide/theme.html
+
+alternate: Linsan Zhu's Blog #站点大标题，（比 title 高一级，但仅在 index 显示）
+auto_scroll: true
+grayMode: false # 全站黑白滤镜
+
+statics: "/" # 静态文件根目录，可用于 CDN 加速
+assets: "assets" # 图片资源存放目录
+css: "css" # css 存放目录 (不建议改动)
+js: "js" # js 存放目录 (不建议改动)
+
+styles:
+  postprocess: true # 启用后处理器
+  modules:
+    mermaid: false
+
+loader:
+  start: true # 进入页面时显示加载动画
+  switch: false # 切换页面时显示加载动画
+
+# # 优化性能区
+# performance:
+#   # 使用preconnect预加载的网址(不建议超过三个)
+#   preConnect:
+#     - "https://lf9-cdn-tos.bytecdntp.com"
+#     - "https://at.alicdn.com"
+#   # 使用dns-prefetch预解析的网址
+#   dnsPrefetch:
+
+modules:
+  player: false # 启用音乐播放器
+  fireworks: true # 启用鼠标点击烟花特效
+  unlazyHash: true # 启用unlazy hash预览图支持
+  visibilityListener: true # 启用可见度监听器
+  tabs: true # 启用选项卡扩展支持，如需开启 summary 功能请一并开启
+  quiz: true # 启用文章内问题扩展支持
+  fancybox: true # 启用 fancybox 支持（不建议禁用）
+
+# 当 gradient 启用时，将使用渐变色封面代替_images.yml，渐变色集不可控制 
+# 当 fixedCover 启用时，上方的图片轮播集将被锁定为 fixedCover 配置的图片，_images.yml不再控制头图
+homeConfig:
+  gradient: false # 使用CSS渐变作为文章封面
+  # fixedCover 性能比默认的更好，且开启时将启用LCP优化和预加载
+  fixedCover: "" # 主页面cover(为空则使用bing随机图片)
+
+# //at.alicdn.com/t/c/font_4415496_59g1326wajd.css => 4415496_59g1326wajd
+#iconfont: "4415496_59g1326wajd"
+
+# 在此添加您的社交媒体链接
+social:
+  github: https://github.com/linsanzhu || github || "#191717"
+  email: mailto:bin.zaq@foxmail.com || envelope || "#55acd5"
+  # gitee: https://gitee.com/yourname || gitee || "#e60026"
+  # google: https://plus.google.com/yourname || google
+  # twitter: https://twitter.com/yourname || twitter || "#00aff0"
+  # zhihu: https://www.zhihu.com/people/yourname || zhihu || "#1e88e5"
+  # music: https://music.163.com/#/user/home?id=yourid || cloud-music || "#e60026"
+  # weibo: https://weibo.com/yourname || weibo || "#ea716e"
+  # about: https://about.me/yourname || address-card || "#3b5998"
+  # facebook: https://www.facebook.com/yourname || facebook
+  # stackoverflow: https://stackoverflow.com/ || stack-overflow
+  # youtube: https://youtube.com/yourname || youtube
+  # instagram: https://instagram.com/yourname || instagram
+  # skype: skype:yourname?call|chat || skype
+  # douban: https://www.douban.com/people/yourname/ || douban
+
+menu:
+  home: / || home
+  文章:
+    default: / || feather
+    归档: /archives/ || archive
+    分类: /categories/ || th
+    标签: /tags/ || tags
+    私密: /posts/57784073/ || link-alt
+  # link2: /page2/ || coffee
+
 waline:
   enable: true # 是否启用
-  serverURL: "" # waline 服务端地址
+  serverURL: https://linsanzhu-waline.zeabur.app # zeabur 服务端地址
+  # serverURL: https://waline-repo-tau.vercel.app/ # vercel 服务端地址
   lang: "zh-CN" # 评论界面语言
   locale: {} # 本地化替换，详见 waline 文档
   emoji: # 表情包，默认为 waline 官方配置
@@ -38,10 +115,77 @@ widgets:
 
 # 页尾全站统计
 footer:
-  since: 2010
+  since: 2021
+  icon:
+    name: sakura rotate
+    # Change the color of icon, using Hex Code.
+    color: "#ffc0cb"
+  powered: true
   count: true
+  # icp: # ICP备案
+  #   enable: false
+  #   icon: "" #网安备案图片
+  #   icpnumber: "" # ICP备案号
+  #   beian: "" # 网安备案号
+  #   recordcode: "" # 网安备案链接中的recordcode参数
 
 # 文章界面统计
 post:
   count: true
 
+font:
+  enable: true
+  # 从google字体库加载,如果自定义@font-face请关闭
+  loadFromGoogle: true
+  # 字体选项:
+  # `external`:从google字体库加载字体.
+  # `family: 字体家族名,无需引号
+  # `size: x.x`. 以`em`为单位. 默认: 1 (16px)
+
+  # 适用于所有在body标签内的文字.
+  global:
+    external: true
+    family: Mulish
+    size:
+
+  # 大标题字体.
+  logo:
+    external: true
+    family: Fredericka the Great
+    size: 3.5
+
+  # 首页页面标题字体.
+  title:
+    external: true
+    family: 
+      - Ma Shan Zheng
+      - Noto Serif JP
+    size: 2.5
+
+  # 标题字体.
+  headings:
+    external: true
+    family: 
+      # - Noto Serif SC
+      # - Ma Shan Zheng
+      - Noto Sans Simplified Chinese
+      - Noto Sans Traditional Chinese
+    size:
+
+  # 文章字体.
+  posts:
+    external: false
+    family: 
+      # - Noto Sans Simplified Chinese
+    sizse:
+
+  # 代码块的字体
+  codes:
+    external: true
+    family: 
+      - Source Code Pro
+      - Noto Sans Simplified Chinese
+    size:
+
+# random image api
+image_server: # "https://acg.xydwz.cn/api/api.php"

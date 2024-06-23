@@ -5,18 +5,17 @@
 # Site
 title: 烂笔头
 subtitle: "If it feels easy, don't do it. Don't let the world spoil you."
-description: ''
+description: LinsanZhu's Blog
 keywords:
-author: LinsanZhu
+author: Linsan Zhu
 language: 
   - zh-CN
 language_switcher: true
-
-timezone: ''
+timezone: Asia/Shanghai
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://example.com/child' and root as '/child/'
-url: http://example.com
+url: https://linsanzhu.github.io
 root: /
 permalink: posts/:abbrlink/
 permalink_defaults:
@@ -62,6 +61,8 @@ render_drafts: false
 post_asset_folder: false
 relative_link: false
 future: true
+
+# Syntax Highlighting
 syntax_highlighter: false
 # syntax_highlighter: highlight.js
 # syntax_highlighter: prismjs
@@ -80,6 +81,7 @@ prismjs:
   tab_replace: ''
 
 # Home page setting
+# It generates an archive of posts on your homepage, according to the index or archive layout of your theme.
 # path: Root path for your blogs index page. (default = '')
 # per_page: Posts displayed per page. (0 = disable pagination)
 # order_by: Posts order. (Order by date descending by default)
@@ -88,10 +90,25 @@ index_generator:
   per_page: 10
   order_by: -date
 
+# Pagination
+## Set per_page to 0 to disable pagination
+per_page: 10
+pagination_dir: page
+
 # Category & Tag
 default_category: uncategorized
+
 category_map:
+  Golang: golang
+  Linux运维: linux-sre
+  Encrypted: encrypted
+  
 tag_map:
+  Linux: linux
+  Shell: shell
+  Go Plugin: go-plugin
+  Go深拷贝: go-deepcopy
+  面试: interview
 
 # Metadata elements
 ## https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta
@@ -105,11 +122,6 @@ date_format: YYYY-MM-DD
 time_format: HH:mm:ss
 ## updated_option supports 'mtime', 'date', 'empty'
 updated_option: 'mtime'
-
-# Pagination
-## Set per_page to 0 to disable pagination
-per_page: 10
-pagination_dir: page
 
 # Include / Exclude file(s)
 ## include:/exclude: options only apply to the 'source/' folder
@@ -136,18 +148,18 @@ search:
   content: true
   format: html
 
-# # Security
-# encrypt: # hexo-blog-encrypt
-#   silent: true
-#   # you can use [default, blink, flip, shrink, surge, up, wave, xray]
-#   theme: up
-#   abstract: 通过密码校验才能记录浏览
-#   message: 没有密码别想偷看
-#   tags:
-#   - {name: 面试, password: jrvibugqnikj}
-#   - {name: Encrypted, password: zxcvb12345}
-#   wrong_pass_message: 到底行不行啊，要不等会儿再试试
-#   wrong_hash_message: Oh, these decrypted content cannot be verified, but you can still have a look.
+# Security
+encrypt: # hexo-blog-encrypt
+  silent: true
+  # you can use [default, blink, flip, shrink, surge, up, wave, xray]
+  theme: up
+  abstract: 通过密码校验才能记录浏览
+  message: 没有密码别想偷看
+  tags:
+  - {name: 面试, password: zxcvb12345}
+  - {name: Encrypted, password: zxcvb12345}
+  wrong_pass_message: 到底行不行啊，要不等会儿再试试
+  wrong_hash_message: Oh, these decrypted content cannot be verified, but you can still have a look.
 
 hide_posts:
   # 是否启用 hexo-hide-posts
@@ -161,22 +173,11 @@ hide_posts:
 
   # 设置白名单，白名单中的 generator 可以访问隐藏文章
   # 常见的 generators 有：index, tag, category, archive, sitemap, feed, etc.
-  allowlist_generators: [category]
+  allowlist_generators: [category, tag]
 
   # 设置黑名单，黑名单中的 generator 不可以访问隐藏文章
   # 如果同时设置了黑名单和白名单，白名单的优先级更高
   # blocklist_generators: ['*']
-
-# markdown_it_plus:
-#     highlight: true
-#     html: true
-#     xhtmlOut: true
-#     breaks: true
-#     langPrefix:
-#     linkify: true
-#     typographer:
-#     quotes: “”‘’
-#     pre_class: highlight
 
 # shokax
 markdown:
@@ -237,13 +238,17 @@ minify:
       replaceSrc: true # 自动替换生成html中的本地图片链接为webp链接
       # 我们更建议使用 Service Worker 来在用户侧实现 replaceSrc 的功能，这将能够以一种侵入式更小的方式实现链接替换
     exclude:
+
+autoprefixer:
+  exclude:
+    - "*.min.css"
     
 algolia:
-  appId: #Your appId
-  apiKey: #Your apiKey
-  adminApiKey: #Your adminApiKey
+  appId: ZQ84X3WFHU #Your appId
+  apiKey: e51a1d6838e5b8cd4a0e4564e0e8b1d4 #Your apiKey
+  adminApiKey: c32258920c8b15abb68a2abdd2a7f475 #Your adminApiKey
   chunkSize: 5000
-  indexName: #"shokaX"
+  indexName: my-blog-search #"shokaX"
   fields:
     - title #必须配置
     - path #必须配置
@@ -253,6 +258,20 @@ algolia:
     # - gallery
     # - photos
 
-autoprefixer:
-  exclude:
-    - "*.min.css"
+# feed:
+#   limit: 20
+#   order_by: "-date"
+#   tag_dir: false
+#   category_dir: false
+#   rss:
+#     enable: true
+#     template: "node_modules/hexo-theme-shokax/layout/_alternate/rss.ejs"
+#     output: "rss.xml"
+#   atom:
+#     enable: true
+#     template: "node_modules/hexo-theme-shokax/layout/_alternate/atom.ejs"
+#     output: "atom.xml"
+#   jsonFeed:
+#     enable: true
+#     template: "node_modules/hexo-theme-shokax/layout/_alternate/json.ejs"
+#     output: "feed.json"
