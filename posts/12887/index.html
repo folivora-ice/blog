@@ -1,98 +1,79 @@
-<!DOCTYPE html><html lang="[&quot;zh-CN&quot;,&quot;default&quot;]"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=2"/><meta name="theme-color" content="#222"/><meta http-equiv="X-UA-COMPATIBLE" content="IE=edge,chrome=1"/><meta name="renderer" content="webkit"/><link rel="icon" type="image/ico" sizes="32x32" href="/assets/favicon.ico"/><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"/><link rel="alternate" href="/rss.xml" title="烂笔头" type="application/rss+xml"><link rel="alternate" href="/atom.xml" title="烂笔头" type="application/atom+xml"><link rel="alternate" type="application/json" title="烂笔头" href="https://linsanzhu.github.io/feed.json"/><link rel="preconnect" href="https://lf9-cdn-tos.bytecdntp.com"/><link rel="preconnect" href="https://at.alicdn.com"/><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CFredericka%20the%20Great:400,400italic,700,700italic%7CMa%20Shan%20Zheng,Noto%20Serif%20JP:400,400italic,700,700italic%7CNoto%20Sans%20Simplified%20Chinese,Noto%20Sans%20Traditional%20Chinese:400,400italic,700,700italic%7CSource%20Code%20Pro,Noto%20Sans%20Simplified%20Chinese:400,400italic,700,700italic&display=swap&subset=latin,latin-ext" media="none" onload="this.media&#x3D;&#39;all&#39;"><link rel="stylesheet" href="/css/app.css?v=0.4.2"><link rel="modulepreload" href="/js/chunk-2YXICMYP.js"></link><link rel="modulepreload" href="/js/chunk-7CEZKU5F.js"></link><link rel="modulepreload" href="/js/chunk-ETYUGVIS.js"></link><link rel="modulepreload" href="/js/chunk-LYME6JKK.js"></link><link rel="modulepreload" href="/js/chunk-YF3OF5AX.js"></link><link rel="modulepreload" href="/js/comments-X2PGRW3X.js"></link><link rel="modulepreload" href="/js/index.esm-NGF4BI5A.js"></link><link rel="modulepreload" href="/js/post-L2T3HVOQ.js"></link><link rel="modulepreload" href="/js/quicklink-3ZU43OGZ.js"></link><link rel="modulepreload" href="/js/search-N7MSBNH2.js"></link><link rel="modulepreload" href="/js/siteInit.js"></link><link rel="stylesheet" href="https://npm.webcache.cn/@waline/client@3.0.0-alpha.11/dist/waline.css" media="none" onload="this.media='all'"/><link rel="preload" href="https://api.miaomc.cn/image/get?138564" as="image" fetchpriority="high"><link rel="preload" href="https://api.miaomc.cn/image/get?3615" as="image" fetchpriority="high"><link rel="preload" href="https://api.miaomc.cn/image/get?662106" as="image" fetchpriority="high"><link rel="preload" href="https://api.miaomc.cn/image/get?937984" as="image" fetchpriority="high"><link rel="preload" href="https://api.miaomc.cn/image/get?263132" as="image" fetchpriority="high"><link rel="preload" href="https://api.miaomc.cn/image/get?970963" as="image" fetchpriority="high"><meta name="keywords" content="Go深拷贝"/><meta name="description" content="在Go程序里，从变量赋值，到函数传参，对象的复制随处可见，那么在Go里如何做到对像的深拷贝？"/><link rel="canonical" href="https://linsanzhu.github.io/posts/12887/"><title>Golang深拷贝</title><meta name="generator" content="Hexo 7.2.0"></head><body itemscope itemtype="http://schema.org/WebPage"><div id="loading"><div class="cat"><div class="body"></div><div class="head"><div class="face"></div></div><div class="foot"><div class="tummy-end"></div><div class="bottom"></div><div class="legs left"></div><div class="legs right"></div></div><div class="paw"><div class="hands left"></div><div class="hands right"></div></div></div></div><div id="container"><header id="header" itemscope itemtype="http://schema.org/WPHeader"><div class="inner"><div id="brand"><div class="pjax"><h1 itemprop="name headline">Golang深拷贝</h1><div class="meta"><span class="item" title="创建时间：2022-03-06 14:55:33"><span class="icon"><i class="ic i-calendar"></i></span><span class="text">发表于</span><time itemprop="dateCreated datePublished" datetime="2022-03-06T14:55:33+08:00">2022-03-06</time></span><span class="item" title="本文字数"><span class="icon"><i class="ic i-pen"></i></span><span class="text">本文字数</span><span>18k</span><span class="text">字</span></span><span class="item" title="阅读时长"><span class="icon"><i class="ic i-clock"></i></span><span class="text">阅读时长</span><span>17 分钟</span></span></div></div></div><nav id="nav"><div class="inner"><div class="toggle"><div class="lines" aria-label="切换导航栏"><span class="line"></span><span class="line"></span><span class="line"></span></div></div><ul class="menu"><li class="item title"><a href="/" rel="start">Linsan Zhu's Blog</a></li></ul><ul class="right" id="rightNav"><li class="item theme"><i class="ic i-sun"></i></li><li class="item search"><i class="ic i-search"></i></li></ul></div></nav></div><div class="pjax" id="imgs"><ul><li class="item" style="background-image: url(&quot;https://api.miaomc.cn/image/get?138564&quot;);"></li><li class="item" style="background-image: url(&quot;https://api.miaomc.cn/image/get?3615&quot;);"></li><li class="item" style="background-image: url(&quot;https://api.miaomc.cn/image/get?662106&quot;);"></li><li class="item" style="background-image: url(&quot;https://api.miaomc.cn/image/get?937984&quot;);"></li><li class="item" style="background-image: url(&quot;https://api.miaomc.cn/image/get?263132&quot;);"></li><li class="item" style="background-image: url(&quot;https://api.miaomc.cn/image/get?970963&quot;);"></li></ul></div></header><div id="waves"><svg class="waves" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto"><defs><path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z"></path></defs><g class="parallax"><use xlink:href="#gentle-wave" x="48" y="0"></use><use xlink:href="#gentle-wave" x="48" y="3"></use><use xlink:href="#gentle-wave" x="48" y="5"></use><use xlink:href="#gentle-wave" x="48" y="7"></use></g></svg></div><main><div class="inner"><div class="pjax" id="main"><div class="article wrap"><div class="breadcrumb" itemListElement itemscope itemtype="https://schema.org/BreadcrumbList"><i class="ic i-home"></i><span><a href="/">首页</a></span><i class="ic i-angle-right"></i><span class="current" itemprop="itemListElement" itemscope="itemscope" itemtype="https://schema.org/ListItem"><a href="/categories/golang/" itemprop="item" rel="index" title="分类于Golang"><span itemprop="name">Golang<meta itemprop="position" content="0"/></span></a></span></div><article class="post block" itemscope="itemscope" itemtype="http://schema.org/Article" lang="zh-CN"><link itemprop="mainEntityOfPage" href="https://linsanzhu.github.io/posts/12887/"/><span hidden="hidden" itemprop="author" itemscope="itemscope" itemtype="http://schema.org/Person"><meta itemprop="image" content="/assets/avatar.png"/><meta itemprop="name" content="Linsan Zhu"/><meta itemprop="description" content="If it feels easy, don't do it. Don't let the world spoil you., LinsanZhu's Blog"/></span><span hidden="hidden" itemprop="publisher" itemscope="itemscope" itemtype="http://schema.org/Organization"><meta itemprop="name" content="烂笔头"/></span><div class="body md" itemprop="articleBody"><h1 id="go里的copy"><a class="markdownIt-Anchor" href="#go里的copy"></a> Go里的copy</h1>
-<p>在Go程序里，从变量赋值，到函数传参，对象的复制随处可见，用过其他语言的话，可能会由于惯性思维踩到Go对象复制的坑，例如：</p>
+<!DOCTYPE html><html lang="[&quot;zh-CN&quot;,&quot;default&quot;]"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=2"/><meta name="theme-color" content="#222"/><meta http-equiv="X-UA-COMPATIBLE" content="IE=edge,chrome=1"/><meta name="renderer" content="webkit"/><link rel="icon" type="image/ico" sizes="32x32" href="/assets/favicon.ico"/><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"/><link rel="alternate" href="/rss.xml" title="烂笔头" type="application/rss+xml"><link rel="alternate" href="/atom.xml" title="烂笔头" type="application/atom+xml"><link rel="alternate" type="application/json" title="烂笔头" href="https://linsanzhu.github.io/feed.json"/><link rel="preconnect" href="https://lf9-cdn-tos.bytecdntp.com"/><link rel="preconnect" href="https://at.alicdn.com"/><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CFredericka%20the%20Great:400,400italic,700,700italic%7CMa%20Shan%20Zheng,Noto%20Serif%20JP:400,400italic,700,700italic%7CNoto%20Sans%20Simplified%20Chinese,Noto%20Sans%20Traditional%20Chinese:400,400italic,700,700italic%7CSource%20Code%20Pro,Noto%20Sans%20Simplified%20Chinese:400,400italic,700,700italic&display=swap&subset=latin,latin-ext" media="none" onload="this.media&#x3D;&#39;all&#39;"><link rel="stylesheet" href="/css/app.css?v=0.4.2"><link rel="modulepreload" href="/js/chunk-2YXICMYP.js"></link><link rel="modulepreload" href="/js/chunk-7CEZKU5F.js"></link><link rel="modulepreload" href="/js/chunk-ETYUGVIS.js"></link><link rel="modulepreload" href="/js/chunk-LYME6JKK.js"></link><link rel="modulepreload" href="/js/chunk-YF3OF5AX.js"></link><link rel="modulepreload" href="/js/comments-X2PGRW3X.js"></link><link rel="modulepreload" href="/js/index.esm-NGF4BI5A.js"></link><link rel="modulepreload" href="/js/post-L2T3HVOQ.js"></link><link rel="modulepreload" href="/js/quicklink-3ZU43OGZ.js"></link><link rel="modulepreload" href="/js/search-N7MSBNH2.js"></link><link rel="modulepreload" href="/js/siteInit.js"></link><link rel="stylesheet" href="https://npm.webcache.cn/@waline/client@3.0.0-alpha.11/dist/waline.css" media="none" onload="this.media='all'"/><link rel="preload" href="http://www.98qy.com/sjbz/api.php?836522" as="image" fetchpriority="high"><link rel="preload" href="http://www.98qy.com/sjbz/api.php?229866" as="image" fetchpriority="high"><link rel="preload" href="http://www.98qy.com/sjbz/api.php?515421" as="image" fetchpriority="high"><link rel="preload" href="http://www.98qy.com/sjbz/api.php?186742" as="image" fetchpriority="high"><link rel="preload" href="http://www.98qy.com/sjbz/api.php?744411" as="image" fetchpriority="high"><link rel="preload" href="http://www.98qy.com/sjbz/api.php?511291" as="image" fetchpriority="high"><meta name="keywords" content="Go深拷贝"/><meta name="description" content="在Go程序里，从变量赋值，到函数传参，对象的复制随处可见，那么在Go里如何做到对像的深拷贝？"/><link rel="canonical" href="https://linsanzhu.github.io/posts/12887/"><title>Golang深拷贝</title><meta name="generator" content="Hexo 7.2.0"></head><body itemscope itemtype="http://schema.org/WebPage"><div id="loading"><div class="cat"><div class="body"></div><div class="head"><div class="face"></div></div><div class="foot"><div class="tummy-end"></div><div class="bottom"></div><div class="legs left"></div><div class="legs right"></div></div><div class="paw"><div class="hands left"></div><div class="hands right"></div></div></div></div><div id="container"><header id="header" itemscope itemtype="http://schema.org/WPHeader"><div class="inner"><div id="brand"><div class="pjax"><h1 itemprop="name headline">Golang深拷贝</h1><div class="meta"><span class="item" title="创建时间：2022-03-06 14:55:33"><span class="icon"><i class="ic i-calendar"></i></span><span class="text">发表于</span><time itemprop="dateCreated datePublished" datetime="2022-03-06T14:55:33+08:00">2022-03-06</time></span><span class="item" title="本文字数"><span class="icon"><i class="ic i-pen"></i></span><span class="text">本文字数</span><span>18k</span><span class="text">字</span></span><span class="item" title="阅读时长"><span class="icon"><i class="ic i-clock"></i></span><span class="text">阅读时长</span><span>17 分钟</span></span></div></div></div><nav id="nav"><div class="inner"><div class="toggle"><div class="lines" aria-label="切换导航栏"><span class="line"></span><span class="line"></span><span class="line"></span></div></div><ul class="menu"><li class="item title"><a href="/" rel="start">Linsan Zhu's Blog</a></li></ul><ul class="right" id="rightNav"><li class="item theme"><i class="ic i-sun"></i></li><li class="item search"><i class="ic i-search"></i></li></ul></div></nav></div><div class="pjax" id="imgs"><ul><li class="item" style="background-image: url(&quot;http://www.98qy.com/sjbz/api.php?836522&quot;);"></li><li class="item" style="background-image: url(&quot;http://www.98qy.com/sjbz/api.php?229866&quot;);"></li><li class="item" style="background-image: url(&quot;http://www.98qy.com/sjbz/api.php?515421&quot;);"></li><li class="item" style="background-image: url(&quot;http://www.98qy.com/sjbz/api.php?186742&quot;);"></li><li class="item" style="background-image: url(&quot;http://www.98qy.com/sjbz/api.php?744411&quot;);"></li><li class="item" style="background-image: url(&quot;http://www.98qy.com/sjbz/api.php?511291&quot;);"></li></ul></div></header><div id="waves"><svg class="waves" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto"><defs><path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z"></path></defs><g class="parallax"><use xlink:href="#gentle-wave" x="48" y="0"></use><use xlink:href="#gentle-wave" x="48" y="3"></use><use xlink:href="#gentle-wave" x="48" y="5"></use><use xlink:href="#gentle-wave" x="48" y="7"></use></g></svg></div><main><div class="inner"><div class="pjax" id="main"><div class="article wrap"><div class="breadcrumb" itemListElement itemscope itemtype="https://schema.org/BreadcrumbList"><i class="ic i-home"></i><span><a href="/">首页</a></span><i class="ic i-angle-right"></i><span class="current" itemprop="itemListElement" itemscope="itemscope" itemtype="https://schema.org/ListItem"><a href="/categories/golang/" itemprop="item" rel="index" title="分类于Golang"><span itemprop="name">Golang<meta itemprop="position" content="0"/></span></a></span></div><article class="post block" itemscope="itemscope" itemtype="http://schema.org/Article" lang="zh-CN"><link itemprop="mainEntityOfPage" href="https://linsanzhu.github.io/posts/12887/"/><span hidden="hidden" itemprop="author" itemscope="itemscope" itemtype="http://schema.org/Person"><meta itemprop="image" content="/assets/avatar.png"/><meta itemprop="name" content="Linsan Zhu"/><meta itemprop="description" content="If it feels easy, don't do it. Don't let the world spoil you., LinsanZhu's Blog"/></span><span hidden="hidden" itemprop="publisher" itemscope="itemscope" itemtype="http://schema.org/Organization"><meta itemprop="name" content="烂笔头"/></span><div class="body md" itemprop="articleBody"><h1 id="go里的copy"><a class="anchor" href="#go里的copy">#</a> Go 里的 copy</h1>
+<p>在 Go 程序里，从变量赋值，到函数传参，对象的复制随处可见，用过其他语言的话，可能会由于惯性思维踩到 Go 对象复制的坑，例如：</p>
 <ul>
 <li>
-<h2 id="变量赋值"><a class="markdownIt-Anchor" href="#变量赋值"></a> 变量赋值</h2>
+<h2 id="变量赋值"><a class="anchor" href="#变量赋值">#</a> 变量赋值</h2>
 </li>
 </ul>
-<p>在Java里类型分为基本类型和引用类型，对于基础类型的变量在赋值给另一变量时，实际是对该变量做了一次copy，点在Golang中也不例外。然而对于非基础类型的变量，在赋值给另一变量时，在Java中实际上是copy了对象的引用，对新的变量的任何修改都会反映到原变量上，例如：</p>
-<pre class="highlight"><code class="java">  <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Test</span> &#123;
-      <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Person</span> &#123;
-          <span class="hljs-keyword">public</span> String name;
-          <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> age;
-
-          <span class="hljs-keyword">public</span> <span class="hljs-title function_">Person</span><span class="hljs-params">(String name, <span class="hljs-type">int</span> age)</span> &#123;
-              <span class="hljs-built_in">this</span>.name = name;
-              <span class="hljs-built_in">this</span>.age = age;
-          &#125;
-      &#125;
-
-      <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;
-          <span class="hljs-type">Person</span> <span class="hljs-variable">a</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Person</span>(<span class="hljs-string">&quot;one&quot;</span>, <span class="hljs-number">1</span>);
-          <span class="hljs-type">Person</span> <span class="hljs-variable">b</span> <span class="hljs-operator">=</span> a;
-          b.age = <span class="hljs-number">10</span>;
-          System.out.println(<span class="hljs-string">&quot;person a&#x27;s age is: &quot;</span> + a.age);
-      &#125;
-  &#125;
-</code></pre>
-<pre><code>  ❯ java ./Test.java
+<p>在 Java 里类型分为基本类型和引用类型，对于基础类型的变量在赋值给另一变量时，实际是对该变量做了一次 copy，点在 Golang 中也不例外。然而对于非基础类型的变量，在赋值给另一变量时，在 Java 中实际上是 copy 了对象的引用，对新的变量的任何修改都会反映到原变量上，例如：</p>
+<figure class="highlight java"><figcaption data-lang="java"><span>a</span></figcaption><table><tr><td data-num="1"></td><td><pre><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Test</span> <span class="token punctuation">&#123;</span></pre></td></tr><tr><td data-num="2"></td><td><pre>      <span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">class</span> <span class="token class-name">Person</span> <span class="token punctuation">&#123;</span></pre></td></tr><tr><td data-num="3"></td><td><pre>          <span class="token keyword">public</span> <span class="token class-name">String</span> name<span class="token punctuation">;</span></pre></td></tr><tr><td data-num="4"></td><td><pre>          <span class="token keyword">public</span> <span class="token keyword">int</span> age<span class="token punctuation">;</span></pre></td></tr><tr><td data-num="5"></td><td><pre></pre></td></tr><tr><td data-num="6"></td><td><pre>          <span class="token keyword">public</span> <span class="token class-name">Person</span><span class="token punctuation">(</span><span class="token class-name">String</span> name<span class="token punctuation">,</span> <span class="token keyword">int</span> age<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span></pre></td></tr><tr><td data-num="7"></td><td><pre>              <span class="token keyword">this</span><span class="token punctuation">.</span>name <span class="token operator">=</span> name<span class="token punctuation">;</span></pre></td></tr><tr><td data-num="8"></td><td><pre>              <span class="token keyword">this</span><span class="token punctuation">.</span>age <span class="token operator">=</span> age<span class="token punctuation">;</span></pre></td></tr><tr><td data-num="9"></td><td><pre>          <span class="token punctuation">&#125;</span></pre></td></tr><tr><td data-num="10"></td><td><pre>      <span class="token punctuation">&#125;</span></pre></td></tr><tr><td data-num="11"></td><td><pre></pre></td></tr><tr><td data-num="12"></td><td><pre>      <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span></pre></td></tr><tr><td data-num="13"></td><td><pre>          <span class="token class-name">Person</span> a <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Person</span><span class="token punctuation">(</span><span class="token string">"one"</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span></pre></td></tr><tr><td data-num="14"></td><td><pre>          <span class="token class-name">Person</span> b <span class="token operator">=</span> a<span class="token punctuation">;</span></pre></td></tr><tr><td data-num="15"></td><td><pre>          b<span class="token punctuation">.</span>age <span class="token operator">=</span> <span class="token number">10</span><span class="token punctuation">;</span></pre></td></tr><tr><td data-num="16"></td><td><pre>          <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"person a's age is: "</span> <span class="token operator">+</span> a<span class="token punctuation">.</span>age<span class="token punctuation">)</span><span class="token punctuation">;</span></pre></td></tr><tr><td data-num="17"></td><td><pre>      <span class="token punctuation">&#125;</span></pre></td></tr><tr><td data-num="18"></td><td><pre>  <span class="token punctuation">&#125;</span></pre></td></tr></table></figure><pre><code>  ❯ java ./Test.java
   person a's age is: 10
 </code></pre>
-<p>但是在Go里，当把一个复杂对象变量赋值给另一个变量时，实际上是做了一次浅拷贝，所以当修改新变量的非指针和引用类型字段时，原变量是不会被影响的，例如：</p>
-<pre class="highlight"><code class="golang">  <span class="hljs-keyword">package</span> main
+<p>但是在 Go 里，当把一个复杂对象变量赋值给另一个变量时，实际上是做了一次浅拷贝，所以当修改新变量的非指针和引用类型字段时，原变量是不会被影响的，例如：</p>
+<pre><code class="language-golang">  package main
 
-  <span class="hljs-keyword">import</span> (
-          <span class="hljs-string">&quot;fmt&quot;</span>
+  import (
+          &quot;fmt&quot;
   )
 
-  <span class="hljs-keyword">type</span> House <span class="hljs-keyword">struct</span> &#123;
-          Address <span class="hljs-type">string</span>
+  type House struct &#123;
+          Address string
   &#125;
 
-  <span class="hljs-keyword">type</span> Person <span class="hljs-keyword">struct</span> &#123;
-          Name <span class="hljs-type">string</span>
-          Age <span class="hljs-type">int</span>
+  type Person struct &#123;
+          Name string
+          Age int
           House House
   &#125;
 
 
-  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;
-          a := Person&#123;Name: <span class="hljs-string">&quot;one&quot;</span>, Age: <span class="hljs-number">1</span>, House: House&#123;Address: <span class="hljs-string">&quot;here&quot;</span>&#125;&#125;
+  func main() &#123;
+          a := Person&#123;Name: &quot;one&quot;, Age: 1, House: House&#123;Address: &quot;here&quot;&#125;&#125;
           b := a
-          b.Age = <span class="hljs-number">10</span>
-          fmt.Printf(<span class="hljs-string">&quot;person a&#x27;s age is %d\n&quot;</span>, a.Age)
+          b.Age = 10
+          fmt.Printf(&quot;person a's age is %d\n&quot;, a.Age)
 
-          b.House.Address = <span class="hljs-string">&quot;there&quot;</span>
-          fmt.Printf(<span class="hljs-string">&quot;person a&#x27;s address is &#x27;%s&#x27;&quot;</span>, a.House.Address)
+          b.House.Address = &quot;there&quot;
+          fmt.Printf(&quot;person a's address is '%s'&quot;, a.House.Address)
   &#125;
 </code></pre>
 <pre><code>  ❯ go run .\main.go
   person a's age is 1
   person a's address is 'here'
 </code></pre>
-<p>注意到修改变量b的House字段并没有影响变量a的House，这是因为House字段是值类型。在Go里除了指针、slice、map, channel、interface之外的类型其实都是值类型，所以House字段和其他所有基础类型一样，拷贝时是将整个对象进行拷贝(即值拷贝)，而不像Java那样仅仅拷贝对象的引用。</p>
+<p>注意到修改变量 b 的 House 字段并没有影响变量 a 的 House，这是因为 House 字段是值类型。在 Go 里除了指针、slice、map, channel、interface 之外的类型其实都是值类型，所以 House 字段和其他所有基础类型一样，拷贝时是将整个对象进行拷贝 (即值拷贝)，而不像 Java 那样仅仅拷贝对象的引用。</p>
 <ul>
 <li>
-<h2 id="函数传参"><a class="markdownIt-Anchor" href="#函数传参"></a> 函数传参</h2>
+<h2 id="函数传参"><a class="anchor" href="#函数传参">#</a> 函数传参</h2>
 </li>
 </ul>
-<p>在Go中函数传参实际都会发生变量的复制，即使是引用类型也不例外，并没有传引用的概念，这点要和Java区分开。所以在Go函数里修改非引用类型参数并不会改变原始参数的值，但是对于引用类型，实际是隐式传入了变量的指针，所以对于这类参数的的修改，就像Java那样会改变原始参数的值。Go函数参数传值的规范更准确的说是只针对数据结构中固定的部分传值，例如传递slice时，仅仅是对slice结构体做了浅拷贝，其间接指向的内存并不会被复制，因此如果通过一些hack的方式修改传入函数的slice结构的len字段时，并不会改变原始实参slice的len, 这一点得特别注意，如果将slice传入函数，在函数里对其扩容，原slice并不会改变，这也是为什么append函数会返回一个新的slice。</p>
-<pre class="highlight"><code class="golang">  <span class="hljs-keyword">package</span> main
+<p>在 Go 中函数传参实际都会发生变量的复制，即使是引用类型也不例外，并没有传引用的概念，这点要和 Java 区分开。所以在 Go 函数里修改非引用类型参数并不会改变原始参数的值，但是对于引用类型，实际是隐式传入了变量的指针，所以对于这类参数的的修改，就像 Java 那样会改变原始参数的值。Go 函数参数传值的规范更准确的说是只针对数据结构中固定的部分传值，例如传递 slice 时，仅仅是对 slice 结构体做了浅拷贝，其间接指向的内存并不会被复制，因此如果通过一些 hack 的方式修改传入函数的 slice 结构的 len 字段时，并不会改变原始实参 slice 的 len, 这一点得特别注意，如果将 slice 传入函数，在函数里对其扩容，原 slice 并不会改变，这也是为什么 append 函数会返回一个新的 slice。</p>
+<pre><code class="language-golang">  package main
 
-  <span class="hljs-keyword">import</span> (
-      <span class="hljs-string">&quot;fmt&quot;</span>
-      <span class="hljs-string">&quot;unsafe&quot;</span>
+  import (
+      &quot;fmt&quot;
+      &quot;unsafe&quot;
   )
 
-  <span class="hljs-keyword">type</span> slice <span class="hljs-keyword">struct</span> &#123;
+  type slice struct &#123;
       array unsafe.Pointer
-      <span class="hljs-built_in">len</span>   <span class="hljs-type">int</span>
-      <span class="hljs-built_in">cap</span>   <span class="hljs-type">int</span>
+      len   int
+      cap   int
   &#125;
 
-  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">changeSliceLength</span><span class="hljs-params">(buf []<span class="hljs-type">int</span>)</span></span> &#123;
-      fmt.Printf(<span class="hljs-string">&quot;length of buf: %d\n&quot;</span>, <span class="hljs-built_in">len</span>(buf))
+  func changeSliceLength(buf []int) &#123;
+      fmt.Printf(&quot;length of buf: %d\n&quot;, len(buf))
       ptr := (*slice)(unsafe.Pointer(&amp;buf))
-      ptr.<span class="hljs-built_in">len</span> = <span class="hljs-number">100</span>
-      fmt.Printf(<span class="hljs-string">&quot;length of buf: %d\n&quot;</span>, <span class="hljs-built_in">len</span>(buf))
-      buf[<span class="hljs-number">0</span>] = <span class="hljs-number">1</span>
+      ptr.len = 100
+      fmt.Printf(&quot;length of buf: %d\n&quot;, len(buf))
+      buf[0] = 1
   &#125;
 
-  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;
-      a := <span class="hljs-built_in">make</span>([]<span class="hljs-type">int</span>, <span class="hljs-number">5</span>, <span class="hljs-number">10</span>)
-      fmt.Printf(<span class="hljs-string">&quot;a[0]: %d, length of a: %d\n&quot;</span>, a[<span class="hljs-number">0</span>], <span class="hljs-built_in">len</span>(a))
+  func main() &#123;
+      a := make([]int, 5, 10)
+      fmt.Printf(&quot;a[0]: %d, length of a: %d\n&quot;, a[0], len(a))
       changeSliceLength(a)
-      fmt.Printf(<span class="hljs-string">&quot;a[0]: %d, length of a: %d\n&quot;</span>, a[<span class="hljs-number">0</span>], <span class="hljs-built_in">len</span>(a))
+      fmt.Printf(&quot;a[0]: %d, length of a: %d\n&quot;, a[0], len(a))
   &#125;
 </code></pre>
 <pre><code>  ❯ go run .\main.go
@@ -101,113 +82,113 @@
   length of buf: 100
   a[0]: 1, length of a: 5
 </code></pre>
-<h1 id="go里如何deepcopy"><a class="markdownIt-Anchor" href="#go里如何deepcopy"></a> Go里如何deepcopy</h1>
-<p>在写Go程序时，难免面遇到需要深拷贝的场景，对于没有指针或者引用类型的结构，我们仅仅需要将该对象赋值给另一个变量就能轻易实现，但实际项目中, 复杂结构免不了有指针类型或者引用类型字段，而Go里又没有像Java里的Cloneable，这个时候如何实现深拷贝？</p>
+<h1 id="go里如何deepcopy"><a class="anchor" href="#go里如何deepcopy">#</a> Go 里如何 deepcopy</h1>
+<p>在写 Go 程序时，难免面遇到需要深拷贝的场景，对于没有指针或者引用类型的结构，我们仅仅需要将该对象赋值给另一个变量就能轻易实现，但实际项目中，复杂结构免不了有指针类型或者引用类型字段，而 Go 里又没有像 Java 里的 Cloneable，这个时候如何实现深拷贝？</p>
 <ul>
 <li>
-<h2 id="基于序列化反序列化实现深拷贝"><a class="markdownIt-Anchor" href="#基于序列化反序列化实现深拷贝"></a> 基于序列化/反序列化实现深拷贝</h2>
+<h2 id="基于序列化反序列化实现深拷贝"><a class="anchor" href="#基于序列化反序列化实现深拷贝">#</a> 基于序列化 / 反序列化实现深拷贝</h2>
 </li>
 </ul>
-<p>简单地说，我们可以先把对象序列化为字符串，然后再从字符串反序列化为对象，这就完成了一次深拷贝。序列化/反序列化可以选择json、thrift、protobuf等库，这里以json为例：</p>
-<pre class="highlight"><code class="golang">  <span class="hljs-keyword">package</span> main
+<p>简单地说，我们可以先把对象序列化为字符串，然后再从字符串反序列化为对象，这就完成了一次深拷贝。序列化 / 反序列化可以选择 json、thrift、protobuf 等库，这里以 json 为例：</p>
+<pre><code class="language-golang">  package main
 
-  <span class="hljs-keyword">import</span> (
-      <span class="hljs-string">&quot;fmt&quot;</span>
-      <span class="hljs-string">&quot;encoding/json&quot;</span>
+  import (
+      &quot;fmt&quot;
+      &quot;encoding/json&quot;
   )
 
-  <span class="hljs-keyword">type</span> House <span class="hljs-keyword">struct</span> &#123;
-      Address <span class="hljs-type">string</span> <span class="hljs-string">`json:&quot;address&quot;`</span>
+  type House struct &#123;
+      Address string `json:&quot;address&quot;`
   &#125;
 
-  <span class="hljs-keyword">type</span> Person <span class="hljs-keyword">struct</span> &#123;
-      Name <span class="hljs-type">string</span> <span class="hljs-string">`json:&quot;name&quot;`</span>
-      House *House <span class="hljs-string">`json:&quot;house&quot;`</span>
+  type Person struct &#123;
+      Name string `json:&quot;name&quot;`
+      House *House `json:&quot;house&quot;`
   &#125;
 
-  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;
-      a := &amp;Person&#123;Name: <span class="hljs-string">&quot;one&quot;</span>, House: &amp;House&#123;Address: <span class="hljs-string">&quot;one&#x27;s house&quot;</span>&#125;&#125;
+  func main() &#123;
+      a := &amp;Person&#123;Name: &quot;one&quot;, House: &amp;House&#123;Address: &quot;one's house&quot;&#125;&#125;
       as, _ := json.Marshal(a)
-      <span class="hljs-keyword">var</span> b Person
+      var b Person
       json.Unmarshal(as, &amp;b)
-      b.House.Address = <span class="hljs-string">&quot;two&#x27;s house&quot;</span>
-      fmt.Printf(<span class="hljs-string">&quot;a&#x27;s address: %s, b&#x27;s address: %s\n&quot;</span>, a.House.Address, b.House.Address)
+      b.House.Address = &quot;two's house&quot;
+      fmt.Printf(&quot;a's address: %s, b's address: %s\n&quot;, a.House.Address, b.House.Address)
   &#125;
 </code></pre>
 <pre><code>  ❯ go run .\main.go
   a's address: one's house, b's address: two's house
 </code></pre>
-<p>采用这种方式进行深拷贝需要注意，由于会先序列化为字符串，因此会额外占用内存，当对象比较大时，需要格外留意内存占用情况，即使是thrift和protobuf这样的压缩比很高的库，也是存在风险的。另外在整个序列化和反序列化过程中，有可能由于频繁创建对象、申请内存，导致cpu占用也跟着升高！！！</p>
+<p>采用这种方式进行深拷贝需要注意，由于会先序列化为字符串，因此会额外占用内存，当对象比较大时，需要格外留意内存占用情况，即使是 thrift 和 protobuf 这样的压缩比很高的库，也是存在风险的。另外在整个序列化和反序列化过程中，有可能由于频繁创建对象、申请内存，导致 cpu 占用也跟着升高！！！</p>
 <ul>
 <li>
-<h2 id="使用reflect进行深拷贝"><a class="markdownIt-Anchor" href="#使用reflect进行深拷贝"></a> 使用reflect进行深拷贝</h2>
+<h2 id="使用reflect进行深拷贝"><a class="anchor" href="#使用reflect进行深拷贝">#</a> 使用 reflect 进行深拷贝</h2>
 </li>
 </ul>
-<p>事实上，json和protobuf在序列化和反序列化时，使用了reflect库获取对象的字段和类型，那么我们也可以直接使用reflect来递归的读取对象的字段，并进行copy，这样就减少了序列化带来的内存占用，以及频繁字节数组扩容带来的cpu占用上升问题，并且可以完全去除反序列化的过程。不过这种方式的问题是，Go的reflect.Value对象不能复用，即使是相同类型的两个不同变量，也需要重新创建reflect.Value对象，这也造成reflect性能很差。</p>
-<pre class="highlight"><code class="golang"><span class="hljs-keyword">package</span> main
+<p>事实上，json 和 protobuf 在序列化和反序列化时，使用了 reflect 库获取对象的字段和类型，那么我们也可以直接使用 reflect 来递归的读取对象的字段，并进行 copy，这样就减少了序列化带来的内存占用，以及频繁字节数组扩容带来的 cpu 占用上升问题，并且可以完全去除反序列化的过程。不过这种方式的问题是，Go 的 reflect.Value 对象不能复用，即使是相同类型的两个不同变量，也需要重新创建 reflect.Value 对象，这也造成 reflect 性能很差。</p>
+<pre><code class="language-golang">package main
 
-<span class="hljs-keyword">import</span> (
-	<span class="hljs-string">&quot;fmt&quot;</span>
-	<span class="hljs-string">&quot;reflect&quot;</span>
+import (
+	&quot;fmt&quot;
+	&quot;reflect&quot;
 )
 
-<span class="hljs-keyword">type</span> House <span class="hljs-keyword">struct</span> &#123;
-	Address <span class="hljs-type">string</span> <span class="hljs-string">`json:&quot;address&quot;`</span>
+type House struct &#123;
+	Address string `json:&quot;address&quot;`
 &#125;
 
-<span class="hljs-keyword">type</span> Person <span class="hljs-keyword">struct</span> &#123;
-	Name  <span class="hljs-type">string</span> <span class="hljs-string">`json:&quot;name&quot;`</span>
-	House *House <span class="hljs-string">`json:&quot;house&quot;`</span>
+type Person struct &#123;
+	Name  string `json:&quot;name&quot;`
+	House *House `json:&quot;house&quot;`
 &#125;
 
-<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">shallowCopyValue</span><span class="hljs-params">(v reflect.Value)</span></span> reflect.Value &#123;
-	<span class="hljs-keyword">switch</span> v.Type().Kind() &#123;
-	<span class="hljs-keyword">case</span> reflect.Ptr:
-		<span class="hljs-keyword">return</span> shallowCopyValue(v.Elem()).Addr()
-	<span class="hljs-keyword">case</span> reflect.Interface:
-		<span class="hljs-keyword">return</span> shallowCopyValue(v.Elem())
-	<span class="hljs-keyword">case</span> reflect.Array, reflect.Map, reflect.Func, reflect.Chan:
-		<span class="hljs-keyword">return</span> v
-	<span class="hljs-keyword">default</span>:
-		<span class="hljs-keyword">return</span> reflect.New(v.Type()).Elem()
+func shallowCopyValue(v reflect.Value) reflect.Value &#123;
+	switch v.Type().Kind() &#123;
+	case reflect.Ptr:
+		return shallowCopyValue(v.Elem()).Addr()
+	case reflect.Interface:
+		return shallowCopyValue(v.Elem())
+	case reflect.Array, reflect.Map, reflect.Func, reflect.Chan:
+		return v
+	default:
+		return reflect.New(v.Type()).Elem()
 	&#125;
 &#125;
 
-<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">deepcopyValue</span><span class="hljs-params">(v reflect.Value)</span></span> reflect.Value &#123;
-	<span class="hljs-keyword">var</span> value reflect.Value
-	<span class="hljs-keyword">if</span> v.Kind() == reflect.Ptr || v.Kind() == reflect.Interface &#123;
+func deepcopyValue(v reflect.Value) reflect.Value &#123;
+	var value reflect.Value
+	if v.Kind() == reflect.Ptr || v.Kind() == reflect.Interface &#123;
 		value = v.Elem()
-	&#125; <span class="hljs-keyword">else</span> &#123;
+	&#125; else &#123;
 		value = v
 	&#125;
 	newIns := shallowCopyValue(v)
 	newValue := newIns
-	<span class="hljs-keyword">if</span> v.Kind() == reflect.Ptr || v.Kind() == reflect.Interface &#123;
+	if v.Kind() == reflect.Ptr || v.Kind() == reflect.Interface &#123;
 		newValue = newIns.Elem()
 	&#125;
 
-	<span class="hljs-keyword">for</span> i := <span class="hljs-number">0</span>; value.Kind() == reflect.Struct &amp;&amp; i &lt; value.Type().NumField(); i++ &#123;
+	for i := 0; value.Kind() == reflect.Struct &amp;&amp; i &lt; value.Type().NumField(); i++ &#123;
 		field := value.Field(i)
-		<span class="hljs-keyword">if</span> !field.IsValid() &#123;
-			<span class="hljs-keyword">continue</span>
+		if !field.IsValid() &#123;
+			continue
 		&#125;
 		newValue.Field(i).Set(deepcopyValue(field))
 	&#125;
-	<span class="hljs-keyword">return</span> newIns
+	return newIns
 &#125;
 
-<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">Deepcopy</span><span class="hljs-params">(ins <span class="hljs-keyword">interface</span>&#123;&#125;)</span></span> <span class="hljs-keyword">interface</span>&#123;&#125; &#123;
-	<span class="hljs-keyword">if</span> <span class="hljs-literal">nil</span> == ins &#123;
-		<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>
+func Deepcopy(ins interface&#123;&#125;) interface&#123;&#125; &#123;
+	if nil == ins &#123;
+		return nil
 	&#125;
-	<span class="hljs-keyword">return</span> deepcopyValue(reflect.ValueOf(ins)).Interface()
+	return deepcopyValue(reflect.ValueOf(ins)).Interface()
 &#125;
 
-<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;
-	a := &amp;Person&#123;Name: <span class="hljs-string">&quot;one&quot;</span>, House: &amp;House&#123;Address: <span class="hljs-string">&quot;one&#x27;s house&quot;</span>&#125;&#125;
+func main() &#123;
+	a := &amp;Person&#123;Name: &quot;one&quot;, House: &amp;House&#123;Address: &quot;one's house&quot;&#125;&#125;
 	b := Deepcopy(a).(*Person)
-	b.House.Address = <span class="hljs-string">&quot;two&#x27;s house&quot;</span>
-	fmt.Printf(<span class="hljs-string">&quot;a&#x27;s address: %s, b&#x27;s address: %s\n&quot;</span>, a.House.Address, b.House.Address)
+	b.House.Address = &quot;two's house&quot;
+	fmt.Printf(&quot;a's address: %s, b's address: %s\n&quot;, a.House.Address, b.House.Address)
 &#125;
 </code></pre>
 <pre><code>  ❯ go run main.go
@@ -215,42 +196,42 @@
 </code></pre>
 <ul>
 <li>
-<h2 id="在编译期根据对象结构生成相应的复制代码"><a class="markdownIt-Anchor" href="#在编译期根据对象结构生成相应的复制代码"></a> 在编译期根据对象结构生成相应的复制代码</h2>
+<h2 id="在编译期根据对象结构生成相应的复制代码"><a class="anchor" href="#在编译期根据对象结构生成相应的复制代码">#</a> 在编译期根据对象结构生成相应的复制代码</h2>
 </li>
 </ul>
-<p>一般的，我们深拷贝一个简单对象，可以直接new一个新对象，然后对每个字段单独赋值来达到深拷贝的目的，这种方式相比前两种方式资源占用会更少，但是这种方式对于字段很多、层次很复杂的结构来说，要写的语句很多，而且实际开发中，任何结构都会不断变化，这种方式不能应对时刻变化的需求，如果能做到根据结构的定义，动态生成每个字段的复制代码，那不就是理想的深拷贝方法吗。幸运的是Go的标准库提供了对go文件语法解析的库<code>go/ast</code>，借助这个库我们可以在编译期递归解析代码里的结构体，生成每个字段的复制语句.</p>
-<h3 id="goast包生成抽象语法树"><a class="markdownIt-Anchor" href="#goast包生成抽象语法树"></a> go/ast包生成抽象语法树</h3>
+<p>一般的，我们深拷贝一个简单对象，可以直接 new 一个新对象，然后对每个字段单独赋值来达到深拷贝的目的，这种方式相比前两种方式资源占用会更少，但是这种方式对于字段很多、层次很复杂的结构来说，要写的语句很多，而且实际开发中，任何结构都会不断变化，这种方式不能应对时刻变化的需求，如果能做到根据结构的定义，动态生成每个字段的复制代码，那不就是理想的深拷贝方法吗。幸运的是 Go 的标准库提供了对 go 文件语法解析的库 <code>go/ast</code> ，借助这个库我们可以在编译期递归解析代码里的结构体，生成每个字段的复制语句.</p>
+<h3 id="goast包生成抽象语法树"><a class="anchor" href="#goast包生成抽象语法树">#</a> go/ast 包生成抽象语法树</h3>
 <p>先来看一个读取并解析文件的例子</p>
-<pre class="highlight"><code class="golang"><span class="hljs-comment">// main.go</span>
-<span class="hljs-keyword">package</span> main
+<pre><code class="language-golang">// main.go
+package main
 
-<span class="hljs-keyword">import</span> (
-  <span class="hljs-string">&quot;go/token&quot;</span>
-  <span class="hljs-string">&quot;go/parser&quot;</span>
-  <span class="hljs-string">&quot;go/ast&quot;</span>
-  <span class="hljs-string">&quot;log&quot;</span>
+import (
+  &quot;go/token&quot;
+  &quot;go/parser&quot;
+  &quot;go/ast&quot;
+  &quot;log&quot;
 )
 
-<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;
+func main() &#123;
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, <span class="hljs-string">&quot;person.go&quot;</span>, <span class="hljs-literal">nil</span>, parser.SpuriousErrors)
-	<span class="hljs-keyword">if</span> <span class="hljs-literal">nil</span> != err &#123;
+	f, err := parser.ParseFile(fset, &quot;person.go&quot;, nil, parser.SpuriousErrors)
+	if nil != err &#123;
 		log.Fatal(err)
 	&#125;
 	ast.Print(fset, f)
 &#125;
 </code></pre>
-<p>我们在这里引入的<code>go/token</code>包定义了Go语言的词法标记和其对应的基础操作，而<code>go/parser</code>包是Go源码的解析器。这里我们使用ParseFile方法解析person.go文件，其返回一个AST对象。随后我们使用ast包提供的Print方法打印整个抽象语法树。</p>
-<pre class="highlight"><code class="golang"><span class="hljs-comment">// person.go</span>
-<span class="hljs-keyword">package</span> main
+<p>我们在这里引入的 <code>go/token</code>  包定义了 Go 语言的词法标记和其对应的基础操作，而 <code>go/parser</code>  包是 Go 源码的解析器。这里我们使用 ParseFile 方法解析 person.go 文件，其返回一个 AST 对象。随后我们使用 ast 包提供的 Print 方法打印整个抽象语法树。</p>
+<pre><code class="language-golang">// person.go
+package main
 
-<span class="hljs-keyword">type</span> Home <span class="hljs-keyword">struct</span> &#123;
-	Address <span class="hljs-type">string</span>
+type Home struct &#123;
+	Address string
 &#125;
 
-<span class="hljs-keyword">type</span> Person <span class="hljs-keyword">struct</span> &#123;
-	Name <span class="hljs-type">string</span>
-	Age <span class="hljs-type">int</span>
+type Person struct &#123;
+	Name string
+	Age int
 	Home *Home
 &#125;
 </code></pre>
@@ -408,62 +389,62 @@
   150  .  &#125;
   151  &#125;
 </code></pre>
-<p>通过与person.go源码比对，Package字段即源文件中的package关键字，Name字段即包名，而Decls字段则存放了源码中所有的结构体定义。Decls是一个ast.Decl类型的数组，go AST中所有声明节点都实现了Decl接口，因此我们在解析源码中所有结构体或类型定义时，只需要遍历Decls字段即可。<br />
-注意到Decl结构的Specs字段正是类型定义，他有两个关键字段：Name表示类型的名称，Type表示实际类型，在这里，Type是*ast.StructType类型, 这与我们声明中的struct对应，事实上Type字段也可能是其他类型，如：</p>
+<p>通过与 person.go 源码比对，Package 字段即源文件中的 package 关键字，Name 字段即包名，而 Decls 字段则存放了源码中所有的结构体定义。Decls 是一个 ast.Decl 类型的数组，go AST 中所有声明节点都实现了 Decl 接口，因此我们在解析源码中所有结构体或类型定义时，只需要遍历 Decls 字段即可。<br />
+注意到 Decl 结构的 Specs 字段正是类型定义，他有两个关键字段：Name 表示类型的名称，Type 表示实际类型，在这里，Type 是 * ast.StructType 类型，这与我们声明中的 struct 对应，事实上 Type 字段也可能是其他类型，如：</p>
 <ul>
 <li>FuncType       表示函数类型</li>
 <li>InterfaceType  表示接口类型</li>
-<li>ArrayType      表示数组或Slice</li>
-<li>MapType        表示map</li>
-<li>ChanType       表示Channel</li>
-<li>Ident          表示标识符，可以表示变量名，或者基础类型如int，string</li>
+<li>ArrayType      表示数组或 Slice</li>
+<li>MapType        表示 map</li>
+<li>ChanType       表示 Channel</li>
+<li>Ident          表示标识符，可以表示变量名，或者基础类型如 int，string</li>
 <li>ParenExpr      表示括号包裹的表达式</li>
 <li>SelectorExpr   表示字段选择器，如 a.field</li>
 <li>StarExpr       表示指针</li>
 </ul>
-<p>其中StructType的Fields字段即结构体的字段列表，他是Field类型的数组。Field包括两个关键字段，<code>Names</code> []*Ident类型，表示字段名, <code>Type</code> Expr类型，表示字段类型。<br />
-从上面的例子，我们对go AST结构有了一个大概印象，同时可以总结出通过AST获得结构体字段列表的方法，接下来我们以Person结构举例，实际生成他的深拷贝方法看看。</p>
-<h3 id="深拷贝代码生成"><a class="markdownIt-Anchor" href="#深拷贝代码生成"></a> 深拷贝代码生成</h3>
-<p>拷贝一个对象，重点是拷贝对象的每一个字段，通过遍历AST树，我们可以获得Struct的字段列表，进一步生成每一个字段的复制代码。go/ast包提供了<code>func Walk(v Visitor, node Node)</code>方法遍历AST树。Walk方法需要两个参数，第一个参数需要实现Visitor接口，第二个参数即AST的节点。Walk方法深度优先的调用v.Visit(node)，如果v.Visit(node)返回了一个非nil的Visitor对象w，则Walk会对node的所有子节点调用w.Visit方法。<br />
-遍历AST的第一步，我们需要找到所有的Struct节点，而所有的结构体定义都在Decls列表里，所以首先我们需要实现:<br />
-- FileVisitor   从AST根节点ast.File对象读取Decls字段，返回DeclVisitor<br />
-- DeclVisitor   针对Decls列表的每一个元素返回TypeVisitor<br />
-- TypeVisitor   识别type关键字声明的类型节点</p>
-<pre class="highlight"><code class="golang">  <span class="hljs-keyword">type</span> FileVisitor <span class="hljs-type">int</span>
-  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(v FileVisitor)</span></span> Visit(node ast.Node) ast.Visitor &#123;
-  	<span class="hljs-keyword">if</span> _, ok := node.(*ast.File); ok &#123;
-  		<span class="hljs-keyword">return</span> DeclVisitor(<span class="hljs-number">0</span>)
+<p>其中 StructType 的 Fields 字段即结构体的字段列表，他是 Field 类型的数组。Field 包括两个关键字段， <code>Names</code>  []*Ident 类型，表示字段名， <code>Type</code>  Expr 类型，表示字段类型。<br />
+从上面的例子，我们对 go AST 结构有了一个大概印象，同时可以总结出通过 AST 获得结构体字段列表的方法，接下来我们以 Person 结构举例，实际生成他的深拷贝方法看看。</p>
+<h3 id="深拷贝代码生成"><a class="anchor" href="#深拷贝代码生成">#</a> 深拷贝代码生成</h3>
+<p>拷贝一个对象，重点是拷贝对象的每一个字段，通过遍历 AST 树，我们可以获得 Struct 的字段列表，进一步生成每一个字段的复制代码。go/ast 包提供了 <code>func Walk(v Visitor, node Node)</code>  方法遍历 AST 树。Walk 方法需要两个参数，第一个参数需要实现 Visitor 接口，第二个参数即 AST 的节点。Walk 方法深度优先的调用 v.Visit (node)，如果 v.Visit (node) 返回了一个非 nil 的 Visitor 对象 w，则 Walk 会对 node 的所有子节点调用 w.Visit 方法。<br />
+遍历 AST 的第一步，我们需要找到所有的 Struct 节点，而所有的结构体定义都在 Decls 列表里，所以首先我们需要实现:<br />
+- FileVisitor   从 AST 根节点 ast.File 对象读取 Decls 字段，返回 DeclVisitor<br />
+- DeclVisitor   针对 Decls 列表的每一个元素返回 TypeVisitor<br />
+- TypeVisitor   识别 type 关键字声明的类型节点</p>
+<pre><code class="language-golang">  type FileVisitor int
+  func (v FileVisitor) Visit(node ast.Node) ast.Visitor &#123;
+  	if _, ok := node.(*ast.File); ok &#123;
+  		return DeclVisitor(0)
   	&#125;
-  	<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>
+  	return nil
   &#125;
 
-  <span class="hljs-keyword">type</span> DeclVisitor <span class="hljs-type">int</span>
-  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(v DeclVisitor)</span></span> Visit(node ast.Node) ast.Visitor &#123;
-  	<span class="hljs-comment">// GenDecl.Tok字段表示声明的类型，type字段定义的类型都是token.TYPE</span>
-  	<span class="hljs-keyword">if</span> decl, ok := node.(*ast.GenDecl); ok &amp;&amp; decl.Tok == token.TYPE &#123;
-  		<span class="hljs-keyword">return</span> TypeVisitor(<span class="hljs-number">0</span>)
+  type DeclVisitor int
+  func (v DeclVisitor) Visit(node ast.Node) ast.Visitor &#123;
+  	// GenDecl.Tok字段表示声明的类型，type字段定义的类型都是token.TYPE
+  	if decl, ok := node.(*ast.GenDecl); ok &amp;&amp; decl.Tok == token.TYPE &#123;
+  		return TypeVisitor(0)
   	&#125;
-  	<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>
+  	return nil
   &#125;
 
-  <span class="hljs-keyword">type</span> TypeVisitor <span class="hljs-type">int</span>
-  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(v TypeVisitor)</span></span> Visit(node ast.Node) ast.Visitor &#123;
-  	<span class="hljs-keyword">if</span> spec, ok := node.(*ast.TypeSpec); ok &#123;
-  		<span class="hljs-keyword">switch</span> spec.Type.(<span class="hljs-keyword">type</span>) &#123;
-  		<span class="hljs-keyword">case</span> *ast.StructType:
+  type TypeVisitor int
+  func (v TypeVisitor) Visit(node ast.Node) ast.Visitor &#123;
+  	if spec, ok := node.(*ast.TypeSpec); ok &#123;
+  		switch spec.Type.(type) &#123;
+  		case *ast.StructType:
   			generateStructCloneMethod(spec)
   		&#125;
   	&#125;
-  	<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>
+  	return nil
   &#125;
 </code></pre>
-<p>在TypeVisitor中，我们通过判断节点的Type字段类型是否为*ast.StructType来识别结构体定义节点。我们利用generateStructCloneMethod来给一个结构体生成Clone方法做深拷贝。我们的目标Clone方法应当具有如下基本结构：</p>
-<pre class="highlight"><code class="golang">  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(t *&lt;StructName&gt;)</span></span> Clone() *&lt;StructName&gt; &#123;
-  	ins := <span class="hljs-built_in">new</span> &lt;StructName&gt;()
+<p>在 TypeVisitor 中，我们通过判断节点的 Type 字段类型是否为 * ast.StructType 来识别结构体定义节点。我们利用 generateStructCloneMethod 来给一个结构体生成 Clone 方法做深拷贝。我们的目标 Clone 方法应当具有如下基本结构：</p>
+<pre><code class="language-golang">  func (t *&lt;StructName&gt;) Clone() *&lt;StructName&gt; &#123;
+  	ins := new &lt;StructName&gt;()
   	ins.&lt;Field&gt; = t.&lt;Field&gt;
   	ins.&lt;StructField&gt; = t.&lt;StructField&gt;.Clone()
   	...
-  	<span class="hljs-keyword">return</span> ins
+  	return ins
   &#125;
 </code></pre>
 <pre><code>可以看出，我们只要获取到结构体名称，和字段名列表，就可以根据以上模板生成Clone方法。
@@ -564,7 +545,7 @@ BenchmarkClone-4        	29532063	        43.37 ns/op	      16 B/op	       1 all
 PASS
 ok  	clone_gen	4.393s
 </code></pre>
-<div class="tags"><a href="/tags/go-deepcopy/" rel="tag"><i class="ic i-tag"></i>Go深拷贝</a></div></div><footer><div class="meta"><span class="icon"><i class="ic i-eye"></i></span><span>此文章已被阅读次数:</span><span class="waline-pageview-count" id="twikoo_visitors" data-path="posts/12887/">正在加载...</span><span class="item"><span class="icon"><i class="ic i-calendar-check"></i></span><span class="text">更新于</span><time title="修改时间：2024-06-23 16:50:29" itemprop="dateModified" datetime="2024-06-23T16:50:29+08:00">2024-06-23</time></span></div><div class="reward"><button><i class="ic i-heartbeat"></i>赞赏</button><p>请我喝[茶]~(￣▽￣)~*</p><div id="qr"><div><img loading="lazy" data-src="/assets/wechatpay.png" alt="Linsan Zhu 微信支付"/><p>微信支付</p></div><div><img loading="lazy" data-src="/assets/alipay.png" alt="Linsan Zhu 支付宝"/><p>支付宝</p></div></div></div><div id="copyright"><ul><li class="author"><strong>本文作者：</strong>Linsan Zhu<i class="ic i-at"><em>@</em></i>烂笔头</li><li class="link"><strong>本文链接：</strong><a href="https://linsanzhu.github.io/posts/12887/" title="Golang深拷贝">https://linsanzhu.github.io/posts/12887/</a></li><li class="license"><strong>版权声明：</strong>本站所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh"><i class="ic i-creative-commons"><em>(CC)</em></i>BY-NC-SA</a> 许可协议。转载请注明出处！</li></ul></div></footer></article></div><div class="post-nav"><div class="item left"><a href="/posts/32785/" rel="prev" itemprop="url" data-background-image="https:&#x2F;&#x2F;api.miaomc.cn&#x2F;image&#x2F;get?566202" title="Golang插件"><span class="type">上一篇</span><span class="category"><i class="ic i-flag"></i>Golang</span><h3>Golang插件</h3></a></div><div class="item right"><a href="/posts/75b2838f/" rel="next" itemprop="url" data-background-image="https:&#x2F;&#x2F;api.miaomc.cn&#x2F;image&#x2F;get?892222" title="随机图片接口汇总"><span class="type">下一篇</span><span class="category"><i class="ic i-flag"></i>Hexo</span><h3>随机图片接口汇总</h3></a></div></div><div class="wrap" id="comments"></div></div><div id="sidebar"><div class="inner"><div class="panels"><div class="inner"><div class="contents panel pjax" data-title="文章目录"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#go%E9%87%8C%E7%9A%84copy"><span class="toc-number">1.</span> <span class="toc-text"> Go里的copy</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%98%E9%87%8F%E8%B5%8B%E5%80%BC"><span class="toc-number">1.1.</span> <span class="toc-text"> 变量赋值</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%87%BD%E6%95%B0%E4%BC%A0%E5%8F%82"><span class="toc-number">1.2.</span> <span class="toc-text"> 函数传参</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#go%E9%87%8C%E5%A6%82%E4%BD%95deepcopy"><span class="toc-number">2.</span> <span class="toc-text"> Go里如何deepcopy</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8E%E5%BA%8F%E5%88%97%E5%8C%96%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%AE%9E%E7%8E%B0%E6%B7%B1%E6%8B%B7%E8%B4%9D"><span class="toc-number">2.1.</span> <span class="toc-text"> 基于序列化&#x2F;反序列化实现深拷贝</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8reflect%E8%BF%9B%E8%A1%8C%E6%B7%B1%E6%8B%B7%E8%B4%9D"><span class="toc-number">2.2.</span> <span class="toc-text"> 使用reflect进行深拷贝</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9C%A8%E7%BC%96%E8%AF%91%E6%9C%9F%E6%A0%B9%E6%8D%AE%E5%AF%B9%E8%B1%A1%E7%BB%93%E6%9E%84%E7%94%9F%E6%88%90%E7%9B%B8%E5%BA%94%E7%9A%84%E5%A4%8D%E5%88%B6%E4%BB%A3%E7%A0%81"><span class="toc-number">2.3.</span> <span class="toc-text"> 在编译期根据对象结构生成相应的复制代码</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#goast%E5%8C%85%E7%94%9F%E6%88%90%E6%8A%BD%E8%B1%A1%E8%AF%AD%E6%B3%95%E6%A0%91"><span class="toc-number">2.3.1.</span> <span class="toc-text"> go&#x2F;ast包生成抽象语法树</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%B1%E6%8B%B7%E8%B4%9D%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90"><span class="toc-number">2.3.2.</span> <span class="toc-text"> 深拷贝代码生成</span></a></li></ol></li></ol></li></ol></div><div class="related panel pjax" data-title="系列文章"><ul><li ><a href="/posts/32785/" rel="bookmark" title="Golang插件">Golang插件</a></li><li  class="active"><a href="/posts/12887/" rel="bookmark" title="Golang深拷贝">Golang深拷贝</a></li></ul></div><div class="overview panel" data-title="站点概览"><div class="author" itemprop="author" itemscope="itemscope" itemtype="http://schema.org/Person"><img class="image" loading="lazy" decoding="async" itemprop="image" alt="Linsan Zhu" src="/assets/avatar.png"/><p class="name" itemprop="name">Linsan Zhu</p><div class="description" itemprop="description">LinsanZhu's Blog</div></div><nav class="state"><div class="item posts"><a href="/archives/"><span class="count">5</span><span class="name">文章</span></a></div><div class="item categories"><a href="/categories/"><span class="count">4</span><span class="name">分类</span></a></div><div class="item tags"><a href="/tags/"><span class="count">6</span><span class="name">标签</span></a></div></nav><div class="social"><a target="_blank" rel="noopener" href="https://github.com/linsanzhu" class="item github" title="https:&#x2F;&#x2F;github.com&#x2F;linsanzhu"><i class="ic i-github"></i></a><a href="mailto:bin.zaq@foxmail.com" class="item email" title="mailto:bin.zaq@foxmail.com"><i class="ic i-envelope"></i></a></div><div class="menu"><li class="item"><a href="/" rel="section"><i class="ic i-home"></i>首页</a></li><li class="item dropdown"><a href="#" onclick="return false;"><i class="ic i-feather"></i>文章</a><ul class="submenu"><li class="item"><a href="/archives/" rel="section"><i class="ic i-archive"></i>归档</a></li><li class="item"><a href="/categories/" rel="section"><i class="ic i-th"></i>分类</a></li><li class="item"><a href="/tags/" rel="section"><i class="ic i-tags"></i>标签</a></li><li class="item"><a href="/posts/57784073/" rel="section"><i class="ic i-link-alt"></i>私密</a></li></ul></li></div></div></div></div><ul id="quick"><li class="prev pjax"><a href="/posts/75b2838f/" rel="prev" title="上一篇"><i class="ic i-chevron-left"></i></a></li><li class="up"><i class="ic i-arrow-up"></i></li><li class="down"><i class="ic i-arrow-down"></i></li><li class="next pjax"><a href="/posts/32785/" rel="next" title="下一篇"><i class="ic i-chevron-right"></i></a></li><li class="percent"></li></ul></div></div><div class="dimmer"></div></div></main><footer id="footer"><div class="inner"><div class="widgets"><div class="rpost pjax"><h2>随机文章</h2><ul><li class="item"><div class="breadcrumb"><a href="/categories/golang/" title="分类于Golang">Golang</a></div><span><a href="/posts/12887/">Golang深拷贝</a></span></li><li class="item"><div class="breadcrumb"><a href="/categories/golang/" title="分类于Golang">Golang</a></div><span><a href="/posts/32785/">Golang插件</a></span></li><li class="item"><div class="breadcrumb"><a href="/categories/linux-sre/" title="分类于Linux运维">Linux运维</a></div><span><a href="/posts/48230/">Linux常用命令</a></span></li><li class="item"><div class="breadcrumb"><a href="/categories/hexo/" title="分类于Hexo">Hexo</a></div><span><a href="/posts/75b2838f/">随机图片接口汇总</a></span></li><li class="item"><div class="breadcrumb"><a href="/categories/linux-sre/" title="分类于Linux运维">Linux运维</a></div><span><a href="/posts/27368/">Linux系统服务</a></span></li></ul></div><div class="rpost pjax"><h2>最新评论</h2><ul class="leancloud-recent-comment" id="new-comment"></ul></div></div><div class="status"><div class="copyright">&copy; 2021 -<span itemprop="copyrightYear">2024</span><span class="with-love"><i class="ic i-sakura rotate"></i></span><span class="author" itemprop="copyrightHolder">Linsan Zhu @ Linsan Zhu's Blog</span></div><div class="count"><span class="post-meta-item-icon"><i class="ic i-chart-area"></i></span><span title="站点总字数">44k 字</span><span class="post-meta-divider"> | </span><span class="post-meta-item-icon"><i class="ic i-coffee"></i></span><span title="站点阅读时长">40 分钟</span></div><div class="powered-by">基于 <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a> & Theme.<a target="_blank" rel="noopener" href="https://github.com/theme-shoka-x/hexo-theme-shokaX/">ShokaX</a></div></div></div></footer></div><script data-config type="text/javascript">var LOCAL = {
+<div class="tags"><a href="/tags/go-deepcopy/" rel="tag"><i class="ic i-tag"></i>Go深拷贝</a></div></div><footer><div class="meta"><span class="icon"><i class="ic i-eye"></i></span><span>此文章已被阅读次数:</span><span class="waline-pageview-count" id="twikoo_visitors" data-path="posts/12887/">正在加载...</span><span class="item"><span class="icon"><i class="ic i-calendar-check"></i></span><span class="text">更新于</span><time title="修改时间：2024-06-23 16:50:29" itemprop="dateModified" datetime="2024-06-23T16:50:29+08:00">2024-06-23</time></span></div><div class="reward"><button><i class="ic i-heartbeat"></i>赞赏</button><p>请我喝[茶]~(￣▽￣)~*</p><div id="qr"><div><img loading="lazy" data-src="/assets/wechatpay.png" alt="Linsan Zhu 微信支付"/><p>微信支付</p></div><div><img loading="lazy" data-src="/assets/alipay.png" alt="Linsan Zhu 支付宝"/><p>支付宝</p></div></div></div><div id="copyright"><ul><li class="author"><strong>本文作者：</strong>Linsan Zhu<i class="ic i-at"><em>@</em></i>烂笔头</li><li class="link"><strong>本文链接：</strong><a href="https://linsanzhu.github.io/posts/12887/" title="Golang深拷贝">https://linsanzhu.github.io/posts/12887/</a></li><li class="license"><strong>版权声明：</strong>本站所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh"><i class="ic i-creative-commons"><em>(CC)</em></i>BY-NC-SA</a> 许可协议。转载请注明出处！</li></ul></div></footer></article></div><div class="post-nav"><div class="item left"><a href="/posts/32785/" rel="prev" itemprop="url" data-background-image="http:&#x2F;&#x2F;www.98qy.com&#x2F;sjbz&#x2F;api.php?420205" title="Golang插件"><span class="type">上一篇</span><span class="category"><i class="ic i-flag"></i>Golang</span><h3>Golang插件</h3></a></div><div class="item right"><a href="/posts/75b2838f/" rel="next" itemprop="url" data-background-image="http:&#x2F;&#x2F;www.98qy.com&#x2F;sjbz&#x2F;api.php?490777" title="随机图片接口汇总"><span class="type">下一篇</span><span class="category"><i class="ic i-flag"></i>Hexo</span><h3>随机图片接口汇总</h3></a></div></div><div class="wrap" id="comments"></div></div><div id="sidebar"><div class="inner"><div class="panels"><div class="inner"><div class="contents panel pjax" data-title="文章目录"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#go%E9%87%8C%E7%9A%84copy"><span class="toc-number">1.</span> <span class="toc-text"> Go 里的 copy</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%98%E9%87%8F%E8%B5%8B%E5%80%BC"><span class="toc-number">1.1.</span> <span class="toc-text"> 变量赋值</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%87%BD%E6%95%B0%E4%BC%A0%E5%8F%82"><span class="toc-number">1.2.</span> <span class="toc-text"> 函数传参</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#go%E9%87%8C%E5%A6%82%E4%BD%95deepcopy"><span class="toc-number">2.</span> <span class="toc-text"> Go 里如何 deepcopy</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8E%E5%BA%8F%E5%88%97%E5%8C%96%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%AE%9E%E7%8E%B0%E6%B7%B1%E6%8B%B7%E8%B4%9D"><span class="toc-number">2.1.</span> <span class="toc-text"> 基于序列化 &#x2F; 反序列化实现深拷贝</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8reflect%E8%BF%9B%E8%A1%8C%E6%B7%B1%E6%8B%B7%E8%B4%9D"><span class="toc-number">2.2.</span> <span class="toc-text"> 使用 reflect 进行深拷贝</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9C%A8%E7%BC%96%E8%AF%91%E6%9C%9F%E6%A0%B9%E6%8D%AE%E5%AF%B9%E8%B1%A1%E7%BB%93%E6%9E%84%E7%94%9F%E6%88%90%E7%9B%B8%E5%BA%94%E7%9A%84%E5%A4%8D%E5%88%B6%E4%BB%A3%E7%A0%81"><span class="toc-number">2.3.</span> <span class="toc-text"> 在编译期根据对象结构生成相应的复制代码</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#goast%E5%8C%85%E7%94%9F%E6%88%90%E6%8A%BD%E8%B1%A1%E8%AF%AD%E6%B3%95%E6%A0%91"><span class="toc-number">2.3.1.</span> <span class="toc-text"> go&#x2F;ast 包生成抽象语法树</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%B1%E6%8B%B7%E8%B4%9D%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90"><span class="toc-number">2.3.2.</span> <span class="toc-text"> 深拷贝代码生成</span></a></li></ol></li></ol></li></ol></div><div class="related panel pjax" data-title="系列文章"><ul><li ><a href="/posts/32785/" rel="bookmark" title="Golang插件">Golang插件</a></li><li  class="active"><a href="/posts/12887/" rel="bookmark" title="Golang深拷贝">Golang深拷贝</a></li></ul></div><div class="overview panel" data-title="站点概览"><div class="author" itemprop="author" itemscope="itemscope" itemtype="http://schema.org/Person"><img class="image" loading="lazy" decoding="async" itemprop="image" alt="Linsan Zhu" src="/assets/avatar.png"/><p class="name" itemprop="name">Linsan Zhu</p><div class="description" itemprop="description">LinsanZhu's Blog</div></div><nav class="state"><div class="item posts"><a href="/archives/"><span class="count">5</span><span class="name">文章</span></a></div><div class="item categories"><a href="/categories/"><span class="count">4</span><span class="name">分类</span></a></div><div class="item tags"><a href="/tags/"><span class="count">6</span><span class="name">标签</span></a></div></nav><div class="social"><a target="_blank" rel="noopener" href="https://github.com/linsanzhu" class="item github" title="https:&#x2F;&#x2F;github.com&#x2F;linsanzhu"><i class="ic i-github"></i></a><a href="mailto:bin.zaq@foxmail.com" class="item email" title="mailto:bin.zaq@foxmail.com"><i class="ic i-envelope"></i></a></div><div class="menu"><li class="item"><a href="/" rel="section"><i class="ic i-home"></i>首页</a></li><li class="item dropdown"><a href="#" onclick="return false;"><i class="ic i-feather"></i>文章</a><ul class="submenu"><li class="item"><a href="/archives/" rel="section"><i class="ic i-archive"></i>归档</a></li><li class="item"><a href="/categories/" rel="section"><i class="ic i-th"></i>分类</a></li><li class="item"><a href="/tags/" rel="section"><i class="ic i-tags"></i>标签</a></li><li class="item"><a href="/posts/57784073/" rel="section"><i class="ic i-link-alt"></i>私密</a></li></ul></li></div></div></div></div><ul id="quick"><li class="prev pjax"><a href="/posts/75b2838f/" rel="prev" title="上一篇"><i class="ic i-chevron-left"></i></a></li><li class="up"><i class="ic i-arrow-up"></i></li><li class="down"><i class="ic i-arrow-down"></i></li><li class="next pjax"><a href="/posts/32785/" rel="next" title="下一篇"><i class="ic i-chevron-right"></i></a></li><li class="percent"></li></ul></div></div><div class="dimmer"></div></div></main><footer id="footer"><div class="inner"><div class="widgets"><div class="rpost pjax"><h2>随机文章</h2><ul><li class="item"><div class="breadcrumb"><a href="/categories/hexo/" title="分类于Hexo">Hexo</a></div><span><a href="/posts/75b2838f/">随机图片接口汇总</a></span></li><li class="item"><div class="breadcrumb"><a href="/categories/golang/" title="分类于Golang">Golang</a></div><span><a href="/posts/32785/">Golang插件</a></span></li><li class="item"><div class="breadcrumb"><a href="/categories/linux-sre/" title="分类于Linux运维">Linux运维</a></div><span><a href="/posts/27368/">Linux系统服务</a></span></li><li class="item"><div class="breadcrumb"><a href="/categories/linux-sre/" title="分类于Linux运维">Linux运维</a></div><span><a href="/posts/48230/">Linux常用命令</a></span></li><li class="item"><div class="breadcrumb"><a href="/categories/golang/" title="分类于Golang">Golang</a></div><span><a href="/posts/12887/">Golang深拷贝</a></span></li></ul></div><div class="rpost pjax"><h2>最新评论</h2><ul class="leancloud-recent-comment" id="new-comment"></ul></div></div><div class="status"><div class="copyright">&copy; 2021 -<span itemprop="copyrightYear">2024</span><span class="with-love"><i class="ic i-sakura rotate"></i></span><span class="author" itemprop="copyrightHolder">Linsan Zhu @ Linsan Zhu's Blog</span></div><div class="count"><span class="post-meta-item-icon"><i class="ic i-chart-area"></i></span><span title="站点总字数">44k 字</span><span class="post-meta-divider"> | </span><span class="post-meta-item-icon"><i class="ic i-coffee"></i></span><span title="站点阅读时长">40 分钟</span></div><div class="powered-by">基于 <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a> & Theme.<a target="_blank" rel="noopener" href="https://github.com/theme-shoka-x/hexo-theme-shokaX/">ShokaX</a></div></div></div></footer></div><script data-config type="text/javascript">var LOCAL = {
     ispost: true,
         path: `posts/12887/`,
         favicon: {
