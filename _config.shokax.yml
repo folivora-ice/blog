@@ -188,4 +188,6 @@ font:
     size:
 
 # random image api
-image_server: # "https://acg.xydwz.cn/api/api.php"
+image_server: 
+  # - https://api.miaomc.cn/image/get
+  - http://www.98qy.com/sjbz/api.php

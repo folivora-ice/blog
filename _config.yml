@@ -102,6 +102,7 @@ category_map:
   Golang: golang
   Linux运维: linux-sre
   Encrypted: encrypted
+  Hexo: hexo
   
 tag_map:
   Linux: linux
@@ -109,6 +110,7 @@ tag_map:
   Go Plugin: go-plugin
   Go深拷贝: go-deepcopy
   面试: interview
+  Hexo: hexoo
 
 # Metadata elements
 ## https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta
