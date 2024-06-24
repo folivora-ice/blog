@@ -3,179 +3,179 @@
   <entry>
     <title>Golang插件</title>
     <url>/posts/32785/</url>
-    <content><![CDATA[<h1 id="前言"><a class="anchor" href="#前言">#</a> 前言</h1>
-<p>最近项目中一个模块出现因业务变化可能经常需要扩展功能的情况，为了避免经常性的修改主程序，于是就需要能够像 C/C<ins> 动态库那样，动态加载或更换业务功能。虽然 Golang 可以通过 system 包或者 CGO, 轻松的加载 C/C</ins> 编写的动态库，但是却有:</p>
+    <content><![CDATA[<h1 id="前言"><a class="markdownIt-Anchor" href="#前言"></a> 前言</h1>
+<p>最近项目中一个模块出现因业务变化可能经常需要扩展功能的情况, 为了避免经常性的修改主程序, 于是就需要能够像C/C<ins>动态库那样,动态加载或更换业务功能。虽然Golang可以通过system包或者CGO,轻松的加载C/C</ins>编写的动态库,但是却有:</p>
 <ul>
-<li>Golang 与 C 进行数据交换时需要做复杂的转换</li>
-<li>受 Golang 的垃圾回收机制影响，使用指针时需要特别注意，否则很可能在传入 C 函数时就已经被回收，成为空指针</li>
-<li>不管是用 CGO 编写，还是用 C 编写，业务逻辑处理起来都没有直接用 Golang 方便</li>
+<li>Golang与C进行数据交换时需要做复杂的转换</li>
+<li>受Golang的垃圾回收机制影响,使用指针时需要特别注意,否则很可能在传入C函数时就已经被回收,成为空指针</li>
+<li>不管是用CGO编写,还是用C编写,业务逻辑处理起来都没有直接用Golang方便</li>
 </ul>
 <p>等等诸多问题<br />
-索性，Go 在 1.8 版本之后提供了另一种动态加载功能的方式: Plugin。Plugin 完全由 Golang 编写，通过 go build --buildmode=plugin 命令编译成 so 文件后，在 Go 程序中使用 plugin 包即可轻松加载使用。</p>
-<h1 id="第一个插件"><a class="anchor" href="#第一个插件">#</a> 第一个插件</h1>
-<p>首先创建项目 test_plugin, 目录结构如下:</p>
+索性,Go在1.8版本之后提供了另一种动态加载功能的方式: Plugin。Plugin完全由Golang编写,通过go build --buildmode=plugin命令编译成so文件后,在Go程序中使用plugin包即可轻松加载使用。</p>
+<h1 id="第一个插件"><a class="markdownIt-Anchor" href="#第一个插件"></a> 第一个插件</h1>
+<p>首先创建项目test_plugin,目录结构如下:</p>
 <pre><code>test_plugin/
   - main.go
   - plugins/
     - helloworld/
       - main.go
 </code></pre>
-<h2 id="编写插件"><a class="anchor" href="#编写插件">#</a> 编写插件</h2>
-<p>接下来为插件 helloworld 添加一个导出方法:</p>
-<pre><code class="language-golang">// helloworld/main.go
+<h2 id="编写插件"><a class="markdownIt-Anchor" href="#编写插件"></a> 编写插件</h2>
+<p>接下来为插件helloworld添加一个导出方法:</p>
+<pre class="highlight"><code class="golang"><span class="hljs-comment">// helloworld/main.go</span>
 
-// [1]
-package main
+<span class="hljs-comment">// [1]</span>
+<span class="hljs-keyword">package</span> main
 
-import (
-    &quot;fmt&quot;
+<span class="hljs-keyword">import</span> (
+    <span class="hljs-string">&quot;fmt&quot;</span>
 )
 
-// [2]
-func init() &#123;
-    fmt.Println(&quot;plugin welcom has been loaded&quot;)
+<span class="hljs-comment">// [2]</span>
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">init</span><span class="hljs-params">()</span></span> &#123;
+    fmt.Println(<span class="hljs-string">&quot;plugin welcom has been loaded&quot;</span>)
 &#125;
 
-// [3]
-func Welcom(name string) &#123;
-    fmt.Println(&quot;Welcom &quot; + name)
+<span class="hljs-comment">// [3]</span>
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">Welcom</span><span class="hljs-params">(name <span class="hljs-type">string</span>)</span></span> &#123;
+    fmt.Println(<span class="hljs-string">&quot;Welcom &quot;</span> + name)
 &#125;
 </code></pre>
-<p>然后将该插件编译为 so 文件，只需执行命令:</p>
+<p>然后将该插件编译为so文件, 只需执行命令:</p>
 <pre><code>go build -o lib/welcom.so --buildmode=plugin test_plugin/plugins/helloworld
 </code></pre>
 <blockquote>
 <p><strong>要点</strong>:</p>
 <ul>
-<li>首先，如 <strong>[1]</strong> 所见，插件必须属于 main 包</li>
-<li>其次，如 <strong>[3]</strong> 所见，如果某个方法或者变量需要被外部程序使用，则必须为导出变量，即首字母大写</li>
-<li>另外，插件不需要 main 方法</li>
+<li>首先, 如 <strong>[1]</strong> 所见, 插件必须属于main包</li>
+<li>其次, 如 <strong>[3]</strong> 所见, 如果某个方法或者变量需要被外部程序使用, 则必须为导出变量, 即首字母大写</li>
+<li>另外, 插件不需要main方法</li>
 </ul>
 </blockquote>
-<h2 id="使用插件"><a class="anchor" href="#使用插件">#</a> 使用插件</h2>
-<p>接下来就可以使用生成的 welcom.so 文件了:</p>
-<pre><code class="language-golang">// main.go
+<h2 id="使用插件"><a class="markdownIt-Anchor" href="#使用插件"></a> 使用插件</h2>
+<p>接下来就可以使用生成的welcom.so文件了:</p>
+<pre class="highlight"><code class="golang"><span class="hljs-comment">// main.go</span>
 
-package main
+<span class="hljs-keyword">package</span> main
 
-import (
-    &quot;fmt&quot;
+<span class="hljs-keyword">import</span> (
+    <span class="hljs-string">&quot;fmt&quot;</span>
 
-    &quot;plugin&quot;
+    <span class="hljs-string">&quot;plugin&quot;</span>
 )
 
-func main() &#123;
-    fmt.Println(&quot;begin main&quot;)
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;
+    fmt.Println(<span class="hljs-string">&quot;begin main&quot;</span>)
 
-    // [1]
-    plg, err := plugin.Open(&quot;./lib/welcom.so&quot;)
-    if nil != err &#123;
+    <span class="hljs-comment">// [1]</span>
+    plg, err := plugin.Open(<span class="hljs-string">&quot;./lib/welcom.so&quot;</span>)
+    <span class="hljs-keyword">if</span> <span class="hljs-literal">nil</span> != err &#123;
       fmt.Println(err.Error())
-      return
+      <span class="hljs-keyword">return</span>
     &#125;
 
-    // [2]
-    symbol, err := plg.Lookup(&quot;Welcom&quot;)
-    if nil != err &#123;
+    <span class="hljs-comment">// [2]</span>
+    symbol, err := plg.Lookup(<span class="hljs-string">&quot;Welcom&quot;</span>)
+    <span class="hljs-keyword">if</span> <span class="hljs-literal">nil</span> != err &#123;
       fmt.Println(err.Error())
-      return
+      <span class="hljs-keyword">return</span>
     &#125;
 
-    // [3]
-    welcom := symbol.(func(name string))
-    welcom(&quot;World&quot;)
+    <span class="hljs-comment">// [3]</span>
+    welcom := symbol.(<span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(name <span class="hljs-type">string</span>)</span></span>)
+    welcom(<span class="hljs-string">&quot;World&quot;</span>)
 &#125;
 
 ### 
 
 </code></pre>
-<p>编译 main.go 并运行后，可以看到输出:</p>
+<p>编译main.go并运行后,可以看到输出:</p>
 <pre><code>begin main
 plugin welcom has been loaded
 Welcom World
 </code></pre>
-<h3 id="plugin包"><a class="anchor" href="#plugin包">#</a> plugin 包</h3>
-<p>Golang 的 plugin 包很简单，只提供了两个方法:</p>
+<h3 id="plugin包"><a class="markdownIt-Anchor" href="#plugin包"></a> plugin包</h3>
+<p>Golang的plugin包很简单, 只提供了两个方法:</p>
 <pre><code>func Open(path string) (*Plugin, error)
 func (P *Plugin) Lookup(symName string) (Symbol, error)
 </code></pre>
-<p>Open 方法接受一个 string 类型的参数，表示要加载的插件的路径，可以为相对路径或绝对路径。其返回一个 plugin.Plugin 对象，当成功加载插件后，就可以使用该对象的 Lookup 方法来尝试获取插件中的指定方法，如上例中的 <strong>[2]</strong> 所示。通常，插件的方法或变量要能被外部使用，则必须被导出，否则 Lookup 方法将返回错误。<br />
-当使用 Lookup 方法成功获取到要使用的变量 / 方法后，其返回一个 <em><strong>指针</strong></em>，指向被导出变量 / 方法，通常我们要像上例中 <strong>[3]</strong> 将之转为我们需要的类型来使用。</p>
-<h3 id="插件加载顺序"><a class="anchor" href="#插件加载顺序">#</a> 插件加载顺序</h3>
-<p>从上面的输出可以看出，当插件被加载后首先会执行插件的 init () 方法</p>
-<h1 id="坑点"><a class="anchor" href="#坑点">#</a> 坑点</h1>
+<p>Open方法接受一个string类型的参数, 表示要加载的插件的路径, 可以为相对路径或绝对路径。其返回一个plugin.Plugin对象, 当成功加载插件后, 就可以使用该对象的Lookup方法来尝试获取插件中的指定方法, 如上例中的 <strong>[2]</strong> 所示。通常, 插件的方法或变量要能被外部使用,则必须被导出, 否则Lookup方法将返回错误。<br />
+当使用Lookup方法成功获取到要使用的变量/方法后,其返回一个 <em><strong>指针</strong></em>, 指向被导出变量/方法, 通常我们要像上例中 <strong>[3]</strong> 将之转为我们需要的类型来使用。</p>
+<h3 id="插件加载顺序"><a class="markdownIt-Anchor" href="#插件加载顺序"></a> 插件加载顺序</h3>
+<p>从上面的输出可以看出, 当插件被加载后首先会执行插件的init()方法</p>
+<h1 id="坑点"><a class="markdownIt-Anchor" href="#坑点"></a> 坑点</h1>
 <blockquote>
-<h2 id="同一插件只会被加载一次supsup"><a class="anchor" href="#同一插件只会被加载一次supsup">#</a> 同一插件只会被加载一次 &lt;sup&gt;&lt;/sup&gt;</h2>
+<h2 id="同一插件只会被加载一次supsup"><a class="markdownIt-Anchor" href="#同一插件只会被加载一次supsup"></a> 同一插件只会被加载一次<sup></sup></h2>
 </blockquote>
-<h3 id="现象"><a class="anchor" href="#现象">#</a> 现象</h3>
-<p><em><strong>重复加载完全相同的插件 (路径，文件名，内容完全一致) 两次，实际上第二次会直接返回第一次的对象</strong></em></p>
-<p>首先来修改一下 main.go 文件，在 main 方法里，我们调用两次 Open 方法来加载 welcom 插件看看</p>
-<pre><code class="language-golang">package main
+<h3 id="现象"><a class="markdownIt-Anchor" href="#现象"></a> 现象</h3>
+<p><em><strong>重复加载完全相同的插件(路径,文件名, 内容完全一致)两次, 实际上第二次会直接返回第一次的对象</strong></em></p>
+<p>首先来修改一下main.go文件, 在main方法里, 我们调用两次Open方法来加载welcom插件看看</p>
+<pre class="highlight"><code class="golang"><span class="hljs-keyword">package</span> main
 
-import (
-	&quot;fmt&quot;
-	&quot;plugin&quot;
+<span class="hljs-keyword">import</span> (
+	<span class="hljs-string">&quot;fmt&quot;</span>
+	<span class="hljs-string">&quot;plugin&quot;</span>
 )
 
-func getPluginMethod(pluginPath, method string) (interface&#123;&#125;, error) &#123;
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">getPluginMethod</span><span class="hljs-params">(pluginPath, method <span class="hljs-type">string</span>)</span></span> (<span class="hljs-keyword">interface</span>&#123;&#125;, <span class="hljs-type">error</span>) &#123;
 	plugin, err := plugin.Open(pluginPath)
-	if nil != err &#123;
-		return nil, err
+	<span class="hljs-keyword">if</span> <span class="hljs-literal">nil</span> != err &#123;
+		<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, err
 	&#125;
 	fmt.Println(plugin)
 
-	return plugin.Lookup(method)
+	<span class="hljs-keyword">return</span> plugin.Lookup(method)
 &#125;
 
-func main() &#123;
-	fmt.Println(&quot;begin main&quot;)
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;
+	fmt.Println(<span class="hljs-string">&quot;begin main&quot;</span>)
 
-	_, err := getPluginMethod(&quot;./lib/welcom.so&quot;, &quot;Welcom&quot;)
-	if nil != err &#123;
+	_, err := getPluginMethod(<span class="hljs-string">&quot;./lib/welcom.so&quot;</span>, <span class="hljs-string">&quot;Welcom&quot;</span>)
+	<span class="hljs-keyword">if</span> <span class="hljs-literal">nil</span> != err &#123;
 		fmt.Println(err.Error())
-		return
+		<span class="hljs-keyword">return</span>
 	&#125;
 
-	_, err = getPluginMethod(&quot;./lib/welcom.so&quot;, &quot;Welcom&quot;)
-	if nil != err &#123;
+	_, err = getPluginMethod(<span class="hljs-string">&quot;./lib/welcom.so&quot;</span>, <span class="hljs-string">&quot;Welcom&quot;</span>)
+	<span class="hljs-keyword">if</span> <span class="hljs-literal">nil</span> != err &#123;
 		fmt.Println(err.Error())
-		return
+		<span class="hljs-keyword">return</span>
 	&#125;
 
 &#125;
 </code></pre>
-<p>运行后，输出如下:</p>
+<p>运行后, 输出如下:</p>
 <pre><code>[root@localhost plugin]# go run main.go
 begin main
 plugin welcom has been loaded
 &amp;&#123;test_plugin/plugins/helloworld  0xc0000240c0 map[Welcom:0x7f87780a1e80]&#125;
 &amp;&#123;test_plugin/plugins/helloworld  0xc0000240c0 map[Welcom:0x7f87780a1e80]&#125;
 </code></pre>
-<p>可以看到两次加载返回的 Plugin 对象实际指向同一地址，并且 init 方法实际只执行了一次</p>
+<p>可以看到两次加载返回的Plugin对象实际指向同一地址, 并且init方法实际只执行了一次</p>
 <blockquote>
-<h2 id="不能重复加载"><a class="anchor" href="#不能重复加载">#</a> 不能重复加载</h2>
+<h2 id="不能重复加载"><a class="markdownIt-Anchor" href="#不能重复加载"></a> 不能重复加载</h2>
 </blockquote>
 <p>该问题分为两种情况:</p>
 <ul>
 <li>
-<h3 id="插件源码路径及文件名完全相同-但内容不同同一插件的不同版本"><a class="anchor" href="#插件源码路径及文件名完全相同-但内容不同同一插件的不同版本">#</a> 插件源码路径及文件名完全相同，但内容不同 (同一插件的不同版本)</h3>
+<h3 id="插件源码路径及文件名完全相同-但内容不同同一插件的不同版本"><a class="markdownIt-Anchor" href="#插件源码路径及文件名完全相同-但内容不同同一插件的不同版本"></a> 插件源码路径及文件名完全相同, 但内容不同(同一插件的不同版本)</h3>
 </li>
 </ul>
-<p>我们首先来修改 helloworld/main.go 文件，并编译生成 hello.so 文件</p>
-<pre><code class="language-golang">// helloworld/main.go
+<p>我们首先来修改helloworld/main.go文件, 并编译生成hello.so文件</p>
+<pre class="highlight"><code class="golang"><span class="hljs-comment">// helloworld/main.go</span>
 
-package main
+<span class="hljs-keyword">package</span> main
 
-import (
-    &quot;fmt&quot;
+<span class="hljs-keyword">import</span> (
+    <span class="hljs-string">&quot;fmt&quot;</span>
 )
 
-func init() &#123;
-    fmt.Println(&quot;plugin hello has been loaded&quot;)
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">init</span><span class="hljs-params">()</span></span> &#123;
+    fmt.Println(<span class="hljs-string">&quot;plugin hello has been loaded&quot;</span>)
 &#125;
 
-func Hello(name string) &#123;
-    fmt.Println(&quot;Hello &quot; + name)
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">Hello</span><span class="hljs-params">(name <span class="hljs-type">string</span>)</span></span> &#123;
+    fmt.Println(<span class="hljs-string">&quot;Hello &quot;</span> + name)
 &#125;
 
 </code></pre>
@@ -189,52 +189,52 @@ func Hello(name string) &#123;
     - hello.so
     - welcom.so
 </code></pre>
-<p><a href="http://xn--mainhello-tl6nq9dgvtgteva520j037b28mp5a286gkks9k9l.xn--sowelcom-0c2n.so">然后我们在 main 方法中同时加载 hello.so 和 welcom.so</a></p>
-<pre><code class="language-golang">package main
+<p><a href="http://xn--mainhello-tl6nq9dgvtgteva520j037b28mp5a286gkks9k9l.xn--sowelcom-0c2n.so">然后我们在main方法中同时加载hello.so和welcom.so</a></p>
+<pre class="highlight"><code class="golang"><span class="hljs-keyword">package</span> main
 
-import (
-	&quot;fmt&quot;
-	&quot;plugin&quot;
+<span class="hljs-keyword">import</span> (
+	<span class="hljs-string">&quot;fmt&quot;</span>
+	<span class="hljs-string">&quot;plugin&quot;</span>
 )
 
-func getPluginMethod(pluginPath, method string) (interface&#123;&#125;, error) &#123;
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">getPluginMethod</span><span class="hljs-params">(pluginPath, method <span class="hljs-type">string</span>)</span></span> (<span class="hljs-keyword">interface</span>&#123;&#125;, <span class="hljs-type">error</span>) &#123;
 	plugin, err := plugin.Open(pluginPath)
-	if nil != err &#123;
-    return nil, err
+	<span class="hljs-keyword">if</span> <span class="hljs-literal">nil</span> != err &#123;
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, err
 	&#125;
 
-  return plugin.Lookup(method)
+  <span class="hljs-keyword">return</span> plugin.Lookup(method)
 &#125;
 
-func main() &#123;
-	fmt.Println(&quot;begin main&quot;)
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;
+	fmt.Println(<span class="hljs-string">&quot;begin main&quot;</span>)
 
-  helloSymbol, err := getPluginMethod(&quot;./lib/hello.so&quot;, &quot;Hello&quot;)
-  if nil != err &#123;
+  helloSymbol, err := getPluginMethod(<span class="hljs-string">&quot;./lib/hello.so&quot;</span>, <span class="hljs-string">&quot;Hello&quot;</span>)
+  <span class="hljs-keyword">if</span> <span class="hljs-literal">nil</span> != err &#123;
 		fmt.Println(err.Error())
-		return
+		<span class="hljs-keyword">return</span>
   &#125;
 
-	welcomSymbol, err := getPluginMethod(&quot;./lib/welcom.so&quot;, &quot;Welcom&quot;)
-	if nil != err &#123;
+	welcomSymbol, err := getPluginMethod(<span class="hljs-string">&quot;./lib/welcom.so&quot;</span>, <span class="hljs-string">&quot;Welcom&quot;</span>)
+	<span class="hljs-keyword">if</span> <span class="hljs-literal">nil</span> != err &#123;
 		fmt.Println(err.Error())
-		return
+		<span class="hljs-keyword">return</span>
   &#125;
 
-  hello, ok := helloSymbol.(func(name string))
-  if !ok &#123;
-    fmt.Println(&quot;hello must be func(string)&quot;)
-    return 
+  hello, ok := helloSymbol.(<span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(name <span class="hljs-type">string</span>)</span></span>)
+  <span class="hljs-keyword">if</span> !ok &#123;
+    fmt.Println(<span class="hljs-string">&quot;hello must be func(string)&quot;</span>)
+    <span class="hljs-keyword">return</span> 
   &#125;
 
-  welcom, ok := welcomSymbol.(func(name string))
-  if !ok &#123;
-    fmt.Println(&quot;welcom must be func(string)&quot;)
-    return 
+  welcom, ok := welcomSymbol.(<span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(name <span class="hljs-type">string</span>)</span></span>)
+  <span class="hljs-keyword">if</span> !ok &#123;
+    fmt.Println(<span class="hljs-string">&quot;welcom must be func(string)&quot;</span>)
+    <span class="hljs-keyword">return</span> 
   &#125;
 
-  hello(&quot;World&quot;)
-  welcom(&quot;World&quot;)
+  hello(<span class="hljs-string">&quot;World&quot;</span>)
+  welcom(<span class="hljs-string">&quot;World&quot;</span>)
 &#125;
 </code></pre>
 <p>运行后输出:</p>
@@ -243,29 +243,29 @@ begin main
 plugin hello has been loaded
 plugin.Open(&quot;./lib/welcom&quot;): plugin already loaded
 </code></pre>
-<p>这里我们明明加载的是不同插件，为什么会报 plugin already loaded 错误呢？<br />
- 首先，Golang 插件并不是通过文件名来判断插件是否一样的，而是通过 pluginpath 来判断的，默认情况下，插件的 pluginpath 是由内部算法生成，格式为: &quot;plugin/unnamed-&quot; + root.Package.Internal.BuildID。在上面的例子中，我们只是修改了 helloworld/main.go 文件，其 pluginpath 并没有因为内容的改变而变化，所以被判断为同一插件。又由于插件内容发生了变化，所以抛出了错误。</p>
-<h4 id="解决方案"><a class="anchor" href="#解决方案">#</a> 解决方案</h4>
+<p>这里我们明明加载的是不同插件,为什么会报plugin already loaded错误呢?<br />
+首先, Golang插件并不是通过文件名来判断插件是否一样的, 而是通过pluginpath来判断的, 默认情况下, 插件的pluginpath是由内部算法生成, 格式为: “plugin/unnamed-” + root.Package.Internal.BuildID。在上面的例子中, 我们只是修改了helloworld/main.go文件, 其pluginpath并没有因为内容的改变而变化, 所以被判断为同一插件。又由于插件内容发生了变化, 所以抛出了错误。</p>
+<h4 id="解决方案"><a class="markdownIt-Anchor" href="#解决方案"></a> 解决方案</h4>
 <blockquote>
-<p><strong>1.12 及以前版本</strong></p>
+<p><strong>1.12及以前版本</strong></p>
 </blockquote>
-<p>我们可以在编译时指定 --ldflags=&quot;-pluginpath=xxx&quot; 来修改 pluginpath。</p>
+<p>我们可以在编译时指定 --ldflags=&quot;-pluginpath=xxx&quot;来修改pluginpath。</p>
 <pre><code>go build -o lib/hello.so --buildmode=plugin --ldflags=&quot;-pluginpath=hello&quot; test_plugin/plugins/helloworld
 </code></pre>
 <blockquote>
-<p><strong>1.13 及以上版本</strong></p>
+<p><strong>1.13及以上版本</strong></p>
 </blockquote>
-<p>1.13 及以上版本修改 pluginpath 的话，会在载入 plugin 时，报 could not find symbol 错误，目前有两种解决方法:</p>
+<p>1.13及以上版本修改pluginpath的话, 会在载入plugin时, 报 could not find symbol 错误, 目前有两种解决方法:</p>
 <ul>
 <li>
-<p>在编译脚本中，添加移动命令，使源码路径不同</p>
+<p>在编译脚本中, 添加移动命令, 使源码路径不同</p>
 </li>
 <li>
-<p>我们在例子中都是按照包来编译的，事实上如果直接使用 main.go 编译，则最终插件的 pluginpath 中计算 BuildID 时会将源文件 hash, 如:<br />
+<p>我们在例子中都是按照包来编译的, 事实上如果直接使用main.go编译, 则最终插件的pluginpath中计算BuildID时会将源文件hash, 如:<br />
 go build -o lib/hello.so plugins/helloworld/main.go<br />
 go build -o lib/welcom.so plugins/helloworld/main.go</p>
 <p>这样编译出的两个插件可以同时加载<br />
-运行 test_plugin/main.go 后，输出如下:</p>
+运行test_plugin/main.go后, 输出如下:</p>
 <pre><code>[root@localhost plugin]# go run main.go
 begin main
 plugin hello has been loaded
@@ -275,40 +275,40 @@ plugin hello has been loaded
 </code></pre>
 </li>
 <li>
-<h3 id="插件内容完全相同-仅文件名不同-同时加载报错"><a class="anchor" href="#插件内容完全相同-仅文件名不同-同时加载报错">#</a> 插件内容完全相同，仅文件名不同，同时加载报错</h3>
+<h3 id="插件内容完全相同-仅文件名不同-同时加载报错"><a class="markdownIt-Anchor" href="#插件内容完全相同-仅文件名不同-同时加载报错"></a> 插件内容完全相同, 仅文件名不同, 同时加载报错</h3>
 </li>
 </ul>
-<p><a href="http://xn--welcom-9m7io1e5wi9tckx5akw6p.so">首先复制一份 welcom.so</a>, 并命名为 welcom@v2.so, 然后修改 main.go, 如下:</p>
-<pre><code class="language-golang">package main
+<p><a href="http://xn--welcom-9m7io1e5wi9tckx5akw6p.so">首先复制一份welcom.so</a>, 并命名为welcom@v2.so, 然后修改main.go, 如下:</p>
+<pre class="highlight"><code class="golang"><span class="hljs-keyword">package</span> main
 
-import (
-	&quot;fmt&quot;
-	&quot;plugin&quot;
+<span class="hljs-keyword">import</span> (
+	<span class="hljs-string">&quot;fmt&quot;</span>
+	<span class="hljs-string">&quot;plugin&quot;</span>
 )
 
-func getPluginMethod(pluginPath, method string) (interface&#123;&#125;, error) &#123;
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">getPluginMethod</span><span class="hljs-params">(pluginPath, method <span class="hljs-type">string</span>)</span></span> (<span class="hljs-keyword">interface</span>&#123;&#125;, <span class="hljs-type">error</span>) &#123;
 	plugin, err := plugin.Open(pluginPath)
-	if nil != err &#123;
-		return nil, err
+	<span class="hljs-keyword">if</span> <span class="hljs-literal">nil</span> != err &#123;
+		<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, err
 	&#125;
 	fmt.Println(plugin)
 
-	return plugin.Lookup(method)
+	<span class="hljs-keyword">return</span> plugin.Lookup(method)
 &#125;
 
-func main() &#123;
-	fmt.Println(&quot;begin main&quot;)
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;
+	fmt.Println(<span class="hljs-string">&quot;begin main&quot;</span>)
 
-	_, err := getPluginMethod(&quot;./lib/welcom.so&quot;, &quot;Welcom&quot;)
-	if nil != err &#123;
+	_, err := getPluginMethod(<span class="hljs-string">&quot;./lib/welcom.so&quot;</span>, <span class="hljs-string">&quot;Welcom&quot;</span>)
+	<span class="hljs-keyword">if</span> <span class="hljs-literal">nil</span> != err &#123;
 		fmt.Println(err.Error())
-		return
+		<span class="hljs-keyword">return</span>
 	&#125;
 
-	_, err = getPluginMethod(&quot;./lib/welcom@v2.so&quot;, &quot;Welcom&quot;)
-	if nil != err &#123;
+	_, err = getPluginMethod(<span class="hljs-string">&quot;./lib/welcom@v2.so&quot;</span>, <span class="hljs-string">&quot;Welcom&quot;</span>)
+	<span class="hljs-keyword">if</span> <span class="hljs-literal">nil</span> != err &#123;
 		fmt.Println(err.Error())
-		return
+		<span class="hljs-keyword">return</span>
 	&#125;
 
 &#125;
@@ -321,81 +321,81 @@ plugin welcom has been loaded
 plugin.Open(&quot;./lib/welcom@v2&quot;): plugin already loaded
 </code></pre>
 <blockquote>
-<h2 id="多个plugin中相同的依赖包只会被导入一次"><a class="anchor" href="#多个plugin中相同的依赖包只会被导入一次">#</a> 多个 plugin 中相同的依赖包只会被导入一次</h2>
+<h2 id="多个plugin中相同的依赖包只会被导入一次"><a class="markdownIt-Anchor" href="#多个plugin中相同的依赖包只会被导入一次"></a> 多个plugin中相同的依赖包只会被导入一次</h2>
 </blockquote>
-<p>如标题所述，如果多个 plugin 中导入了相同的依赖包，那么该依赖只会在第一个插件载入的同时进行加载，随后的所有相关插件载入时都不会重复导入该依赖，并且即使各个插件在编译时实际依赖的包的版本不同，只要该依赖的导入路径没有变化，就不会重复导入，甚至如果主程序中已经导入过该依赖，挂在所有插件都不会重新导入该依赖。所以，<em><strong>在公共依赖中应尽可能不去使用全局变量，编译插件时，应尽可能保证所用依赖的版本相同。</strong></em></p>
+<p>如标题所述, 如果多个plugin中导入了相同的依赖包, 那么该依赖只会在第一个插件载入的同时进行加载, 随后的所有相关插件载入时都不会重复导入该依赖, 并且即使各个插件在编译时实际依赖的包的版本不同, 只要该依赖的导入路径没有变化, 就不会重复导入, 甚至如果主程序中已经导入过该依赖, 挂在所有插件都不会重新导入该依赖。所以, <em><strong>在公共依赖中应尽可能不去使用全局变量, 编译插件时, 应尽可能保证所用依赖的版本相同。</strong></em></p>
 <blockquote>
-<h2 id="复杂对象传值问题"><a class="anchor" href="#复杂对象传值问题">#</a> 复杂对象传值问题</h2>
+<h2 id="复杂对象传值问题"><a class="markdownIt-Anchor" href="#复杂对象传值问题"></a> 复杂对象传值问题</h2>
 </blockquote>
-<h3 id="现象-2"><a class="anchor" href="#现象-2">#</a> 现象</h3>
-<p>首先修改 plugins/helloworld/main.go 文件</p>
-<pre><code class="language-golang">package main
+<h3 id="现象-2"><a class="markdownIt-Anchor" href="#现象-2"></a> 现象</h3>
+<p>首先修改plugins/helloworld/main.go文件</p>
+<pre class="highlight"><code class="golang"><span class="hljs-keyword">package</span> main
 
-import (
-	&quot;fmt&quot;
+<span class="hljs-keyword">import</span> (
+	<span class="hljs-string">&quot;fmt&quot;</span>
 )
 
-func init() &#123;
-	fmt.Println(&quot;plugin welcom has been loaded&quot;)
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">init</span><span class="hljs-params">()</span></span> &#123;
+	fmt.Println(<span class="hljs-string">&quot;plugin welcom has been loaded&quot;</span>)
 &#125;
 
-func Welcom(name string) &#123;
-	fmt.Println(&quot;Welcom &quot; + name)
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">Welcom</span><span class="hljs-params">(name <span class="hljs-type">string</span>)</span></span> &#123;
+	fmt.Println(<span class="hljs-string">&quot;Welcom &quot;</span> + name)
 &#125;
 
-type User struct &#123;
-	Name string
+<span class="hljs-keyword">type</span> User <span class="hljs-keyword">struct</span> &#123;
+	Name <span class="hljs-type">string</span>
 &#125;
 
-func Hello(user *User) &#123;
-	fmt.Println(&quot;Hello &quot; + user.Name)
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">Hello</span><span class="hljs-params">(user *User)</span></span> &#123;
+	fmt.Println(<span class="hljs-string">&quot;Hello &quot;</span> + user.Name)
 &#125;
 </code></pre>
-<p>test_plugin/main.go 修改为</p>
-<pre><code class="language-golang">package main
+<p>test_plugin/main.go修改为</p>
+<pre class="highlight"><code class="golang"><span class="hljs-keyword">package</span> main
 
-import (
-  &quot;fmt&quot;
-  &quot;plugin&quot;
+<span class="hljs-keyword">import</span> (
+  <span class="hljs-string">&quot;fmt&quot;</span>
+  <span class="hljs-string">&quot;plugin&quot;</span>
 )
 
-type User struct &#123;
-	Name string
+<span class="hljs-keyword">type</span> User <span class="hljs-keyword">struct</span> &#123;
+	Name <span class="hljs-type">string</span>
 &#125;
 
-func getPluginMethod(pluginPath, method string) (interface&#123;&#125;, error) &#123;
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">getPluginMethod</span><span class="hljs-params">(pluginPath, method <span class="hljs-type">string</span>)</span></span> (<span class="hljs-keyword">interface</span>&#123;&#125;, <span class="hljs-type">error</span>) &#123;
 	plugin, err := plugin.Open(pluginPath)
-	if nil != err &#123;
-		return nil, err
+	<span class="hljs-keyword">if</span> <span class="hljs-literal">nil</span> != err &#123;
+		<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, err
 	&#125;
 	fmt.Println(plugin)
 
-	return plugin.Lookup(method)
+	<span class="hljs-keyword">return</span> plugin.Lookup(method)
 &#125;
 
-func callHello(pluginPath string) error &#123;
-	symbol, err := getPluginMethod(pluginPath, &quot;Hello&quot;)
-	if nil != err &#123;
-		return err
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">callHello</span><span class="hljs-params">(pluginPath <span class="hljs-type">string</span>)</span></span> <span class="hljs-type">error</span> &#123;
+	symbol, err := getPluginMethod(pluginPath, <span class="hljs-string">&quot;Hello&quot;</span>)
+	<span class="hljs-keyword">if</span> <span class="hljs-literal">nil</span> != err &#123;
+		<span class="hljs-keyword">return</span> err
 	&#125;
-	hello, ok := symbol.(func(*User))
-	if !ok &#123;
-		return fmt.Errorf(&quot;Hello must be func(*main.User), not %T&quot;, symbol)
+	hello, ok := symbol.(<span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(*User)</span></span>)
+	<span class="hljs-keyword">if</span> !ok &#123;
+		<span class="hljs-keyword">return</span> fmt.Errorf(<span class="hljs-string">&quot;Hello must be func(*main.User), not %T&quot;</span>, symbol)
 	&#125;
 	hello(&amp;User&#123;
-		Name: &quot;World&quot;,
+		Name: <span class="hljs-string">&quot;World&quot;</span>,
 	&#125;)
-	return nil
+	<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>
 &#125;
 
-func main() &#123;
-	fmt.Println(&quot;begin main&quot;)
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;
+	fmt.Println(<span class="hljs-string">&quot;begin main&quot;</span>)
 
-	err := callHello(&quot;./lib/hello.so&quot;)
+	err := callHello(<span class="hljs-string">&quot;./lib/hello.so&quot;</span>)
 
-	if nil != err &#123;
+	<span class="hljs-keyword">if</span> <span class="hljs-literal">nil</span> != err &#123;
 		fmt.Println(err.Error())
-		return
+		<span class="hljs-keyword">return</span>
 	&#125;
 &#125;
 </code></pre>
@@ -406,87 +406,87 @@ plugin welcom has been loaded
 &amp;&#123;test_plugin/plugins/helloworld  0xc0000240c0 map[Hello:0x7f711d7c62c0 Welcom:0x7f711d7c61e0]&#125;
 Hello must be func*(main.User), not func(*main.User)
 </code></pre>
-<h3 id="解决方案-2"><a class="anchor" href="#解决方案-2">#</a> 解决方案</h3>
+<h3 id="解决方案-2"><a class="markdownIt-Anchor" href="#解决方案-2"></a> 解决方案</h3>
 <ul>
 <li>
-<p>方案 1: 在主程序与插件之间进行数据交换时应尽可能使用接口，如:</p>
-<p>将 test_plugin/plugins/helloworld/main.go 修改为</p>
-<pre><code class="language-golang">package main
+<p>方案1: 在主程序与插件之间进行数据交换时应尽可能使用接口, 如:</p>
+<p>将test_plugin/plugins/helloworld/main.go修改为</p>
+<pre class="highlight"><code class="golang"><span class="hljs-keyword">package</span> main
 
-import (
-  &quot;fmt&quot;
+<span class="hljs-keyword">import</span> (
+  <span class="hljs-string">&quot;fmt&quot;</span>
 )
 
-func init() &#123;
-  fmt.Println(&quot;plugin welcom has been loaded&quot;)
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">init</span><span class="hljs-params">()</span></span> &#123;
+  fmt.Println(<span class="hljs-string">&quot;plugin welcom has been loaded&quot;</span>)
 &#125;
 
-func Welcom(name string) &#123;
-  fmt.Println(&quot;Welcom &quot; + name)
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">Welcom</span><span class="hljs-params">(name <span class="hljs-type">string</span>)</span></span> &#123;
+  fmt.Println(<span class="hljs-string">&quot;Welcom &quot;</span> + name)
 &#125;
 
-type User interface &#123;
-  Name() string
+<span class="hljs-keyword">type</span> User <span class="hljs-keyword">interface</span> &#123;
+  Name() <span class="hljs-type">string</span>
 &#125;
 
-func Hello(u interface&#123;&#125;) &#123;
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">Hello</span><span class="hljs-params">(u <span class="hljs-keyword">interface</span>&#123;&#125;)</span></span> &#123;
   user, ok := u.(User)
-  if !ok &#123;
-    fmt.Println(&quot;not a valid user&quot;)
-    return
+  <span class="hljs-keyword">if</span> !ok &#123;
+    fmt.Println(<span class="hljs-string">&quot;not a valid user&quot;</span>)
+    <span class="hljs-keyword">return</span>
   &#125;
-  fmt.Println(&quot;Hello &quot; + user.Name())
+  fmt.Println(<span class="hljs-string">&quot;Hello &quot;</span> + user.Name())
 &#125;
 </code></pre>
-<p>test_plugin/main.go 修改为</p>
-<pre><code class="language-golang">package main
+<p>test_plugin/main.go修改为</p>
+<pre class="highlight"><code class="golang"><span class="hljs-keyword">package</span> main
 
-import (
-  &quot;fmt&quot;
-  &quot;plugin&quot;
+<span class="hljs-keyword">import</span> (
+  <span class="hljs-string">&quot;fmt&quot;</span>
+  <span class="hljs-string">&quot;plugin&quot;</span>
 )
 
-type User struct &#123;
-  name string
+<span class="hljs-keyword">type</span> User <span class="hljs-keyword">struct</span> &#123;
+  name <span class="hljs-type">string</span>
 &#125;
 
-func (u *User) Name() string &#123;
-  return u.name
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(u *User)</span></span> Name() <span class="hljs-type">string</span> &#123;
+  <span class="hljs-keyword">return</span> u.name
 &#125;
 
-func getPluginMethod(pluginPath, method string) (interface&#123;&#125;, error) &#123;
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">getPluginMethod</span><span class="hljs-params">(pluginPath, method <span class="hljs-type">string</span>)</span></span> (<span class="hljs-keyword">interface</span>&#123;&#125;, <span class="hljs-type">error</span>) &#123;
   plugin, err := plugin.Open(pluginPath)
-  if nil != err &#123;
-    return nil, err
+  <span class="hljs-keyword">if</span> <span class="hljs-literal">nil</span> != err &#123;
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, err
   &#125;
   fmt.Println(plugin)
 
-  return plugin.Lookup(method)
+  <span class="hljs-keyword">return</span> plugin.Lookup(method)
 &#125;
 
-func callHello(pluginPath string) error &#123;
-  symbol, err := getPluginMethod(pluginPath, &quot;Hello&quot;)
-  if nil != err &#123;
-    return err
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">callHello</span><span class="hljs-params">(pluginPath <span class="hljs-type">string</span>)</span></span> <span class="hljs-type">error</span> &#123;
+  symbol, err := getPluginMethod(pluginPath, <span class="hljs-string">&quot;Hello&quot;</span>)
+  <span class="hljs-keyword">if</span> <span class="hljs-literal">nil</span> != err &#123;
+    <span class="hljs-keyword">return</span> err
   &#125;
-  hello, ok := symbol.(func(interface&#123;&#125;))
-  if !ok &#123;
-    return fmt.Errorf(&quot;Hello must be func(*main.User), not %T&quot;, symbol)
+  hello, ok := symbol.(<span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(<span class="hljs-keyword">interface</span>&#123;&#125;)</span></span>)
+  <span class="hljs-keyword">if</span> !ok &#123;
+    <span class="hljs-keyword">return</span> fmt.Errorf(<span class="hljs-string">&quot;Hello must be func(*main.User), not %T&quot;</span>, symbol)
   &#125;
   hello(&amp;User&#123;
-    name: &quot;World&quot;,
+    name: <span class="hljs-string">&quot;World&quot;</span>,
   &#125;)
-  return nil
+  <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>
 &#125;
 
-func main() &#123;
-  fmt.Println(&quot;begin main&quot;)
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;
+  fmt.Println(<span class="hljs-string">&quot;begin main&quot;</span>)
 
-  err := callHello(&quot;./lib/hello.so&quot;)
+  err := callHello(<span class="hljs-string">&quot;./lib/hello.so&quot;</span>)
 
-  if nil != err &#123;
+  <span class="hljs-keyword">if</span> <span class="hljs-literal">nil</span> != err &#123;
     fmt.Println(err.Error())
-    return
+    <span class="hljs-keyword">return</span>
   &#125;
 &#125;
 </code></pre>
@@ -499,13 +499,13 @@ Hello World
 </code></pre>
 </li>
 <li>
-<p>方案 2: 在公共库中定义需要交换的数据结构</p>
+<p>方案2: 在公共库中定义需要交换的数据结构</p>
 </li>
 </ul>
 <blockquote>
-<h2 id="内存泄漏"><a class="anchor" href="#内存泄漏">#</a> 内存泄漏</h2>
+<h2 id="内存泄漏"><a class="markdownIt-Anchor" href="#内存泄漏"></a> 内存泄漏</h2>
 </blockquote>
-<p>这个很好理解，主要原因还是 Golang 插件只能打开而不能卸载，在实现热加载功能时，稍一不注意就会出现内存泄漏</p>
+<p>这个很好理解, 主要原因还是Golang插件只能打开而不能卸载, 在实现热加载功能时, 稍一不注意就会出现内存泄漏</p>
 ]]></content>
       <categories>
         <category>Golang</category>
@@ -515,84 +515,157 @@ Hello World
       </tags>
   </entry>
   <entry>
-    <title>Golang深拷贝</title>
-    <url>/posts/12887/</url>
-    <content><![CDATA[<h1 id="go里的copy"><a class="anchor" href="#go里的copy">#</a> Go 里的 copy</h1>
-<p>在 Go 程序里，从变量赋值，到函数传参，对象的复制随处可见，用过其他语言的话，可能会由于惯性思维踩到 Go 对象复制的坑，例如：</p>
+    <title>Linux常用命令</title>
+    <url>/posts/48230/</url>
+    <content><![CDATA[<h1 id="网络配置"><a class="markdownIt-Anchor" href="#网络配置"></a> 网络配置</h1>
 <ul>
 <li>
-<h2 id="变量赋值"><a class="anchor" href="#变量赋值">#</a> 变量赋值</h2>
+<h2 id="防火墙配置"><a class="markdownIt-Anchor" href="#防火墙配置"></a> 防火墙配置</h2>
+<pre class="highlight"><code class="shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">CentOS 启用防火墙</span>
+firewall-cmd --enable 
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">CentOS 开启、重启、关闭防火墙服务</span>
+systemctl start firewalld
+systemctl restart firewalld
+systemctl stop firewalld
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">CentOS 临时开放端口, 注意不可以调用firewall-cmd --reload命令, 一旦调用将失效</span>
+firewall-cmd --zone=public --add-port=9200/tcp
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">CentOS 永久开放端口</span>
+firewall-cmd --zone=public --add-port=9200/tcp --permanent
+firewall-cmd --reload
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">CentOS 取消端口开放</span>
+firewall-cmd --zone=public --remove-port=9200/tcp
+firewall-cmd --reload
+</code></pre>
+</li>
+<li>
+<h2 id="网络连接设置"><a class="markdownIt-Anchor" href="#网络连接设置"></a> 网络连接设置</h2>
+<pre class="highlight"><code class=""># CentOS 启用网卡, 其中ifcfg-eth0为网卡
+vi /etc/sysconfig/network-scripts/ifcfg-eth0
+将ONBOOT=no改为ONBOOT=yes
+
+# 重启网络服务
+systemctl restart network
+</code></pre>
+</li>
+<li>
+<h2 id="连接查询"><a class="markdownIt-Anchor" href="#连接查询"></a> 连接查询</h2>
+<pre class="highlight"><code class=""># 查询端口占用
+1. 使用 lsof: lsof -i:5000
+2. 使用 netstat: netstat -anlp | grep 5000
+</code></pre>
 </li>
 </ul>
-<p>在 Java 里类型分为基本类型和引用类型，对于基础类型的变量在赋值给另一变量时，实际是对该变量做了一次 copy，点在 Golang 中也不例外。然而对于非基础类型的变量，在赋值给另一变量时，在 Java 中实际上是 copy 了对象的引用，对新的变量的任何修改都会反映到原变量上，例如：</p>
-<figure class="highlight java"><figcaption data-lang="java"><span>a</span></figcaption><table><tr><td data-num="1"></td><td><pre><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Test</span> <span class="token punctuation">&#123;</span></pre></td></tr><tr><td data-num="2"></td><td><pre>      <span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">class</span> <span class="token class-name">Person</span> <span class="token punctuation">&#123;</span></pre></td></tr><tr><td data-num="3"></td><td><pre>          <span class="token keyword">public</span> <span class="token class-name">String</span> name<span class="token punctuation">;</span></pre></td></tr><tr><td data-num="4"></td><td><pre>          <span class="token keyword">public</span> <span class="token keyword">int</span> age<span class="token punctuation">;</span></pre></td></tr><tr><td data-num="5"></td><td><pre></pre></td></tr><tr><td data-num="6"></td><td><pre>          <span class="token keyword">public</span> <span class="token class-name">Person</span><span class="token punctuation">(</span><span class="token class-name">String</span> name<span class="token punctuation">,</span> <span class="token keyword">int</span> age<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span></pre></td></tr><tr><td data-num="7"></td><td><pre>              <span class="token keyword">this</span><span class="token punctuation">.</span>name <span class="token operator">=</span> name<span class="token punctuation">;</span></pre></td></tr><tr><td data-num="8"></td><td><pre>              <span class="token keyword">this</span><span class="token punctuation">.</span>age <span class="token operator">=</span> age<span class="token punctuation">;</span></pre></td></tr><tr><td data-num="9"></td><td><pre>          <span class="token punctuation">&#125;</span></pre></td></tr><tr><td data-num="10"></td><td><pre>      <span class="token punctuation">&#125;</span></pre></td></tr><tr><td data-num="11"></td><td><pre></pre></td></tr><tr><td data-num="12"></td><td><pre>      <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span></pre></td></tr><tr><td data-num="13"></td><td><pre>          <span class="token class-name">Person</span> a <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Person</span><span class="token punctuation">(</span><span class="token string">"one"</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span></pre></td></tr><tr><td data-num="14"></td><td><pre>          <span class="token class-name">Person</span> b <span class="token operator">=</span> a<span class="token punctuation">;</span></pre></td></tr><tr><td data-num="15"></td><td><pre>          b<span class="token punctuation">.</span>age <span class="token operator">=</span> <span class="token number">10</span><span class="token punctuation">;</span></pre></td></tr><tr><td data-num="16"></td><td><pre>          <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"person a's age is: "</span> <span class="token operator">+</span> a<span class="token punctuation">.</span>age<span class="token punctuation">)</span><span class="token punctuation">;</span></pre></td></tr><tr><td data-num="17"></td><td><pre>      <span class="token punctuation">&#125;</span></pre></td></tr><tr><td data-num="18"></td><td><pre>  <span class="token punctuation">&#125;</span></pre></td></tr></table></figure><pre><code>  ❯ java ./Test.java
+]]></content>
+      <categories>
+        <category>Linux运维</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>Shell</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Golang深拷贝</title>
+    <url>/posts/12887/</url>
+    <content><![CDATA[<h1 id="go里的copy"><a class="markdownIt-Anchor" href="#go里的copy"></a> Go里的copy</h1>
+<p>在Go程序里，从变量赋值，到函数传参，对象的复制随处可见，用过其他语言的话，可能会由于惯性思维踩到Go对象复制的坑，例如：</p>
+<ul>
+<li>
+<h2 id="变量赋值"><a class="markdownIt-Anchor" href="#变量赋值"></a> 变量赋值</h2>
+</li>
+</ul>
+<p>在Java里类型分为基本类型和引用类型，对于基础类型的变量在赋值给另一变量时，实际是对该变量做了一次copy，点在Golang中也不例外。然而对于非基础类型的变量，在赋值给另一变量时，在Java中实际上是copy了对象的引用，对新的变量的任何修改都会反映到原变量上，例如：</p>
+<pre class="highlight"><code class="java">  <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Test</span> &#123;
+      <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Person</span> &#123;
+          <span class="hljs-keyword">public</span> String name;
+          <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> age;
+
+          <span class="hljs-keyword">public</span> <span class="hljs-title function_">Person</span><span class="hljs-params">(String name, <span class="hljs-type">int</span> age)</span> &#123;
+              <span class="hljs-built_in">this</span>.name = name;
+              <span class="hljs-built_in">this</span>.age = age;
+          &#125;
+      &#125;
+
+      <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;
+          <span class="hljs-type">Person</span> <span class="hljs-variable">a</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Person</span>(<span class="hljs-string">&quot;one&quot;</span>, <span class="hljs-number">1</span>);
+          <span class="hljs-type">Person</span> <span class="hljs-variable">b</span> <span class="hljs-operator">=</span> a;
+          b.age = <span class="hljs-number">10</span>;
+          System.out.println(<span class="hljs-string">&quot;person a&#x27;s age is: &quot;</span> + a.age);
+      &#125;
+  &#125;
+</code></pre>
+<pre><code>  ❯ java ./Test.java
   person a's age is: 10
 </code></pre>
-<p>但是在 Go 里，当把一个复杂对象变量赋值给另一个变量时，实际上是做了一次浅拷贝，所以当修改新变量的非指针和引用类型字段时，原变量是不会被影响的，例如：</p>
-<pre><code class="language-golang">  package main
+<p>但是在Go里，当把一个复杂对象变量赋值给另一个变量时，实际上是做了一次浅拷贝，所以当修改新变量的非指针和引用类型字段时，原变量是不会被影响的，例如：</p>
+<pre class="highlight"><code class="golang">  <span class="hljs-keyword">package</span> main
 
-  import (
-          &quot;fmt&quot;
+  <span class="hljs-keyword">import</span> (
+          <span class="hljs-string">&quot;fmt&quot;</span>
   )
 
-  type House struct &#123;
-          Address string
+  <span class="hljs-keyword">type</span> House <span class="hljs-keyword">struct</span> &#123;
+          Address <span class="hljs-type">string</span>
   &#125;
 
-  type Person struct &#123;
-          Name string
-          Age int
+  <span class="hljs-keyword">type</span> Person <span class="hljs-keyword">struct</span> &#123;
+          Name <span class="hljs-type">string</span>
+          Age <span class="hljs-type">int</span>
           House House
   &#125;
 
 
-  func main() &#123;
-          a := Person&#123;Name: &quot;one&quot;, Age: 1, House: House&#123;Address: &quot;here&quot;&#125;&#125;
+  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;
+          a := Person&#123;Name: <span class="hljs-string">&quot;one&quot;</span>, Age: <span class="hljs-number">1</span>, House: House&#123;Address: <span class="hljs-string">&quot;here&quot;</span>&#125;&#125;
           b := a
-          b.Age = 10
-          fmt.Printf(&quot;person a's age is %d\n&quot;, a.Age)
+          b.Age = <span class="hljs-number">10</span>
+          fmt.Printf(<span class="hljs-string">&quot;person a&#x27;s age is %d\n&quot;</span>, a.Age)
 
-          b.House.Address = &quot;there&quot;
-          fmt.Printf(&quot;person a's address is '%s'&quot;, a.House.Address)
+          b.House.Address = <span class="hljs-string">&quot;there&quot;</span>
+          fmt.Printf(<span class="hljs-string">&quot;person a&#x27;s address is &#x27;%s&#x27;&quot;</span>, a.House.Address)
   &#125;
 </code></pre>
 <pre><code>  ❯ go run .\main.go
   person a's age is 1
   person a's address is 'here'
 </code></pre>
-<p>注意到修改变量 b 的 House 字段并没有影响变量 a 的 House，这是因为 House 字段是值类型。在 Go 里除了指针、slice、map, channel、interface 之外的类型其实都是值类型，所以 House 字段和其他所有基础类型一样，拷贝时是将整个对象进行拷贝 (即值拷贝)，而不像 Java 那样仅仅拷贝对象的引用。</p>
+<p>注意到修改变量b的House字段并没有影响变量a的House，这是因为House字段是值类型。在Go里除了指针、slice、map, channel、interface之外的类型其实都是值类型，所以House字段和其他所有基础类型一样，拷贝时是将整个对象进行拷贝(即值拷贝)，而不像Java那样仅仅拷贝对象的引用。</p>
 <ul>
 <li>
-<h2 id="函数传参"><a class="anchor" href="#函数传参">#</a> 函数传参</h2>
+<h2 id="函数传参"><a class="markdownIt-Anchor" href="#函数传参"></a> 函数传参</h2>
 </li>
 </ul>
-<p>在 Go 中函数传参实际都会发生变量的复制，即使是引用类型也不例外，并没有传引用的概念，这点要和 Java 区分开。所以在 Go 函数里修改非引用类型参数并不会改变原始参数的值，但是对于引用类型，实际是隐式传入了变量的指针，所以对于这类参数的的修改，就像 Java 那样会改变原始参数的值。Go 函数参数传值的规范更准确的说是只针对数据结构中固定的部分传值，例如传递 slice 时，仅仅是对 slice 结构体做了浅拷贝，其间接指向的内存并不会被复制，因此如果通过一些 hack 的方式修改传入函数的 slice 结构的 len 字段时，并不会改变原始实参 slice 的 len, 这一点得特别注意，如果将 slice 传入函数，在函数里对其扩容，原 slice 并不会改变，这也是为什么 append 函数会返回一个新的 slice。</p>
-<pre><code class="language-golang">  package main
+<p>在Go中函数传参实际都会发生变量的复制，即使是引用类型也不例外，并没有传引用的概念，这点要和Java区分开。所以在Go函数里修改非引用类型参数并不会改变原始参数的值，但是对于引用类型，实际是隐式传入了变量的指针，所以对于这类参数的的修改，就像Java那样会改变原始参数的值。Go函数参数传值的规范更准确的说是只针对数据结构中固定的部分传值，例如传递slice时，仅仅是对slice结构体做了浅拷贝，其间接指向的内存并不会被复制，因此如果通过一些hack的方式修改传入函数的slice结构的len字段时，并不会改变原始实参slice的len, 这一点得特别注意，如果将slice传入函数，在函数里对其扩容，原slice并不会改变，这也是为什么append函数会返回一个新的slice。</p>
+<pre class="highlight"><code class="golang">  <span class="hljs-keyword">package</span> main
 
-  import (
-      &quot;fmt&quot;
-      &quot;unsafe&quot;
+  <span class="hljs-keyword">import</span> (
+      <span class="hljs-string">&quot;fmt&quot;</span>
+      <span class="hljs-string">&quot;unsafe&quot;</span>
   )
 
-  type slice struct &#123;
+  <span class="hljs-keyword">type</span> slice <span class="hljs-keyword">struct</span> &#123;
       array unsafe.Pointer
-      len   int
-      cap   int
+      <span class="hljs-built_in">len</span>   <span class="hljs-type">int</span>
+      <span class="hljs-built_in">cap</span>   <span class="hljs-type">int</span>
   &#125;
 
-  func changeSliceLength(buf []int) &#123;
-      fmt.Printf(&quot;length of buf: %d\n&quot;, len(buf))
+  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">changeSliceLength</span><span class="hljs-params">(buf []<span class="hljs-type">int</span>)</span></span> &#123;
+      fmt.Printf(<span class="hljs-string">&quot;length of buf: %d\n&quot;</span>, <span class="hljs-built_in">len</span>(buf))
       ptr := (*slice)(unsafe.Pointer(&amp;buf))
-      ptr.len = 100
-      fmt.Printf(&quot;length of buf: %d\n&quot;, len(buf))
-      buf[0] = 1
+      ptr.<span class="hljs-built_in">len</span> = <span class="hljs-number">100</span>
+      fmt.Printf(<span class="hljs-string">&quot;length of buf: %d\n&quot;</span>, <span class="hljs-built_in">len</span>(buf))
+      buf[<span class="hljs-number">0</span>] = <span class="hljs-number">1</span>
   &#125;
 
-  func main() &#123;
-      a := make([]int, 5, 10)
-      fmt.Printf(&quot;a[0]: %d, length of a: %d\n&quot;, a[0], len(a))
+  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;
+      a := <span class="hljs-built_in">make</span>([]<span class="hljs-type">int</span>, <span class="hljs-number">5</span>, <span class="hljs-number">10</span>)
+      fmt.Printf(<span class="hljs-string">&quot;a[0]: %d, length of a: %d\n&quot;</span>, a[<span class="hljs-number">0</span>], <span class="hljs-built_in">len</span>(a))
       changeSliceLength(a)
-      fmt.Printf(&quot;a[0]: %d, length of a: %d\n&quot;, a[0], len(a))
+      fmt.Printf(<span class="hljs-string">&quot;a[0]: %d, length of a: %d\n&quot;</span>, a[<span class="hljs-number">0</span>], <span class="hljs-built_in">len</span>(a))
   &#125;
 </code></pre>
 <pre><code>  ❯ go run .\main.go
@@ -601,113 +674,113 @@ Hello World
   length of buf: 100
   a[0]: 1, length of a: 5
 </code></pre>
-<h1 id="go里如何deepcopy"><a class="anchor" href="#go里如何deepcopy">#</a> Go 里如何 deepcopy</h1>
-<p>在写 Go 程序时，难免面遇到需要深拷贝的场景，对于没有指针或者引用类型的结构，我们仅仅需要将该对象赋值给另一个变量就能轻易实现，但实际项目中，复杂结构免不了有指针类型或者引用类型字段，而 Go 里又没有像 Java 里的 Cloneable，这个时候如何实现深拷贝？</p>
+<h1 id="go里如何deepcopy"><a class="markdownIt-Anchor" href="#go里如何deepcopy"></a> Go里如何deepcopy</h1>
+<p>在写Go程序时，难免面遇到需要深拷贝的场景，对于没有指针或者引用类型的结构，我们仅仅需要将该对象赋值给另一个变量就能轻易实现，但实际项目中, 复杂结构免不了有指针类型或者引用类型字段，而Go里又没有像Java里的Cloneable，这个时候如何实现深拷贝？</p>
 <ul>
 <li>
-<h2 id="基于序列化反序列化实现深拷贝"><a class="anchor" href="#基于序列化反序列化实现深拷贝">#</a> 基于序列化 / 反序列化实现深拷贝</h2>
+<h2 id="基于序列化反序列化实现深拷贝"><a class="markdownIt-Anchor" href="#基于序列化反序列化实现深拷贝"></a> 基于序列化/反序列化实现深拷贝</h2>
 </li>
 </ul>
-<p>简单地说，我们可以先把对象序列化为字符串，然后再从字符串反序列化为对象，这就完成了一次深拷贝。序列化 / 反序列化可以选择 json、thrift、protobuf 等库，这里以 json 为例：</p>
-<pre><code class="language-golang">  package main
+<p>简单地说，我们可以先把对象序列化为字符串，然后再从字符串反序列化为对象，这就完成了一次深拷贝。序列化/反序列化可以选择json、thrift、protobuf等库，这里以json为例：</p>
+<pre class="highlight"><code class="golang">  <span class="hljs-keyword">package</span> main
 
-  import (
-      &quot;fmt&quot;
-      &quot;encoding/json&quot;
+  <span class="hljs-keyword">import</span> (
+      <span class="hljs-string">&quot;fmt&quot;</span>
+      <span class="hljs-string">&quot;encoding/json&quot;</span>
   )
 
-  type House struct &#123;
-      Address string `json:&quot;address&quot;`
+  <span class="hljs-keyword">type</span> House <span class="hljs-keyword">struct</span> &#123;
+      Address <span class="hljs-type">string</span> <span class="hljs-string">`json:&quot;address&quot;`</span>
   &#125;
 
-  type Person struct &#123;
-      Name string `json:&quot;name&quot;`
-      House *House `json:&quot;house&quot;`
+  <span class="hljs-keyword">type</span> Person <span class="hljs-keyword">struct</span> &#123;
+      Name <span class="hljs-type">string</span> <span class="hljs-string">`json:&quot;name&quot;`</span>
+      House *House <span class="hljs-string">`json:&quot;house&quot;`</span>
   &#125;
 
-  func main() &#123;
-      a := &amp;Person&#123;Name: &quot;one&quot;, House: &amp;House&#123;Address: &quot;one's house&quot;&#125;&#125;
+  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;
+      a := &amp;Person&#123;Name: <span class="hljs-string">&quot;one&quot;</span>, House: &amp;House&#123;Address: <span class="hljs-string">&quot;one&#x27;s house&quot;</span>&#125;&#125;
       as, _ := json.Marshal(a)
-      var b Person
+      <span class="hljs-keyword">var</span> b Person
       json.Unmarshal(as, &amp;b)
-      b.House.Address = &quot;two's house&quot;
-      fmt.Printf(&quot;a's address: %s, b's address: %s\n&quot;, a.House.Address, b.House.Address)
+      b.House.Address = <span class="hljs-string">&quot;two&#x27;s house&quot;</span>
+      fmt.Printf(<span class="hljs-string">&quot;a&#x27;s address: %s, b&#x27;s address: %s\n&quot;</span>, a.House.Address, b.House.Address)
   &#125;
 </code></pre>
 <pre><code>  ❯ go run .\main.go
   a's address: one's house, b's address: two's house
 </code></pre>
-<p>采用这种方式进行深拷贝需要注意，由于会先序列化为字符串，因此会额外占用内存，当对象比较大时，需要格外留意内存占用情况，即使是 thrift 和 protobuf 这样的压缩比很高的库，也是存在风险的。另外在整个序列化和反序列化过程中，有可能由于频繁创建对象、申请内存，导致 cpu 占用也跟着升高！！！</p>
+<p>采用这种方式进行深拷贝需要注意，由于会先序列化为字符串，因此会额外占用内存，当对象比较大时，需要格外留意内存占用情况，即使是thrift和protobuf这样的压缩比很高的库，也是存在风险的。另外在整个序列化和反序列化过程中，有可能由于频繁创建对象、申请内存，导致cpu占用也跟着升高！！！</p>
 <ul>
 <li>
-<h2 id="使用reflect进行深拷贝"><a class="anchor" href="#使用reflect进行深拷贝">#</a> 使用 reflect 进行深拷贝</h2>
+<h2 id="使用reflect进行深拷贝"><a class="markdownIt-Anchor" href="#使用reflect进行深拷贝"></a> 使用reflect进行深拷贝</h2>
 </li>
 </ul>
-<p>事实上，json 和 protobuf 在序列化和反序列化时，使用了 reflect 库获取对象的字段和类型，那么我们也可以直接使用 reflect 来递归的读取对象的字段，并进行 copy，这样就减少了序列化带来的内存占用，以及频繁字节数组扩容带来的 cpu 占用上升问题，并且可以完全去除反序列化的过程。不过这种方式的问题是，Go 的 reflect.Value 对象不能复用，即使是相同类型的两个不同变量，也需要重新创建 reflect.Value 对象，这也造成 reflect 性能很差。</p>
-<pre><code class="language-golang">package main
+<p>事实上，json和protobuf在序列化和反序列化时，使用了reflect库获取对象的字段和类型，那么我们也可以直接使用reflect来递归的读取对象的字段，并进行copy，这样就减少了序列化带来的内存占用，以及频繁字节数组扩容带来的cpu占用上升问题，并且可以完全去除反序列化的过程。不过这种方式的问题是，Go的reflect.Value对象不能复用，即使是相同类型的两个不同变量，也需要重新创建reflect.Value对象，这也造成reflect性能很差。</p>
+<pre class="highlight"><code class="golang"><span class="hljs-keyword">package</span> main
 
-import (
-	&quot;fmt&quot;
-	&quot;reflect&quot;
+<span class="hljs-keyword">import</span> (
+	<span class="hljs-string">&quot;fmt&quot;</span>
+	<span class="hljs-string">&quot;reflect&quot;</span>
 )
 
-type House struct &#123;
-	Address string `json:&quot;address&quot;`
+<span class="hljs-keyword">type</span> House <span class="hljs-keyword">struct</span> &#123;
+	Address <span class="hljs-type">string</span> <span class="hljs-string">`json:&quot;address&quot;`</span>
 &#125;
 
-type Person struct &#123;
-	Name  string `json:&quot;name&quot;`
-	House *House `json:&quot;house&quot;`
+<span class="hljs-keyword">type</span> Person <span class="hljs-keyword">struct</span> &#123;
+	Name  <span class="hljs-type">string</span> <span class="hljs-string">`json:&quot;name&quot;`</span>
+	House *House <span class="hljs-string">`json:&quot;house&quot;`</span>
 &#125;
 
-func shallowCopyValue(v reflect.Value) reflect.Value &#123;
-	switch v.Type().Kind() &#123;
-	case reflect.Ptr:
-		return shallowCopyValue(v.Elem()).Addr()
-	case reflect.Interface:
-		return shallowCopyValue(v.Elem())
-	case reflect.Array, reflect.Map, reflect.Func, reflect.Chan:
-		return v
-	default:
-		return reflect.New(v.Type()).Elem()
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">shallowCopyValue</span><span class="hljs-params">(v reflect.Value)</span></span> reflect.Value &#123;
+	<span class="hljs-keyword">switch</span> v.Type().Kind() &#123;
+	<span class="hljs-keyword">case</span> reflect.Ptr:
+		<span class="hljs-keyword">return</span> shallowCopyValue(v.Elem()).Addr()
+	<span class="hljs-keyword">case</span> reflect.Interface:
+		<span class="hljs-keyword">return</span> shallowCopyValue(v.Elem())
+	<span class="hljs-keyword">case</span> reflect.Array, reflect.Map, reflect.Func, reflect.Chan:
+		<span class="hljs-keyword">return</span> v
+	<span class="hljs-keyword">default</span>:
+		<span class="hljs-keyword">return</span> reflect.New(v.Type()).Elem()
 	&#125;
 &#125;
 
-func deepcopyValue(v reflect.Value) reflect.Value &#123;
-	var value reflect.Value
-	if v.Kind() == reflect.Ptr || v.Kind() == reflect.Interface &#123;
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">deepcopyValue</span><span class="hljs-params">(v reflect.Value)</span></span> reflect.Value &#123;
+	<span class="hljs-keyword">var</span> value reflect.Value
+	<span class="hljs-keyword">if</span> v.Kind() == reflect.Ptr || v.Kind() == reflect.Interface &#123;
 		value = v.Elem()
-	&#125; else &#123;
+	&#125; <span class="hljs-keyword">else</span> &#123;
 		value = v
 	&#125;
 	newIns := shallowCopyValue(v)
 	newValue := newIns
-	if v.Kind() == reflect.Ptr || v.Kind() == reflect.Interface &#123;
+	<span class="hljs-keyword">if</span> v.Kind() == reflect.Ptr || v.Kind() == reflect.Interface &#123;
 		newValue = newIns.Elem()
 	&#125;
 
-	for i := 0; value.Kind() == reflect.Struct &amp;&amp; i &lt; value.Type().NumField(); i++ &#123;
+	<span class="hljs-keyword">for</span> i := <span class="hljs-number">0</span>; value.Kind() == reflect.Struct &amp;&amp; i &lt; value.Type().NumField(); i++ &#123;
 		field := value.Field(i)
-		if !field.IsValid() &#123;
-			continue
+		<span class="hljs-keyword">if</span> !field.IsValid() &#123;
+			<span class="hljs-keyword">continue</span>
 		&#125;
 		newValue.Field(i).Set(deepcopyValue(field))
 	&#125;
-	return newIns
+	<span class="hljs-keyword">return</span> newIns
 &#125;
 
-func Deepcopy(ins interface&#123;&#125;) interface&#123;&#125; &#123;
-	if nil == ins &#123;
-		return nil
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">Deepcopy</span><span class="hljs-params">(ins <span class="hljs-keyword">interface</span>&#123;&#125;)</span></span> <span class="hljs-keyword">interface</span>&#123;&#125; &#123;
+	<span class="hljs-keyword">if</span> <span class="hljs-literal">nil</span> == ins &#123;
+		<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>
 	&#125;
-	return deepcopyValue(reflect.ValueOf(ins)).Interface()
+	<span class="hljs-keyword">return</span> deepcopyValue(reflect.ValueOf(ins)).Interface()
 &#125;
 
-func main() &#123;
-	a := &amp;Person&#123;Name: &quot;one&quot;, House: &amp;House&#123;Address: &quot;one's house&quot;&#125;&#125;
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;
+	a := &amp;Person&#123;Name: <span class="hljs-string">&quot;one&quot;</span>, House: &amp;House&#123;Address: <span class="hljs-string">&quot;one&#x27;s house&quot;</span>&#125;&#125;
 	b := Deepcopy(a).(*Person)
-	b.House.Address = &quot;two's house&quot;
-	fmt.Printf(&quot;a's address: %s, b's address: %s\n&quot;, a.House.Address, b.House.Address)
+	b.House.Address = <span class="hljs-string">&quot;two&#x27;s house&quot;</span>
+	fmt.Printf(<span class="hljs-string">&quot;a&#x27;s address: %s, b&#x27;s address: %s\n&quot;</span>, a.House.Address, b.House.Address)
 &#125;
 </code></pre>
 <pre><code>  ❯ go run main.go
@@ -715,42 +788,42 @@ func main() &#123;
 </code></pre>
 <ul>
 <li>
-<h2 id="在编译期根据对象结构生成相应的复制代码"><a class="anchor" href="#在编译期根据对象结构生成相应的复制代码">#</a> 在编译期根据对象结构生成相应的复制代码</h2>
+<h2 id="在编译期根据对象结构生成相应的复制代码"><a class="markdownIt-Anchor" href="#在编译期根据对象结构生成相应的复制代码"></a> 在编译期根据对象结构生成相应的复制代码</h2>
 </li>
 </ul>
-<p>一般的，我们深拷贝一个简单对象，可以直接 new 一个新对象，然后对每个字段单独赋值来达到深拷贝的目的，这种方式相比前两种方式资源占用会更少，但是这种方式对于字段很多、层次很复杂的结构来说，要写的语句很多，而且实际开发中，任何结构都会不断变化，这种方式不能应对时刻变化的需求，如果能做到根据结构的定义，动态生成每个字段的复制代码，那不就是理想的深拷贝方法吗。幸运的是 Go 的标准库提供了对 go 文件语法解析的库 <code>go/ast</code> ，借助这个库我们可以在编译期递归解析代码里的结构体，生成每个字段的复制语句.</p>
-<h3 id="goast包生成抽象语法树"><a class="anchor" href="#goast包生成抽象语法树">#</a> go/ast 包生成抽象语法树</h3>
+<p>一般的，我们深拷贝一个简单对象，可以直接new一个新对象，然后对每个字段单独赋值来达到深拷贝的目的，这种方式相比前两种方式资源占用会更少，但是这种方式对于字段很多、层次很复杂的结构来说，要写的语句很多，而且实际开发中，任何结构都会不断变化，这种方式不能应对时刻变化的需求，如果能做到根据结构的定义，动态生成每个字段的复制代码，那不就是理想的深拷贝方法吗。幸运的是Go的标准库提供了对go文件语法解析的库<code>go/ast</code>，借助这个库我们可以在编译期递归解析代码里的结构体，生成每个字段的复制语句.</p>
+<h3 id="goast包生成抽象语法树"><a class="markdownIt-Anchor" href="#goast包生成抽象语法树"></a> go/ast包生成抽象语法树</h3>
 <p>先来看一个读取并解析文件的例子</p>
-<pre><code class="language-golang">// main.go
-package main
+<pre class="highlight"><code class="golang"><span class="hljs-comment">// main.go</span>
+<span class="hljs-keyword">package</span> main
 
-import (
-  &quot;go/token&quot;
-  &quot;go/parser&quot;
-  &quot;go/ast&quot;
-  &quot;log&quot;
+<span class="hljs-keyword">import</span> (
+  <span class="hljs-string">&quot;go/token&quot;</span>
+  <span class="hljs-string">&quot;go/parser&quot;</span>
+  <span class="hljs-string">&quot;go/ast&quot;</span>
+  <span class="hljs-string">&quot;log&quot;</span>
 )
 
-func main() &#123;
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, &quot;person.go&quot;, nil, parser.SpuriousErrors)
-	if nil != err &#123;
+	f, err := parser.ParseFile(fset, <span class="hljs-string">&quot;person.go&quot;</span>, <span class="hljs-literal">nil</span>, parser.SpuriousErrors)
+	<span class="hljs-keyword">if</span> <span class="hljs-literal">nil</span> != err &#123;
 		log.Fatal(err)
 	&#125;
 	ast.Print(fset, f)
 &#125;
 </code></pre>
-<p>我们在这里引入的 <code>go/token</code>  包定义了 Go 语言的词法标记和其对应的基础操作，而 <code>go/parser</code>  包是 Go 源码的解析器。这里我们使用 ParseFile 方法解析 person.go 文件，其返回一个 AST 对象。随后我们使用 ast 包提供的 Print 方法打印整个抽象语法树。</p>
-<pre><code class="language-golang">// person.go
-package main
+<p>我们在这里引入的<code>go/token</code>包定义了Go语言的词法标记和其对应的基础操作，而<code>go/parser</code>包是Go源码的解析器。这里我们使用ParseFile方法解析person.go文件，其返回一个AST对象。随后我们使用ast包提供的Print方法打印整个抽象语法树。</p>
+<pre class="highlight"><code class="golang"><span class="hljs-comment">// person.go</span>
+<span class="hljs-keyword">package</span> main
 
-type Home struct &#123;
-	Address string
+<span class="hljs-keyword">type</span> Home <span class="hljs-keyword">struct</span> &#123;
+	Address <span class="hljs-type">string</span>
 &#125;
 
-type Person struct &#123;
-	Name string
-	Age int
+<span class="hljs-keyword">type</span> Person <span class="hljs-keyword">struct</span> &#123;
+	Name <span class="hljs-type">string</span>
+	Age <span class="hljs-type">int</span>
 	Home *Home
 &#125;
 </code></pre>
@@ -908,62 +981,62 @@ type Person struct &#123;
   150  .  &#125;
   151  &#125;
 </code></pre>
-<p>通过与 person.go 源码比对，Package 字段即源文件中的 package 关键字，Name 字段即包名，而 Decls 字段则存放了源码中所有的结构体定义。Decls 是一个 ast.Decl 类型的数组，go AST 中所有声明节点都实现了 Decl 接口，因此我们在解析源码中所有结构体或类型定义时，只需要遍历 Decls 字段即可。<br />
-注意到 Decl 结构的 Specs 字段正是类型定义，他有两个关键字段：Name 表示类型的名称，Type 表示实际类型，在这里，Type 是 * ast.StructType 类型，这与我们声明中的 struct 对应，事实上 Type 字段也可能是其他类型，如：</p>
+<p>通过与person.go源码比对，Package字段即源文件中的package关键字，Name字段即包名，而Decls字段则存放了源码中所有的结构体定义。Decls是一个ast.Decl类型的数组，go AST中所有声明节点都实现了Decl接口，因此我们在解析源码中所有结构体或类型定义时，只需要遍历Decls字段即可。<br />
+注意到Decl结构的Specs字段正是类型定义，他有两个关键字段：Name表示类型的名称，Type表示实际类型，在这里，Type是*ast.StructType类型, 这与我们声明中的struct对应，事实上Type字段也可能是其他类型，如：</p>
 <ul>
 <li>FuncType       表示函数类型</li>
 <li>InterfaceType  表示接口类型</li>
-<li>ArrayType      表示数组或 Slice</li>
-<li>MapType        表示 map</li>
-<li>ChanType       表示 Channel</li>
-<li>Ident          表示标识符，可以表示变量名，或者基础类型如 int，string</li>
+<li>ArrayType      表示数组或Slice</li>
+<li>MapType        表示map</li>
+<li>ChanType       表示Channel</li>
+<li>Ident          表示标识符，可以表示变量名，或者基础类型如int，string</li>
 <li>ParenExpr      表示括号包裹的表达式</li>
 <li>SelectorExpr   表示字段选择器，如 a.field</li>
 <li>StarExpr       表示指针</li>
 </ul>
-<p>其中 StructType 的 Fields 字段即结构体的字段列表，他是 Field 类型的数组。Field 包括两个关键字段， <code>Names</code>  []*Ident 类型，表示字段名， <code>Type</code>  Expr 类型，表示字段类型。<br />
-从上面的例子，我们对 go AST 结构有了一个大概印象，同时可以总结出通过 AST 获得结构体字段列表的方法，接下来我们以 Person 结构举例，实际生成他的深拷贝方法看看。</p>
-<h3 id="深拷贝代码生成"><a class="anchor" href="#深拷贝代码生成">#</a> 深拷贝代码生成</h3>
-<p>拷贝一个对象，重点是拷贝对象的每一个字段，通过遍历 AST 树，我们可以获得 Struct 的字段列表，进一步生成每一个字段的复制代码。go/ast 包提供了 <code>func Walk(v Visitor, node Node)</code>  方法遍历 AST 树。Walk 方法需要两个参数，第一个参数需要实现 Visitor 接口，第二个参数即 AST 的节点。Walk 方法深度优先的调用 v.Visit (node)，如果 v.Visit (node) 返回了一个非 nil 的 Visitor 对象 w，则 Walk 会对 node 的所有子节点调用 w.Visit 方法。<br />
-遍历 AST 的第一步，我们需要找到所有的 Struct 节点，而所有的结构体定义都在 Decls 列表里，所以首先我们需要实现:<br />
-- FileVisitor   从 AST 根节点 ast.File 对象读取 Decls 字段，返回 DeclVisitor<br />
-- DeclVisitor   针对 Decls 列表的每一个元素返回 TypeVisitor<br />
-- TypeVisitor   识别 type 关键字声明的类型节点</p>
-<pre><code class="language-golang">  type FileVisitor int
-  func (v FileVisitor) Visit(node ast.Node) ast.Visitor &#123;
-  	if _, ok := node.(*ast.File); ok &#123;
-  		return DeclVisitor(0)
+<p>其中StructType的Fields字段即结构体的字段列表，他是Field类型的数组。Field包括两个关键字段，<code>Names</code> []*Ident类型，表示字段名, <code>Type</code> Expr类型，表示字段类型。<br />
+从上面的例子，我们对go AST结构有了一个大概印象，同时可以总结出通过AST获得结构体字段列表的方法，接下来我们以Person结构举例，实际生成他的深拷贝方法看看。</p>
+<h3 id="深拷贝代码生成"><a class="markdownIt-Anchor" href="#深拷贝代码生成"></a> 深拷贝代码生成</h3>
+<p>拷贝一个对象，重点是拷贝对象的每一个字段，通过遍历AST树，我们可以获得Struct的字段列表，进一步生成每一个字段的复制代码。go/ast包提供了<code>func Walk(v Visitor, node Node)</code>方法遍历AST树。Walk方法需要两个参数，第一个参数需要实现Visitor接口，第二个参数即AST的节点。Walk方法深度优先的调用v.Visit(node)，如果v.Visit(node)返回了一个非nil的Visitor对象w，则Walk会对node的所有子节点调用w.Visit方法。<br />
+遍历AST的第一步，我们需要找到所有的Struct节点，而所有的结构体定义都在Decls列表里，所以首先我们需要实现:<br />
+- FileVisitor   从AST根节点ast.File对象读取Decls字段，返回DeclVisitor<br />
+- DeclVisitor   针对Decls列表的每一个元素返回TypeVisitor<br />
+- TypeVisitor   识别type关键字声明的类型节点</p>
+<pre class="highlight"><code class="golang">  <span class="hljs-keyword">type</span> FileVisitor <span class="hljs-type">int</span>
+  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(v FileVisitor)</span></span> Visit(node ast.Node) ast.Visitor &#123;
+  	<span class="hljs-keyword">if</span> _, ok := node.(*ast.File); ok &#123;
+  		<span class="hljs-keyword">return</span> DeclVisitor(<span class="hljs-number">0</span>)
   	&#125;
-  	return nil
+  	<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>
   &#125;
 
-  type DeclVisitor int
-  func (v DeclVisitor) Visit(node ast.Node) ast.Visitor &#123;
-  	// GenDecl.Tok字段表示声明的类型，type字段定义的类型都是token.TYPE
-  	if decl, ok := node.(*ast.GenDecl); ok &amp;&amp; decl.Tok == token.TYPE &#123;
-  		return TypeVisitor(0)
+  <span class="hljs-keyword">type</span> DeclVisitor <span class="hljs-type">int</span>
+  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(v DeclVisitor)</span></span> Visit(node ast.Node) ast.Visitor &#123;
+  	<span class="hljs-comment">// GenDecl.Tok字段表示声明的类型，type字段定义的类型都是token.TYPE</span>
+  	<span class="hljs-keyword">if</span> decl, ok := node.(*ast.GenDecl); ok &amp;&amp; decl.Tok == token.TYPE &#123;
+  		<span class="hljs-keyword">return</span> TypeVisitor(<span class="hljs-number">0</span>)
   	&#125;
-  	return nil
+  	<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>
   &#125;
 
-  type TypeVisitor int
-  func (v TypeVisitor) Visit(node ast.Node) ast.Visitor &#123;
-  	if spec, ok := node.(*ast.TypeSpec); ok &#123;
-  		switch spec.Type.(type) &#123;
-  		case *ast.StructType:
+  <span class="hljs-keyword">type</span> TypeVisitor <span class="hljs-type">int</span>
+  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(v TypeVisitor)</span></span> Visit(node ast.Node) ast.Visitor &#123;
+  	<span class="hljs-keyword">if</span> spec, ok := node.(*ast.TypeSpec); ok &#123;
+  		<span class="hljs-keyword">switch</span> spec.Type.(<span class="hljs-keyword">type</span>) &#123;
+  		<span class="hljs-keyword">case</span> *ast.StructType:
   			generateStructCloneMethod(spec)
   		&#125;
   	&#125;
-  	return nil
+  	<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>
   &#125;
 </code></pre>
-<p>在 TypeVisitor 中，我们通过判断节点的 Type 字段类型是否为 * ast.StructType 来识别结构体定义节点。我们利用 generateStructCloneMethod 来给一个结构体生成 Clone 方法做深拷贝。我们的目标 Clone 方法应当具有如下基本结构：</p>
-<pre><code class="language-golang">  func (t *&lt;StructName&gt;) Clone() *&lt;StructName&gt; &#123;
-  	ins := new &lt;StructName&gt;()
+<p>在TypeVisitor中，我们通过判断节点的Type字段类型是否为*ast.StructType来识别结构体定义节点。我们利用generateStructCloneMethod来给一个结构体生成Clone方法做深拷贝。我们的目标Clone方法应当具有如下基本结构：</p>
+<pre class="highlight"><code class="golang">  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(t *&lt;StructName&gt;)</span></span> Clone() *&lt;StructName&gt; &#123;
+  	ins := <span class="hljs-built_in">new</span> &lt;StructName&gt;()
   	ins.&lt;Field&gt; = t.&lt;Field&gt;
   	ins.&lt;StructField&gt; = t.&lt;StructField&gt;.Clone()
   	...
-  	return ins
+  	<span class="hljs-keyword">return</span> ins
   &#125;
 </code></pre>
 <pre><code>可以看出，我们只要获取到结构体名称，和字段名列表，就可以根据以上模板生成Clone方法。
@@ -1073,10 +1146,404 @@ ok  	clone_gen	4.393s
       </tags>
   </entry>
   <entry>
+    <title>Linux系统服务</title>
+    <url>/posts/27368/</url>
+    <content><![CDATA[<h1 id="service命令"><a class="markdownIt-Anchor" href="#service命令"></a> service命令</h1>
+<h2 id="service命令的使用"><a class="markdownIt-Anchor" href="#service命令的使用"></a> service命令的使用</h2>
+<p>Linux系统一般使用service命令来管理服务:</p>
+<pre class="highlight"><code class="shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">启动服务</span>
+service network start
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">停止服务</span>
+service network stop
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">重启服务</span>
+service network restart
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">查看服务状态</span>
+service network status
+</code></pre>
+<h2 id="service原理"><a class="markdownIt-Anchor" href="#service原理"></a> service原理</h2>
+<p>Linux系统的服务实际上是在后台运行的命令,通常一个程序想要作为系统服务运行,首先需要在/etc/init.d目录下存放一个与服务同名的文件,例如network服务,查看/etc/init.d/network文件,其简化后内容如下:</p>
+<pre class="highlight"><code class="shell">case &quot;$1&quot; in
+start)
+    ;;
+stop)
+    ;;
+reload)
+    ;;
+force-reload|restart)
+    ;;
+*)
+    ;;
+esac
+exit 0
+</code></pre>
+<p>可见一个系统服务管理程序只要实现对命令行参数start|stop|restart等进行处理就可以被service命令管理,在使用service xxx cmd来管理服务时,其等价于执行/etc/init.d/xxx cmd</p>
+<blockquote>
+<p><em>注: /etc/init.d/xxx文件必须具有可执行权限</em></p>
+</blockquote>
+<h2 id="开机自启动"><a class="markdownIt-Anchor" href="#开机自启动"></a> 开机自启动</h2>
+<h3 id="chkconfig命令"><a class="markdownIt-Anchor" href="#chkconfig命令"></a> chkconfig命令</h3>
+<p>在/etc/init.d下存放服务的管理文件只是可以让程序作为服务运行,一旦系统重启,就必须手动执行service xxx start来启动服务,大多数情况服务需要开机自启动,这时候就要用chkconfig命令:</p>
+<pre class="highlight"><code class="shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">添加启动项</span>
+chkconfig --add [command]
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">启用/禁用启动项</span>
+chkconfig [command] on/off
+</code></pre>
+<p>需要注意的是,要使用chkconfig命令,文件首行必须是:</p>
+<pre class="highlight"><code class="shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">chkconfig: 2345 10 90</span>
+</code></pre>
+<p>其中2345表示运行级别,Linux系统有0~6七个运行级别(见:<a href="#linux%E8%BF%90%E8%A1%8C%E7%BA%A7%E5%88%AB">Linux运行级别</a>)<br />
+10表示启动优先级,数字越小优先级越高,越早被启动, 取值范围0~100<br />
+90表示退出优先级,数字越小优先级越高,越早被退出, 取值范围0~100</p>
+<h3 id="linux运行级别"><a class="markdownIt-Anchor" href="#linux运行级别"></a> Linux运行级别</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">级别</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">0</td>
+<td>停机,通常不用</td>
+</tr>
+<tr>
+<td style="text-align:center">1</td>
+<td>单用户模式,与Windows系统的安全模式类似</td>
+</tr>
+<tr>
+<td style="text-align:center">2</td>
+<td>多用户模式,但没有NFS支持</td>
+</tr>
+<tr>
+<td style="text-align:center">3</td>
+<td>完全多用户模式,支持NFS</td>
+</tr>
+<tr>
+<td style="text-align:center">4</td>
+<td>一般不用,在一些特殊情况下可以用它来做一些事情.例如在笔记本电脑的电池用尽时,可以切换到这个模式来做一些设置</td>
+</tr>
+<tr>
+<td style="text-align:center">5</td>
+<td>有网络支持有X-Window支持的多用户模式</td>
+</tr>
+<tr>
+<td style="text-align:center">6</td>
+<td>重新引导系统,即重启,运行命令init 6就会重启系统,不建议讲服务的运行级别设置为6</td>
+</tr>
+</tbody>
+</table>
+<h3 id="rdd目录"><a class="markdownIt-Anchor" href="#rdd目录"></a> rd*.d目录</h3>
+<p>事实上要让服务开机自启动,只需要在/etc/rc.d/rc*.d目录(Ubuntu等系统是在/etc/rd*.d目录)下根据一定规则创建/etc/init.d目录中服务文件的软连接即可,其中＊表示运行级别,如rc2.d目录中表示以运行级别2启动。<br />
+通常在rc*.d目录中有两种文件:</p>
+<ul>
+<li>以K开头的文件:在系统退出时被调用</li>
+<li>以S开头的文件:在系统启动时被调用</li>
+</ul>
+<p>这两种文件都是对/etc/init.d/目录中的服务文件的软链接,K/S后是相应服务名,与链接的服务文件一致</p>
+<blockquote>
+<p><em><strong>如果只是需要开机执行某些简单命令,可以直接在/etc/rc.d/rc.local文件中添加需要开机执行的命令</strong></em></p>
+</blockquote>
+<h1 id="systemd"><a class="markdownIt-Anchor" href="#systemd"></a> Systemd</h1>
+<p>过去Linux系统启动是采用init进程的,而init进程是串行化的,所以启动较慢,而且init进程只负责执行脚本,启动脚本需要自行处理各种异常情况,导致启动脚本常常很臃肿,为了解决这些问题,RedHat推出了Systemd初始化系统,其特点:</p>
+<ul>
+<li>系统引导时实现服务并行启动</li>
+<li>按需启动守护进程</li>
+<li>自动化的服务依赖关系管理</li>
+<li>同时采用socket式与D-Bus总线式激活服务</li>
+<li>系统状态快照和恢复</li>
+<li>利用Linux的cgroups监视进程</li>
+<li>维护挂载点和自动挂载点</li>
+<li>各服务间基于依赖关系进行精密控制</li>
+</ul>
+<h2 id="systemctl命令的使用"><a class="markdownIt-Anchor" href="#systemctl命令的使用"></a> systemctl命令的使用</h2>
+<pre class="highlight"><code class="shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">重启系统</span>
+sudo systemctl reboot
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">关闭系统,切断电源</span>
+sudo systemctl poweroff
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">CPU停止工作</span>
+sudo systemctl halt
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">暂停系统</span>
+sudo systemctl suspend
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">让系统进入冬眠状态</span>
+sudo systemctl hibernate
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">让系统进入交互式休眠状态</span>
+sudo systemctl hybrid-sleep
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">启动进入救援状态（单用户状态）</span>
+sudo systemctl rescue
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">服务开机自启动</span>
+sudo systemctl enable xxx
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">禁用服务开机自启动</span>
+sudo systemctl disable xxx
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">启动服务</span>
+sudo systemctl start xxx
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">停止服务</span>
+sudo systemctl start xxx
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">重启服务</span>
+sudo systemctl restart xxx
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">杀死一个服务的所有子进程</span>
+sudo systemctl kill apache.service
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">重新加载一个服务的配置文件</span>
+sudo systemctl reload apache.service
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">重载所有修改过的配置文件</span>
+sudo systemctl daemon-reload
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">显示某个 Unit 的所有底层参数</span>
+systemctl show httpd.service
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">显示某个 Unit 的指定属性的值</span>
+systemctl show -p CPUShares httpd.service
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">设置某个 Unit 的指定属性</span>
+sudo systemctl set-property httpd.service CPUShares=500
+</code></pre>
+<h2 id="添加系统服务"><a class="markdownIt-Anchor" href="#添加系统服务"></a> 添加系统服务</h2>
+<p>Systemd可以管理所有系统资源,在Systemd中资源被统称为Unit。Unit一共分为12种:</p>
+<ul>
+<li>Service unit：系统服务</li>
+<li>Target unit：多个 Unit 构成的一个组</li>
+<li>Device Unit：硬件设备</li>
+<li>Mount Unit：文件系统的挂载点</li>
+<li>Automount Unit：自动挂载点</li>
+<li>Path Unit：文件或路径</li>
+<li>Scope Unit：不是由 Systemd 启动的外部进程</li>
+<li>Slice Unit：进程组</li>
+<li>Snapshot Unit：Systemd 快照,可以切回某个快照</li>
+<li>Socket Unit：进程间通信的 socket</li>
+<li>Swap Unit：swap 文件</li>
+<li>Timer Unit：定时器</li>
+</ul>
+<p>每一个Unit都有一个配置文件,告诉Systemd如何启动该Unit。默认情况下,Systemd从/etc/systemd/system读取配置文件,然而实际上该目录的文件均为/usr/lib/systemd/system目录中文件的软链接,systemctl enable用于在两个目录间建立符号链接,sytemctl diable则用于撤销链接关系。</p>
+<h3 id="unit配置文件"><a class="markdownIt-Anchor" href="#unit配置文件"></a> Unit配置文件</h3>
+<p>以network服务的配置文件为例,其内容如下:</p>
+<pre class="highlight"><code class="shell">[Unit]
+Description=Raise network interfaces
+Documentation=man:interfaces(5)
+DefaultDependencies=no
+Wants=network.target
+After=local-fs.target network-pre.target apparmor.service systemd-sysctl.service systemd-modules-load.service
+Before=network.target shutdown.target network-online.target
+Conflicts=shutdown.target
+
+[Install]
+WantedBy=multi-user.target
+WantedBy=network-online.target
+
+[Service]
+Type=oneshot
+EnvironmentFile=-/etc/default/networking
+ExecStartPre=-/bin/sh -c &#x27;[ &quot;$CONFIGURE_INTERFACES&quot; != &quot;no&quot; ] &amp;&amp; [ -n &quot;$(ifquery --read-environment --list --exclude=lo)&quot; ] &amp;&amp; udevadm settle&#x27;
+ExecStart=/sbin/ifup -a --read-environment
+ExecStop=/sbin/ifdown -a --read-environment --exclude=lo
+RemainAfterExit=true
+TimeoutStartSec=5min
+</code></pre>
+<p>了解ini文件格式的话,不难发现Unit配置文件分为了三节(section):</p>
+<ul>
+<li>
+<h4 id="unit"><a class="markdownIt-Anchor" href="#unit"></a> Unit</h4>
+</li>
+</ul>
+<p>[Unit]区块通常是配置文件的第一个区块,用来定义Unit的元数据,以及配置与其他Unit的关系。它的主要字段如下:</p>
+<ul>
+<li>
+<p>Description：简短描述</p>
+</li>
+<li>
+<p>Documentation：文档地址</p>
+</li>
+<li>
+<p>Requires：当前 Unit 依赖的其他 Unit,如果它们没有运行,当前 Unit 会启动失败</p>
+</li>
+<li>
+<p>Wants：与当前 Unit 配合的其他 Unit,如果它们没有运行,当前 Unit 不会启动失败</p>
+</li>
+<li>
+<p>BindsTo：与Requires类似,它指定的 Unit 如果退出,会导致当前 Unit 停止运行</p>
+</li>
+<li>
+<p>Before：如果该字段指定的 Unit 也要启动,那么必须在当前 Unit 之后启动</p>
+</li>
+<li>
+<p>After：如果该字段指定的 Unit 也要启动,那么必须在当前 Unit 之前启动</p>
+</li>
+<li>
+<p>Conflicts：这里指定的 Unit 不能与当前 Unit 同时运行</p>
+</li>
+<li>
+<p>Condition…：当前 Unit 运行必须满足的条件,否则不会运行</p>
+</li>
+<li>
+<p>Assert…：当前 Unit 运行必须满足的条件,否则会报启动失败</p>
+</li>
+<li>
+<h4 id="install"><a class="markdownIt-Anchor" href="#install"></a> Install</h4>
+</li>
+</ul>
+<p>[Install]通常是配置文件的最后一个区块,用来定义如何启动,以及是否开机启动。它的主要字段如下:</p>
+<ul>
+<li>
+<p>WantedBy：它的值是一个或多个 Target,当前 Unit 激活时（enable）符号链接会放入/etc/systemd/system目录下面以 Target 名 + .wants后缀构成的子目录中</p>
+</li>
+<li>
+<p>RequiredBy：它的值是一个或多个 Target,当前 Unit 激活时,符号链接会放入/etc/systemd/system目录下面以 Target 名 + .required后缀构成的子目录中</p>
+</li>
+<li>
+<p>Alias：当前 Unit 可用于启动的别名</p>
+</li>
+<li>
+<p>Also：当前 Unit 激活（enable）时,会被同时激活的其他 Unit</p>
+</li>
+<li>
+<h4 id="service"><a class="markdownIt-Anchor" href="#service"></a> Service</h4>
+</li>
+</ul>
+<p>[Service]区块是Service 的配置,只有 Service 类型的 Unit 才有这个区块。它的主要字段如下:</p>
+<ul>
+<li>Type：定义启动时的进程行为。它有以下几种值。
+<ul>
+<li>simple：默认值,执行ExecStart指定的命令,启动主进程</li>
+<li>forking：以 fork 方式从父进程创建子进程,创建后父进程会立即退出</li>
+<li>oneshot：一次性进程,Systemd 会等当前服务退出,再继续往下执行</li>
+<li>dbus：当前服务通过D-Bus启动</li>
+<li>notify：当前服务启动完毕,会通知Systemd,再继续往下执行</li>
+<li>idle：若有其他任务执行完毕,当前服务才会运行</li>
+</ul>
+</li>
+<li>ExecStart：启动当前服务的命令,命令必须使用绝对路径,如:/bin/sh /path/to/xxx.sh</li>
+<li>ExecStartPre：启动当前服务之前执行的命令,命令必须使用绝对路径</li>
+<li>ExecStartPost：启动当前服务之后执行的命令,命令必须使用绝对路径</li>
+<li>ExecReload：重启当前服务时执行的命令,命令必须使用绝对路径</li>
+<li>ExecStop：停止当前服务时执行的命令,命令必须使用绝对路径</li>
+<li>ExecStopPost：停止当前服务之后执行的命令,命令必须使用绝对路径</li>
+<li>RestartSec：自动重启当前服务间隔的秒数</li>
+<li>Restart：定义何种情况 Systemd 会自动重启当前服务,可能的值包括always（总是重启）、on-success、on-failure、on-abnormal、on-abort、on-watchdog</li>
+<li>TimeoutSec：定义 Systemd 停止当前服务之前等待的秒数</li>
+<li>Environment：指定环境变量</li>
+</ul>
+<p>Unit 配置文件的完整字段清单,请参考<a href="https://www.freedesktop.org/software/systemd/man/systemd.unit.html">官方文档</a>。</p>
+<h3 id="target"><a class="markdownIt-Anchor" href="#target"></a> Target</h3>
+<p>启动计算机的时候,需要启动大量的 Unit。如果每一次启动,都要一一写明本次启动需要哪些 Unit,显然非常不方便。Systemd 的解决方案就是 Target。<br />
+简单说,Target 就是一个 Unit 组,包含许多相关的 Unit 。启动某个 Target 的时候,Systemd 就会启动里面所有的 Unit。从这个意义上说,Target 这个概念类似于 “状态点”,启动某个Target就好比启动到某种状态。<br />
+传统的init启动模式里面,有 RunLevel 的概念,跟 Target 的作用很类似。不同的是,RunLevel 是互斥的,不可能多个 RunLevel 同时启动,但是多个 Target 可以同时启动。</p>
+<pre class="highlight"><code class="shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">查看当前系统的所有 Target</span>
+systemctl list-unit-files --type=target
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">查看一个 Target 包含的所有 Unit</span>
+systemctl list-dependencies multi-user.target
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">查看启动时的默认 Target</span>
+systemctl get-default
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">设置启动时的默认 Target</span>
+sudo systemctl set-default multi-user.target
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">切换 Target 时,默认不关闭前一个 Target 启动的进程,</span>
+<span class="hljs-meta prompt_"># </span><span class="language-bash">systemctl isolate 命令改变这种行为,</span>
+<span class="hljs-meta prompt_"># </span><span class="language-bash">关闭前一个 Target 里面所有不属于后一个 Target 的进程</span>
+sudo systemctl isolate multi-user.target
+</code></pre>
+<p>Target 与 传统 RunLevel 的对应关系如下。</p>
+<table>
+<thead>
+<tr>
+<th>Traditional runlevel</th>
+<th>New target name</th>
+<th>Symbolically linked to…</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>runlevel0.target</td>
+<td>poweroff.target</td>
+</tr>
+<tr>
+<td>1</td>
+<td>runlevel1.target</td>
+<td>rescue.target</td>
+</tr>
+<tr>
+<td>2</td>
+<td>runlevel2.target</td>
+<td>multi-user.target</td>
+</tr>
+<tr>
+<td>3</td>
+<td>runlevel3.target</td>
+<td>multi-user.target</td>
+</tr>
+<tr>
+<td>4</td>
+<td>runlevel4.target</td>
+<td>multi-user.target</td>
+</tr>
+<tr>
+<td>5</td>
+<td>runlevel5.target</td>
+<td>graphical.target</td>
+</tr>
+<tr>
+<td>6</td>
+<td>runlevel6.target</td>
+<td>reboot.target</td>
+</tr>
+</tbody>
+</table>
+<p>它与init进程的主要差别如下:</p>
+<ol>
+<li>默认的 RunLevel(在/etc/inittab文件设置)现在被默认的 Target 取代,位置是/etc/systemd/system/default.target,通常符号链接到graphical.target(图形界面)或者multi-user.target(多用户命令行)。</li>
+<li>启动脚本的位置,以前是/etc/init.d目录,符号链接到不同的 RunLevel 目录 (比如/etc/rc3.d、/etc/rc5.d等),现在则存放在/lib/systemd/system和/etc/systemd/system目录。</li>
+<li>配置文件的位置,以前init进程的配置文件是/etc/inittab,各种服务的配置文件存放在/etc/sysconfig目录。现在的配置文件主要存放在/lib/systemd目录,在/etc/systemd目录里面的修改可以覆盖原始设置。</li>
+</ol>
+<h3 id="例子"><a class="markdownIt-Anchor" href="#例子"></a> 例子</h3>
+<p>假设当前在/opt目录下有可执行程序demo,其用于定时从Wallpaper网站抓取一张壁纸并替换当前壁纸,我们想要开机自动执行它,首先在/usr/lib/systemd/system/目录创建demo.service文件,根据上面的说明,其内容如下:</p>
+<pre class="highlight"><code class="shell">[Unit]
+Description=demo service
+<span class="hljs-meta prompt_"># </span><span class="language-bash">强依赖网络服务</span>
+Requires=network-online.target
+BindsTo=network.target
+After=network.target
+[Install]
+[Service]
+Type=simple
+ExecStart=/opt/demo
+ExecStart=/usr/bin/kill -9 $(/usr/bin/ps aux | grep demo | awk &#x27;&#123;print $2&#125;&#x27;) &amp;&amp; /opt/demo
+EXECStop=/usr/bin/kill -9 $(/usr/bin/ps aux | grep demo | awk &#x27;&#123;print $2&#125;&#x27;)
+Restart=on-failure
+</code></pre>
+<p>写好demo.service文件后,需要执行 systemctl daemon-reload命令来重新加载所有配置文件,然后执行systemctl enable demo命令,这样下次开机时demo程序就会自动执行。</p>
+]]></content>
+      <categories>
+        <category>Linux运维</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>随机图片接口汇总</title>
     <url>/posts/75b2838f/</url>
-    <content><![CDATA[<h1 id="二次元"><a class="anchor" href="#二次元">#</a> 二次元</h1>
-<p><div class="links"><div class="item" title="樱花"><a href="https://www.dmoe.cc/random.php" class="image" data-background-image="https://www.dmoe.cc/random.php"></a>
+    <content><![CDATA[<h1 id="二次元"><a class="markdownIt-Anchor" href="#二次元"></a> 二次元</h1>
+<div class="links"><div class="item" title="樱花"><a href="https://www.dmoe.cc/random.php" class="image" data-background-image="https://www.dmoe.cc/random.php"></a>
         <div class="info">
         <a href="https://www.dmoe.cc/random.php" class="title">樱花</a>
         <p class="desc">快</p>
@@ -1100,10 +1567,10 @@ ok  	clone_gen	4.393s
         <div class="info">
         <a href="https://t.alcy.cc/mp/" class="title">https://t.alcy.cc/mp/</a>
         <p class="desc">快，竖屏</p>
-        </div></div></div></p>
+        </div></div></div>
 <ul>
 <li><a href="https://www.dmoe.cc/random.php">快 樱花 https://www.dmoe.cc/random.php</a></li>
-<li><a href="https://img.r10086.com/">极慢 樱道 (内涵多种 api，不稳定)</a></li>
+<li><a href="https://img.r10086.com/">极慢 樱道(内涵多种api，不稳定)</a></li>
 <li><a href="http://api.mtyqx.cn/api/random.php">慢 http://api.mtyqx.cn/api/random.php</a></li>
 <li><a href="http://api.btstu.cn/sjbz/?lx=dongman">快 http://api.btstu.cn/sjbz/?lx=dongman</a></li>
 <li><a href="https://t.alcy.cc/pc/">https://t.alcy.cc/pc/</a></li>
@@ -1154,18 +1621,18 @@ ok  	clone_gen	4.393s
 <li><a href="https://api.horosama.com/random.php">https://api.horosama.com/random.php</a></li>
 <li><a href="https://api.likepoems.com/img/pc">https://api.likepoems.com/img/pc</a></li>
 <li><a href="https://v2.api-m.com/api/randomAcgPic?type=pc&amp;return=302">https://v2.api-m.com/api/randomAcgPic?type=pc&amp;return=302</a></li>
-<li><a href="https://api.suyanw.cn/">素颜 API https://api.suyanw.cn/</a>
+<li><a href="https://api.suyanw.cn/">素颜API https://api.suyanw.cn/</a>
 <ul>
 <li><a href="https://api.suyanw.cn/api/cos.php">https://api.suyanw.cn/api/cos.php</a></li>
 <li><a href="https://api.suyanw.cn/api/ys">https://api.suyanw.cn/api/ys</a></li>
 </ul>
 </li>
 </ul>
-<h1 id="三次元"><a class="anchor" href="#三次元">#</a> 三次元</h1>
+<h1 id="三次元"><a class="markdownIt-Anchor" href="#三次元"></a> 三次元</h1>
 <ul>
 <li><a href="https://cdn.seovx.com/?mom=302">夏沫博客 https://cdn.seovx.com/?mom=302</a></li>
 <li><a href="https://cdn.seovx.com/ha/?mom=302">夏沫博客 https://cdn.seovx.com/ha/?mom=302</a></li>
-<li><a href="https://api.btstu.cn/doc/sjbz.php">博天 API https://api.btstu.cn/sjbz/api.php</a>
+<li><a href="https://api.btstu.cn/doc/sjbz.php">博天API https://api.btstu.cn/sjbz/api.php</a>
 <ul>
 <li><a href="https://api.btstu.cn/sjbz/api.php?lx=dongman&amp;format=images">https://api.btstu.cn/sjbz/api.php?lx=dongman&amp;format=images</a></li>
 <li><a href="https://api.btstu.cn/sjbz/api.php?lx=meizi&amp;format=images">https://api.btstu.cn/sjbz/api.php?lx=meizi&amp;format=images</a></li>
@@ -1183,7 +1650,7 @@ ok  	clone_gen	4.393s
 <li><a href="https://v2.api-m.com/api/heisi?return=302">https://v2.api-m.com/api/heisi?return=302</a></li>
 <li><a href="https://api.suyanw.cn/api/ksxjj">https://api.suyanw.cn/api/ksxjj</a></li>
 </ul>
-<h1 id="二三次元混合"><a class="anchor" href="#二三次元混合">#</a> 二三次元混合</h1>
+<h1 id="二三次元混合"><a class="markdownIt-Anchor" href="#二三次元混合"></a> 二三次元混合</h1>
 <ul>
 <li><a href="https://cdn.seovx.com/d/?mom=302">慢 夏沫博客 https://cdn.seovx.com/d/?mom=302</a></li>
 <li><a href="http://api.btstu.cn/sjbz/?lx=suiji">快 http://api.btstu.cn/sjbz/?lx=suiji</a></li>
@@ -1193,7 +1660,7 @@ ok  	clone_gen	4.393s
 </ul>
 </li>
 </ul>
-<h1 id="备忘录"><a class="anchor" href="#备忘录">#</a> 备忘录</h1>
+<h1 id="备忘录"><a class="markdownIt-Anchor" href="#备忘录"></a> 备忘录</h1>
 <ul>
 <li><a href="https://blog.jixiaob.cn/?post=93">https://blog.jixiaob.cn/?post=93</a></li>
 <li><a href="https://imgapi.cn/">https://imgapi.cn/</a></li>
@@ -1204,294 +1671,6 @@ ok  	clone_gen	4.393s
       </categories>
       <tags>
         <tag>Hexo</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Linux常用命令</title>
-    <url>/posts/48230/</url>
-    <content><![CDATA[<h1 id="网络配置"><a class="anchor" href="#网络配置">#</a> 网络配置</h1>
-<ul>
-<li>
-<h2 id="防火墙配置"><a class="anchor" href="#防火墙配置">#</a> 防火墙配置</h2>
-<figure class="highlight shell"><figcaption data-lang="Bash"></figcaption><table><tr><td data-num="1"></td><td><pre><span class="token comment"># CentOS 启用防火墙</span></pre></td></tr><tr><td data-num="2"></td><td><pre>firewall-cmd <span class="token parameter variable">--enable</span> </pre></td></tr><tr><td data-num="3"></td><td><pre></pre></td></tr><tr><td data-num="4"></td><td><pre><span class="token comment"># CentOS 开启、重启、关闭防火墙服务</span></pre></td></tr><tr><td data-num="5"></td><td><pre>systemctl start firewalld</pre></td></tr><tr><td data-num="6"></td><td><pre>systemctl restart firewalld</pre></td></tr><tr><td data-num="7"></td><td><pre>systemctl stop firewalld</pre></td></tr><tr><td data-num="8"></td><td><pre></pre></td></tr><tr><td data-num="9"></td><td><pre><span class="token comment"># CentOS 临时开放端口，注意不可以调用 firewall-cmd --reload 命令，一旦调用将失效</span></pre></td></tr><tr><td data-num="10"></td><td><pre>firewall-cmd <span class="token parameter variable">--zone</span><span class="token operator">=</span>public --add-port<span class="token operator">=</span><span class="token number">9200</span>/tcp</pre></td></tr><tr><td data-num="11"></td><td><pre></pre></td></tr><tr><td data-num="12"></td><td><pre><span class="token comment"># CentOS 永久开放端口</span></pre></td></tr><tr><td data-num="13"></td><td><pre>firewall-cmd <span class="token parameter variable">--zone</span><span class="token operator">=</span>public --add-port<span class="token operator">=</span><span class="token number">9200</span>/tcp <span class="token parameter variable">--permanent</span></pre></td></tr><tr><td data-num="14"></td><td><pre>firewall-cmd <span class="token parameter variable">--reload</span></pre></td></tr><tr><td data-num="15"></td><td><pre></pre></td></tr><tr><td data-num="16"></td><td><pre><span class="token comment"># CentOS 取消端口开放</span></pre></td></tr><tr><td data-num="17"></td><td><pre>firewall-cmd <span class="token parameter variable">--zone</span><span class="token operator">=</span>public --remove-port<span class="token operator">=</span><span class="token number">9200</span>/tcp</pre></td></tr><tr><td data-num="18"></td><td><pre>firewall-cmd <span class="token parameter variable">--reload</span></pre></td></tr></table></figure></li>
-<li>
-<h2 id="网络连接设置"><a class="anchor" href="#网络连接设置">#</a> 网络连接设置</h2>
-<pre><code># CentOS 启用网卡, 其中ifcfg-eth0为网卡
-vi /etc/sysconfig/network-scripts/ifcfg-eth0
-将ONBOOT=no改为ONBOOT=yes
-
-# 重启网络服务
-systemctl restart network
-</code></pre>
-</li>
-<li>
-<h2 id="连接查询"><a class="anchor" href="#连接查询">#</a> 连接查询</h2>
-<pre><code># 查询端口占用
-1. 使用 lsof: lsof -i:5000
-2. 使用 netstat: netstat -anlp | grep 5000
-</code></pre>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>Linux运维</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-        <tag>Shell</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Linux系统服务</title>
-    <url>/posts/27368/</url>
-    <content><![CDATA[<h1 id="service命令"><a class="anchor" href="#service命令">#</a> service 命令</h1>
-<h2 id="service命令的使用"><a class="anchor" href="#service命令的使用">#</a> service 命令的使用</h2>
-<p>Linux 系统一般使用 service 命令来管理服务:</p>
-<figure class="highlight shell"><figcaption data-lang="Bash"></figcaption><table><tr><td data-num="1"></td><td><pre><span class="token comment"># 启动服务</span></pre></td></tr><tr><td data-num="2"></td><td><pre><span class="token function">service</span> network start</pre></td></tr><tr><td data-num="3"></td><td><pre></pre></td></tr><tr><td data-num="4"></td><td><pre><span class="token comment"># 停止服务</span></pre></td></tr><tr><td data-num="5"></td><td><pre><span class="token function">service</span> network stop</pre></td></tr><tr><td data-num="6"></td><td><pre></pre></td></tr><tr><td data-num="7"></td><td><pre><span class="token comment"># 重启服务</span></pre></td></tr><tr><td data-num="8"></td><td><pre><span class="token function">service</span> network restart</pre></td></tr><tr><td data-num="9"></td><td><pre></pre></td></tr><tr><td data-num="10"></td><td><pre><span class="token comment"># 查看服务状态</span></pre></td></tr><tr><td data-num="11"></td><td><pre><span class="token function">service</span> network status</pre></td></tr></table></figure><h2 id="service原理"><a class="anchor" href="#service原理">#</a> service 原理</h2>
-<p>Linux 系统的服务实际上是在后台运行的命令，通常一个程序想要作为系统服务运行，首先需要在 /etc/init.d 目录下存放一个与服务同名的文件，例如 network 服务，查看 /etc/init.d/network 文件，其简化后内容如下:</p>
-<figure class="highlight shell"><figcaption data-lang="Bash"></figcaption><table><tr><td data-num="1"></td><td><pre><span class="token keyword">case</span> <span class="token string">"<span class="token variable">$1</span>"</span> <span class="token keyword">in</span></pre></td></tr><tr><td data-num="2"></td><td><pre>start<span class="token punctuation">)</span></pre></td></tr><tr><td data-num="3"></td><td><pre>    <span class="token punctuation">;</span><span class="token punctuation">;</span></pre></td></tr><tr><td data-num="4"></td><td><pre>stop<span class="token punctuation">)</span></pre></td></tr><tr><td data-num="5"></td><td><pre>    <span class="token punctuation">;</span><span class="token punctuation">;</span></pre></td></tr><tr><td data-num="6"></td><td><pre>reload<span class="token punctuation">)</span></pre></td></tr><tr><td data-num="7"></td><td><pre>    <span class="token punctuation">;</span><span class="token punctuation">;</span></pre></td></tr><tr><td data-num="8"></td><td><pre>force-reload<span class="token operator">|</span>restart<span class="token punctuation">)</span></pre></td></tr><tr><td data-num="9"></td><td><pre>    <span class="token punctuation">;</span><span class="token punctuation">;</span></pre></td></tr><tr><td data-num="10"></td><td><pre>*<span class="token punctuation">)</span></pre></td></tr><tr><td data-num="11"></td><td><pre>    <span class="token punctuation">;</span><span class="token punctuation">;</span></pre></td></tr><tr><td data-num="12"></td><td><pre><span class="token keyword">esac</span></pre></td></tr><tr><td data-num="13"></td><td><pre><span class="token builtin class-name">exit</span> <span class="token number">0</span></pre></td></tr></table></figure><p>可见一个系统服务管理程序只要实现对命令行参数 start|stop|restart 等进行处理就可以被 service 命令管理，在使用 service xxx cmd 来管理服务时，其等价于执行 /etc/init.d/xxx cmd</p>
-<blockquote>
-<p><em>注: /etc/init.d/xxx 文件必须具有可执行权限</em></p>
-</blockquote>
-<h2 id="开机自启动"><a class="anchor" href="#开机自启动">#</a> 开机自启动</h2>
-<h3 id="chkconfig命令"><a class="anchor" href="#chkconfig命令">#</a> chkconfig 命令</h3>
-<p>在 /etc/init.d 下存放服务的管理文件只是可以让程序作为服务运行，一旦系统重启，就必须手动执行 service xxx start 来启动服务，大多数情况服务需要开机自启动，这时候就要用 chkconfig 命令:</p>
-<figure class="highlight shell"><figcaption data-lang="Bash"></figcaption><table><tr><td data-num="1"></td><td><pre><span class="token comment"># 添加启动项</span></pre></td></tr><tr><td data-num="2"></td><td><pre><span class="token function">chkconfig</span> <span class="token parameter variable">--add</span> <span class="token punctuation">[</span>command<span class="token punctuation">]</span></pre></td></tr><tr><td data-num="3"></td><td><pre></pre></td></tr><tr><td data-num="4"></td><td><pre><span class="token comment"># 启用 / 禁用启动项</span></pre></td></tr><tr><td data-num="5"></td><td><pre><span class="token function">chkconfig</span> <span class="token punctuation">[</span>command<span class="token punctuation">]</span> on/off</pre></td></tr></table></figure><p>需要注意的是，要使用 chkconfig 命令，文件首行必须是:</p>
-<figure class="highlight shell"><figcaption data-lang="Bash"></figcaption><table><tr><td data-num="1"></td><td><pre><span class="token comment">#chkconfig: 2345 10 90</span></pre></td></tr></table></figure><p>其中 2345 表示运行级别，Linux 系统有 0~6 七个运行级别 (见:<a href="#linux%E8%BF%90%E8%A1%8C%E7%BA%A7%E5%88%AB">Linux 运行级别</a>)<br />
- 10 表示启动优先级，数字越小优先级越高，越早被启动，取值范围 0~100<br />
-90 表示退出优先级，数字越小优先级越高，越早被退出，取值范围 0~100</p>
-<h3 id="linux运行级别"><a class="anchor" href="#linux运行级别">#</a> Linux 运行级别</h3>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">级别</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">0</td>
-<td>停机，通常不用</td>
-</tr>
-<tr>
-<td style="text-align:center">1</td>
-<td>单用户模式，与 Windows 系统的安全模式类似</td>
-</tr>
-<tr>
-<td style="text-align:center">2</td>
-<td>多用户模式，但没有 NFS 支持</td>
-</tr>
-<tr>
-<td style="text-align:center">3</td>
-<td>完全多用户模式，支持 NFS</td>
-</tr>
-<tr>
-<td style="text-align:center">4</td>
-<td>一般不用，在一些特殊情况下可以用它来做一些事情。例如在笔记本电脑的电池用尽时，可以切换到这个模式来做一些设置</td>
-</tr>
-<tr>
-<td style="text-align:center">5</td>
-<td>有网络支持有 X-Window 支持的多用户模式</td>
-</tr>
-<tr>
-<td style="text-align:center">6</td>
-<td>重新引导系统，即重启，运行命令 init 6 就会重启系统，不建议讲服务的运行级别设置为 6</td>
-</tr>
-</tbody>
-</table>
-<h3 id="rdd目录"><a class="anchor" href="#rdd目录">#</a> rd*.d 目录</h3>
-<p>事实上要让服务开机自启动，只需要在 /etc/rc.d/rc*.d 目录 (Ubuntu 等系统是在 /etc/rd*.d 目录) 下根据一定规则创建 /etc/init.d 目录中服务文件的软连接即可，其中＊表示运行级别，如 rc2.d 目录中表示以运行级别 2 启动。<br />
-通常在 rc*.d 目录中有两种文件:</p>
-<ul>
-<li>以 K 开头的文件：在系统退出时被调用</li>
-<li>以 S 开头的文件：在系统启动时被调用</li>
-</ul>
-<p>这两种文件都是对 /etc/init.d/ 目录中的服务文件的软链接，K/S 后是相应服务名，与链接的服务文件一致</p>
-<blockquote>
-<p><em><strong>如果只是需要开机执行某些简单命令，可以直接在 /etc/rc.d/rc.local 文件中添加需要开机执行的命令</strong></em></p>
-</blockquote>
-<h1 id="systemd"><a class="anchor" href="#systemd">#</a> Systemd</h1>
-<p>过去 Linux 系统启动是采用 init 进程的，而 init 进程是串行化的，所以启动较慢，而且 init 进程只负责执行脚本，启动脚本需要自行处理各种异常情况，导致启动脚本常常很臃肿，为了解决这些问题，RedHat 推出了 Systemd 初始化系统，其特点:</p>
-<ul>
-<li>系统引导时实现服务并行启动</li>
-<li>按需启动守护进程</li>
-<li>自动化的服务依赖关系管理</li>
-<li>同时采用 socket 式与 D-Bus 总线式激活服务</li>
-<li>系统状态快照和恢复</li>
-<li>利用 Linux 的 cgroups 监视进程</li>
-<li>维护挂载点和自动挂载点</li>
-<li>各服务间基于依赖关系进行精密控制</li>
-</ul>
-<h2 id="systemctl命令的使用"><a class="anchor" href="#systemctl命令的使用">#</a> systemctl 命令的使用</h2>
-<figure class="highlight shell"><figcaption data-lang="Bash"></figcaption><table><tr><td data-num="1"></td><td><pre><span class="token comment"># 重启系统</span></pre></td></tr><tr><td data-num="2"></td><td><pre><span class="token function">sudo</span> systemctl <span class="token function">reboot</span></pre></td></tr><tr><td data-num="3"></td><td><pre></pre></td></tr><tr><td data-num="4"></td><td><pre><span class="token comment"># 关闭系统，切断电源</span></pre></td></tr><tr><td data-num="5"></td><td><pre><span class="token function">sudo</span> systemctl poweroff</pre></td></tr><tr><td data-num="6"></td><td><pre></pre></td></tr><tr><td data-num="7"></td><td><pre><span class="token comment"># CPU 停止工作</span></pre></td></tr><tr><td data-num="8"></td><td><pre><span class="token function">sudo</span> systemctl <span class="token function">halt</span></pre></td></tr><tr><td data-num="9"></td><td><pre></pre></td></tr><tr><td data-num="10"></td><td><pre><span class="token comment"># 暂停系统</span></pre></td></tr><tr><td data-num="11"></td><td><pre><span class="token function">sudo</span> systemctl <span class="token function">suspend</span></pre></td></tr><tr><td data-num="12"></td><td><pre></pre></td></tr><tr><td data-num="13"></td><td><pre><span class="token comment"># 让系统进入冬眠状态</span></pre></td></tr><tr><td data-num="14"></td><td><pre><span class="token function">sudo</span> systemctl hibernate</pre></td></tr><tr><td data-num="15"></td><td><pre></pre></td></tr><tr><td data-num="16"></td><td><pre><span class="token comment"># 让系统进入交互式休眠状态</span></pre></td></tr><tr><td data-num="17"></td><td><pre><span class="token function">sudo</span> systemctl hybrid-sleep</pre></td></tr><tr><td data-num="18"></td><td><pre></pre></td></tr><tr><td data-num="19"></td><td><pre><span class="token comment"># 启动进入救援状态（单用户状态）</span></pre></td></tr><tr><td data-num="20"></td><td><pre><span class="token function">sudo</span> systemctl rescue</pre></td></tr><tr><td data-num="21"></td><td><pre></pre></td></tr><tr><td data-num="22"></td><td><pre><span class="token comment"># 服务开机自启动</span></pre></td></tr><tr><td data-num="23"></td><td><pre><span class="token function">sudo</span> systemctl <span class="token builtin class-name">enable</span> xxx</pre></td></tr><tr><td data-num="24"></td><td><pre></pre></td></tr><tr><td data-num="25"></td><td><pre><span class="token comment"># 禁用服务开机自启动</span></pre></td></tr><tr><td data-num="26"></td><td><pre><span class="token function">sudo</span> systemctl disable xxx</pre></td></tr><tr><td data-num="27"></td><td><pre></pre></td></tr><tr><td data-num="28"></td><td><pre><span class="token comment"># 启动服务</span></pre></td></tr><tr><td data-num="29"></td><td><pre><span class="token function">sudo</span> systemctl start xxx</pre></td></tr><tr><td data-num="30"></td><td><pre></pre></td></tr><tr><td data-num="31"></td><td><pre><span class="token comment"># 停止服务</span></pre></td></tr><tr><td data-num="32"></td><td><pre><span class="token function">sudo</span> systemctl start xxx</pre></td></tr><tr><td data-num="33"></td><td><pre></pre></td></tr><tr><td data-num="34"></td><td><pre><span class="token comment"># 重启服务</span></pre></td></tr><tr><td data-num="35"></td><td><pre><span class="token function">sudo</span> systemctl restart xxx</pre></td></tr><tr><td data-num="36"></td><td><pre></pre></td></tr><tr><td data-num="37"></td><td><pre><span class="token comment"># 杀死一个服务的所有子进程</span></pre></td></tr><tr><td data-num="38"></td><td><pre><span class="token function">sudo</span> systemctl <span class="token function">kill</span> apache.service</pre></td></tr><tr><td data-num="39"></td><td><pre></pre></td></tr><tr><td data-num="40"></td><td><pre><span class="token comment"># 重新加载一个服务的配置文件</span></pre></td></tr><tr><td data-num="41"></td><td><pre><span class="token function">sudo</span> systemctl reload apache.service</pre></td></tr><tr><td data-num="42"></td><td><pre></pre></td></tr><tr><td data-num="43"></td><td><pre><span class="token comment"># 重载所有修改过的配置文件</span></pre></td></tr><tr><td data-num="44"></td><td><pre><span class="token function">sudo</span> systemctl daemon-reload</pre></td></tr><tr><td data-num="45"></td><td><pre></pre></td></tr><tr><td data-num="46"></td><td><pre><span class="token comment"># 显示某个 Unit 的所有底层参数</span></pre></td></tr><tr><td data-num="47"></td><td><pre>systemctl show httpd.service</pre></td></tr><tr><td data-num="48"></td><td><pre></pre></td></tr><tr><td data-num="49"></td><td><pre><span class="token comment"># 显示某个 Unit 的指定属性的值</span></pre></td></tr><tr><td data-num="50"></td><td><pre>systemctl show <span class="token parameter variable">-p</span> CPUShares httpd.service</pre></td></tr><tr><td data-num="51"></td><td><pre></pre></td></tr><tr><td data-num="52"></td><td><pre><span class="token comment"># 设置某个 Unit 的指定属性</span></pre></td></tr><tr><td data-num="53"></td><td><pre><span class="token function">sudo</span> systemctl set-property httpd.service <span class="token assign-left variable">CPUShares</span><span class="token operator">=</span><span class="token number">500</span></pre></td></tr></table></figure><h2 id="添加系统服务"><a class="anchor" href="#添加系统服务">#</a> 添加系统服务</h2>
-<p>Systemd 可以管理所有系统资源，在 Systemd 中资源被统称为 Unit。Unit 一共分为 12 种:</p>
-<ul>
-<li>Service unit：系统服务</li>
-<li>Target unit：多个 Unit 构成的一个组</li>
-<li>Device Unit：硬件设备</li>
-<li>Mount Unit：文件系统的挂载点</li>
-<li>Automount Unit：自动挂载点</li>
-<li>Path Unit：文件或路径</li>
-<li>Scope Unit：不是由 Systemd 启动的外部进程</li>
-<li>Slice Unit：进程组</li>
-<li>Snapshot Unit：Systemd 快照，可以切回某个快照</li>
-<li>Socket Unit：进程间通信的 socket</li>
-<li>Swap Unit：swap 文件</li>
-<li>Timer Unit：定时器</li>
-</ul>
-<p>每一个 Unit 都有一个配置文件，告诉 Systemd 如何启动该 Unit。默认情况下，Systemd 从 /etc/systemd/system 读取配置文件，然而实际上该目录的文件均为 /usr/lib/systemd/system 目录中文件的软链接，systemctl enable 用于在两个目录间建立符号链接，sytemctl diable 则用于撤销链接关系。</p>
-<h3 id="unit配置文件"><a class="anchor" href="#unit配置文件">#</a> Unit 配置文件</h3>
-<p>以 network 服务的配置文件为例，其内容如下:</p>
-<figure class="highlight shell"><figcaption data-lang="Bash"></figcaption><table><tr><td data-num="1"></td><td><pre><span class="token punctuation">[</span>Unit<span class="token punctuation">]</span></pre></td></tr><tr><td data-num="2"></td><td><pre><span class="token assign-left variable">Description</span><span class="token operator">=</span>Raise network interfaces</pre></td></tr><tr><td data-num="3"></td><td><pre><span class="token assign-left variable">Documentation</span><span class="token operator">=</span>man:interfaces<span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">)</span></pre></td></tr><tr><td data-num="4"></td><td><pre><span class="token assign-left variable">DefaultDependencies</span><span class="token operator">=</span>no</pre></td></tr><tr><td data-num="5"></td><td><pre><span class="token assign-left variable">Wants</span><span class="token operator">=</span>network.target</pre></td></tr><tr><td data-num="6"></td><td><pre><span class="token assign-left variable">After</span><span class="token operator">=</span>local-fs.target network-pre.target apparmor.service systemd-sysctl.service systemd-modules-load.service</pre></td></tr><tr><td data-num="7"></td><td><pre><span class="token assign-left variable">Before</span><span class="token operator">=</span>network.target shutdown.target network-online.target</pre></td></tr><tr><td data-num="8"></td><td><pre><span class="token assign-left variable">Conflicts</span><span class="token operator">=</span>shutdown.target</pre></td></tr><tr><td data-num="9"></td><td><pre></pre></td></tr><tr><td data-num="10"></td><td><pre><span class="token punctuation">[</span>Install<span class="token punctuation">]</span></pre></td></tr><tr><td data-num="11"></td><td><pre><span class="token assign-left variable">WantedBy</span><span class="token operator">=</span>multi-user.target</pre></td></tr><tr><td data-num="12"></td><td><pre><span class="token assign-left variable">WantedBy</span><span class="token operator">=</span>network-online.target</pre></td></tr><tr><td data-num="13"></td><td><pre></pre></td></tr><tr><td data-num="14"></td><td><pre><span class="token punctuation">[</span>Service<span class="token punctuation">]</span></pre></td></tr><tr><td data-num="15"></td><td><pre><span class="token assign-left variable">Type</span><span class="token operator">=</span>oneshot</pre></td></tr><tr><td data-num="16"></td><td><pre><span class="token assign-left variable">EnvironmentFile</span><span class="token operator">=</span>-/etc/default/networking</pre></td></tr><tr><td data-num="17"></td><td><pre><span class="token assign-left variable">ExecStartPre</span><span class="token operator">=</span>-/bin/sh <span class="token parameter variable">-c</span> <span class="token string">'[ "$CONFIGURE_INTERFACES" != "no" ] &amp;&amp; [ -n "$(ifquery --read-environment --list --exclude=lo)" ] &amp;&amp; udevadm settle'</span></pre></td></tr><tr><td data-num="18"></td><td><pre><span class="token assign-left variable">ExecStart</span><span class="token operator">=</span>/sbin/ifup <span class="token parameter variable">-a</span> --read-environment</pre></td></tr><tr><td data-num="19"></td><td><pre><span class="token assign-left variable">ExecStop</span><span class="token operator">=</span>/sbin/ifdown <span class="token parameter variable">-a</span> --read-environment <span class="token parameter variable">--exclude</span><span class="token operator">=</span>lo</pre></td></tr><tr><td data-num="20"></td><td><pre><span class="token assign-left variable">RemainAfterExit</span><span class="token operator">=</span>true</pre></td></tr><tr><td data-num="21"></td><td><pre><span class="token assign-left variable">TimeoutStartSec</span><span class="token operator">=</span>5min</pre></td></tr></table></figure><p>了解 ini 文件格式的话，不难发现 Unit 配置文件分为了三节 (section):</p>
-<ul>
-<li>
-<h4 id="unit"><a class="anchor" href="#unit">#</a> Unit</h4>
-</li>
-</ul>
-<p>[Unit] 区块通常是配置文件的第一个区块，用来定义 Unit 的元数据，以及配置与其他 Unit 的关系。它的主要字段如下:</p>
-<ul>
-<li>
-<p>Description：简短描述</p>
-</li>
-<li>
-<p>Documentation：文档地址</p>
-</li>
-<li>
-<p>Requires：当前 Unit 依赖的其他 Unit, 如果它们没有运行，当前 Unit 会启动失败</p>
-</li>
-<li>
-<p>Wants：与当前 Unit 配合的其他 Unit, 如果它们没有运行，当前 Unit 不会启动失败</p>
-</li>
-<li>
-<p>BindsTo：与 Requires 类似，它指定的 Unit 如果退出，会导致当前 Unit 停止运行</p>
-</li>
-<li>
-<p>Before：如果该字段指定的 Unit 也要启动，那么必须在当前 Unit 之后启动</p>
-</li>
-<li>
-<p>After：如果该字段指定的 Unit 也要启动，那么必须在当前 Unit 之前启动</p>
-</li>
-<li>
-<p>Conflicts：这里指定的 Unit 不能与当前 Unit 同时运行</p>
-</li>
-<li>
-<p>Condition...：当前 Unit 运行必须满足的条件，否则不会运行</p>
-</li>
-<li>
-<p>Assert...：当前 Unit 运行必须满足的条件，否则会报启动失败</p>
-</li>
-<li>
-<h4 id="install"><a class="anchor" href="#install">#</a> Install</h4>
-</li>
-</ul>
-<p>[Install] 通常是配置文件的最后一个区块，用来定义如何启动，以及是否开机启动。它的主要字段如下:</p>
-<ul>
-<li>
-<p>WantedBy：它的值是一个或多个 Target, 当前 Unit 激活时（enable）符号链接会放入 /etc/systemd/system 目录下面以 Target 名 + .wants 后缀构成的子目录中</p>
-</li>
-<li>
-<p>RequiredBy：它的值是一个或多个 Target, 当前 Unit 激活时，符号链接会放入 /etc/systemd/system 目录下面以 Target 名 + .required 后缀构成的子目录中</p>
-</li>
-<li>
-<p>Alias：当前 Unit 可用于启动的别名</p>
-</li>
-<li>
-<p>Also：当前 Unit 激活（enable）时，会被同时激活的其他 Unit</p>
-</li>
-<li>
-<h4 id="service"><a class="anchor" href="#service">#</a> Service</h4>
-</li>
-</ul>
-<p>[Service] 区块是 Service 的配置，只有 Service 类型的 Unit 才有这个区块。它的主要字段如下:</p>
-<ul>
-<li>Type：定义启动时的进程行为。它有以下几种值。
-<ul>
-<li>simple：默认值，执行 ExecStart 指定的命令，启动主进程</li>
-<li>forking：以 fork 方式从父进程创建子进程，创建后父进程会立即退出</li>
-<li>oneshot：一次性进程，Systemd 会等当前服务退出，再继续往下执行</li>
-<li>dbus：当前服务通过 D-Bus 启动</li>
-<li>notify：当前服务启动完毕，会通知 Systemd, 再继续往下执行</li>
-<li>idle：若有其他任务执行完毕，当前服务才会运行</li>
-</ul>
-</li>
-<li>ExecStart：启动当前服务的命令，命令必须使用绝对路径，如:/bin/sh/path/to/xxx.sh</li>
-<li>ExecStartPre：启动当前服务之前执行的命令，命令必须使用绝对路径</li>
-<li>ExecStartPost：启动当前服务之后执行的命令，命令必须使用绝对路径</li>
-<li>ExecReload：重启当前服务时执行的命令，命令必须使用绝对路径</li>
-<li>ExecStop：停止当前服务时执行的命令，命令必须使用绝对路径</li>
-<li>ExecStopPost：停止当前服务之后执行的命令，命令必须使用绝对路径</li>
-<li>RestartSec：自动重启当前服务间隔的秒数</li>
-<li>Restart：定义何种情况 Systemd 会自动重启当前服务，可能的值包括 always（总是重启）、on-success、on-failure、on-abnormal、on-abort、on-watchdog</li>
-<li>TimeoutSec：定义 Systemd 停止当前服务之前等待的秒数</li>
-<li>Environment：指定环境变量</li>
-</ul>
-<p>Unit 配置文件的完整字段清单，请参考<a href="https://www.freedesktop.org/software/systemd/man/systemd.unit.html">官方文档</a>。</p>
-<h3 id="target"><a class="anchor" href="#target">#</a> Target</h3>
-<p>启动计算机的时候，需要启动大量的 Unit。如果每一次启动，都要一一写明本次启动需要哪些 Unit, 显然非常不方便。Systemd 的解决方案就是 Target。<br />
-简单说，Target 就是一个 Unit 组，包含许多相关的 Unit 。启动某个 Target 的时候，Systemd 就会启动里面所有的 Unit。从这个意义上说，Target 这个概念类似于 &quot;状态点&quot;, 启动某个 Target 就好比启动到某种状态。<br />
-传统的 init 启动模式里面，有 RunLevel 的概念，跟 Target 的作用很类似。不同的是，RunLevel 是互斥的，不可能多个 RunLevel 同时启动，但是多个 Target 可以同时启动。</p>
-<figure class="highlight shell"><figcaption data-lang="Bash"></figcaption><table><tr><td data-num="1"></td><td><pre><span class="token comment"># 查看当前系统的所有 Target</span></pre></td></tr><tr><td data-num="2"></td><td><pre>systemctl list-unit-files <span class="token parameter variable">--type</span><span class="token operator">=</span>target</pre></td></tr><tr><td data-num="3"></td><td><pre></pre></td></tr><tr><td data-num="4"></td><td><pre><span class="token comment"># 查看一个 Target 包含的所有 Unit</span></pre></td></tr><tr><td data-num="5"></td><td><pre>systemctl list-dependencies multi-user.target</pre></td></tr><tr><td data-num="6"></td><td><pre></pre></td></tr><tr><td data-num="7"></td><td><pre><span class="token comment"># 查看启动时的默认 Target</span></pre></td></tr><tr><td data-num="8"></td><td><pre>systemctl get-default</pre></td></tr><tr><td data-num="9"></td><td><pre></pre></td></tr><tr><td data-num="10"></td><td><pre><span class="token comment"># 设置启动时的默认 Target</span></pre></td></tr><tr><td data-num="11"></td><td><pre><span class="token function">sudo</span> systemctl set-default multi-user.target</pre></td></tr><tr><td data-num="12"></td><td><pre></pre></td></tr><tr><td data-num="13"></td><td><pre><span class="token comment"># 切换 Target 时，默认不关闭前一个 Target 启动的进程，</span></pre></td></tr><tr><td data-num="14"></td><td><pre><span class="token comment"># systemctl isolate 命令改变这种行为，</span></pre></td></tr><tr><td data-num="15"></td><td><pre><span class="token comment"># 关闭前一个 Target 里面所有不属于后一个 Target 的进程</span></pre></td></tr><tr><td data-num="16"></td><td><pre><span class="token function">sudo</span> systemctl isolate multi-user.target</pre></td></tr></table></figure><p>Target 与 传统 RunLevel 的对应关系如下。</p>
-<table>
-<thead>
-<tr>
-<th>Traditional runlevel</th>
-<th>New target name</th>
-<th>Symbolically linked to...</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>0</td>
-<td>runlevel0.target</td>
-<td>poweroff.target</td>
-</tr>
-<tr>
-<td>1</td>
-<td>runlevel1.target</td>
-<td>rescue.target</td>
-</tr>
-<tr>
-<td>2</td>
-<td>runlevel2.target</td>
-<td>multi-user.target</td>
-</tr>
-<tr>
-<td>3</td>
-<td>runlevel3.target</td>
-<td>multi-user.target</td>
-</tr>
-<tr>
-<td>4</td>
-<td>runlevel4.target</td>
-<td>multi-user.target</td>
-</tr>
-<tr>
-<td>5</td>
-<td>runlevel5.target</td>
-<td>graphical.target</td>
-</tr>
-<tr>
-<td>6</td>
-<td>runlevel6.target</td>
-<td>reboot.target</td>
-</tr>
-</tbody>
-</table>
-<p>它与 init 进程的主要差别如下:</p>
-<ol>
-<li>默认的 RunLevel (在 /etc/inittab 文件设置) 现在被默认的 Target 取代，位置是 /etc/systemd/system/default.target, 通常符号链接到 graphical.target (图形界面) 或者 multi-user.target (多用户命令行)。</li>
-<li>启动脚本的位置，以前是 /etc/init.d 目录，符号链接到不同的 RunLevel 目录 (比如 /etc/rc3.d、/etc/rc5.d 等), 现在则存放在 /lib/systemd/system 和 /etc/systemd/system 目录。</li>
-<li>配置文件的位置，以前 init 进程的配置文件是 /etc/inittab, 各种服务的配置文件存放在 /etc/sysconfig 目录。现在的配置文件主要存放在 /lib/systemd 目录，在 /etc/systemd 目录里面的修改可以覆盖原始设置。</li>
-</ol>
-<h3 id="例子"><a class="anchor" href="#例子">#</a> 例子</h3>
-<p>假设当前在 /opt 目录下有可执行程序 demo, 其用于定时从 Wallpaper 网站抓取一张壁纸并替换当前壁纸，我们想要开机自动执行它，首先在 /usr/lib/systemd/system/ 目录创建 demo.service 文件，根据上面的说明，其内容如下:</p>
-<figure class="highlight shell"><figcaption data-lang="Bash"></figcaption><table><tr><td data-num="1"></td><td><pre><span class="token punctuation">[</span>Unit<span class="token punctuation">]</span></pre></td></tr><tr><td data-num="2"></td><td><pre><span class="token assign-left variable">Description</span><span class="token operator">=</span>demo <span class="token function">service</span></pre></td></tr><tr><td data-num="3"></td><td><pre><span class="token comment"># 强依赖网络服务</span></pre></td></tr><tr><td data-num="4"></td><td><pre><span class="token assign-left variable">Requires</span><span class="token operator">=</span>network-online.target</pre></td></tr><tr><td data-num="5"></td><td><pre><span class="token assign-left variable">BindsTo</span><span class="token operator">=</span>network.target</pre></td></tr><tr><td data-num="6"></td><td><pre><span class="token assign-left variable">After</span><span class="token operator">=</span>network.target</pre></td></tr><tr><td data-num="7"></td><td><pre><span class="token punctuation">[</span>Install<span class="token punctuation">]</span></pre></td></tr><tr><td data-num="8"></td><td><pre><span class="token punctuation">[</span>Service<span class="token punctuation">]</span></pre></td></tr><tr><td data-num="9"></td><td><pre><span class="token assign-left variable">Type</span><span class="token operator">=</span>simple</pre></td></tr><tr><td data-num="10"></td><td><pre><span class="token assign-left variable">ExecStart</span><span class="token operator">=</span>/opt/demo</pre></td></tr><tr><td data-num="11"></td><td><pre><span class="token assign-left variable">ExecStart</span><span class="token operator">=</span>/usr/bin/kill <span class="token parameter variable">-9</span> <span class="token variable"><span class="token variable">$(</span>/usr/bin/ps aux <span class="token operator">|</span> <span class="token function">grep</span> demo <span class="token operator">|</span> <span class="token function">awk</span> <span class="token string">'&#123;print $2&#125;'</span><span class="token variable">)</span></span> <span class="token operator">&amp;&amp;</span> /opt/demo</pre></td></tr><tr><td data-num="12"></td><td><pre><span class="token assign-left variable">EXECStop</span><span class="token operator">=</span>/usr/bin/kill <span class="token parameter variable">-9</span> <span class="token variable"><span class="token variable">$(</span>/usr/bin/ps aux <span class="token operator">|</span> <span class="token function">grep</span> demo <span class="token operator">|</span> <span class="token function">awk</span> <span class="token string">'&#123;print $2&#125;'</span><span class="token variable">)</span></span></pre></td></tr><tr><td data-num="13"></td><td><pre><span class="token assign-left variable">Restart</span><span class="token operator">=</span>on-failure</pre></td></tr></table></figure><p>写好 demo.service 文件后，需要执行 systemctl daemon-reload 命令来重新加载所有配置文件，然后执行 systemctl enable demo 命令，这样下次开机时 demo 程序就会自动执行。</p>
-]]></content>
-      <categories>
-        <category>Linux运维</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
       </tags>
   </entry>
 </search>

@@ -1,20 +1,54 @@
-<!DOCTYPE html><html lang="[&quot;zh-CN&quot;,&quot;default&quot;]"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=2"/><meta name="theme-color" content="#222"/><meta http-equiv="X-UA-COMPATIBLE" content="IE=edge,chrome=1"/><meta name="renderer" content="webkit"/><link rel="icon" type="image/ico" sizes="32x32" href="/assets/favicon.ico"/><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"/><link rel="alternate" href="/rss.xml" title="烂笔头" type="application/rss+xml"><link rel="alternate" href="/atom.xml" title="烂笔头" type="application/atom+xml"><link rel="alternate" type="application/json" title="烂笔头" href="https://linsanzhu.github.io/feed.json"/><link rel="preconnect" href="https://lf9-cdn-tos.bytecdntp.com"/><link rel="preconnect" href="https://at.alicdn.com"/><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CFredericka%20the%20Great:400,400italic,700,700italic%7CMa%20Shan%20Zheng,Noto%20Serif%20JP:400,400italic,700,700italic%7CNoto%20Sans%20Simplified%20Chinese,Noto%20Sans%20Traditional%20Chinese:400,400italic,700,700italic%7CSource%20Code%20Pro,Noto%20Sans%20Simplified%20Chinese:400,400italic,700,700italic&display=swap&subset=latin,latin-ext" media="none" onload="this.media&#x3D;&#39;all&#39;"><link rel="stylesheet" href="/css/app.css?v=0.4.2"><link rel="modulepreload" href="/js/chunk-2YXICMYP.js"></link><link rel="modulepreload" href="/js/chunk-7CEZKU5F.js"></link><link rel="modulepreload" href="/js/chunk-ETYUGVIS.js"></link><link rel="modulepreload" href="/js/chunk-LYME6JKK.js"></link><link rel="modulepreload" href="/js/chunk-YF3OF5AX.js"></link><link rel="modulepreload" href="/js/comments-X2PGRW3X.js"></link><link rel="modulepreload" href="/js/index.esm-NGF4BI5A.js"></link><link rel="modulepreload" href="/js/post-L2T3HVOQ.js"></link><link rel="modulepreload" href="/js/quicklink-3ZU43OGZ.js"></link><link rel="modulepreload" href="/js/search-N7MSBNH2.js"></link><link rel="modulepreload" href="/js/siteInit.js"></link><link rel="stylesheet" href="https://npm.webcache.cn/@waline/client@3.0.0-alpha.11/dist/waline.css" media="none" onload="this.media='all'"/><link rel="preload" href="https://api.miaomc.cn/image/get?287815" as="image" fetchpriority="high"><link rel="preload" href="https://api.miaomc.cn/image/get?789027" as="image" fetchpriority="high"><link rel="preload" href="https://api.miaomc.cn/image/get?121733" as="image" fetchpriority="high"><link rel="preload" href="https://api.miaomc.cn/image/get?180591" as="image" fetchpriority="high"><link rel="preload" href="https://api.miaomc.cn/image/get?911210" as="image" fetchpriority="high"><link rel="preload" href="https://api.miaomc.cn/image/get?772200" as="image" fetchpriority="high"><meta name="keywords" content="Linux"/><meta name="description" content="Linux环境里可以通过service、systemctl等方式使进程在后台运行，并可以做到异常重启等进程守护功能"/><link rel="canonical" href="https://linsanzhu.github.io/posts/27368/"><title>Linux系统服务</title><meta name="generator" content="Hexo 7.2.0"></head><body itemscope itemtype="http://schema.org/WebPage"><div id="loading"><div class="cat"><div class="body"></div><div class="head"><div class="face"></div></div><div class="foot"><div class="tummy-end"></div><div class="bottom"></div><div class="legs left"></div><div class="legs right"></div></div><div class="paw"><div class="hands left"></div><div class="hands right"></div></div></div></div><div id="container"><header id="header" itemscope itemtype="http://schema.org/WPHeader"><div class="inner"><div id="brand"><div class="pjax"><h1 itemprop="name headline">Linux系统服务</h1><div class="meta"><span class="item" title="创建时间：2020-09-30 15:42:41"><span class="icon"><i class="ic i-calendar"></i></span><span class="text">发表于</span><time itemprop="dateCreated datePublished" datetime="2020-09-30T15:42:41+08:00">2020-09-30</time></span><span class="item" title="本文字数"><span class="icon"><i class="ic i-pen"></i></span><span class="text">本文字数</span><span>8.9k</span><span class="text">字</span></span><span class="item" title="阅读时长"><span class="icon"><i class="ic i-clock"></i></span><span class="text">阅读时长</span><span>8 分钟</span></span></div></div></div><nav id="nav"><div class="inner"><div class="toggle"><div class="lines" aria-label="切换导航栏"><span class="line"></span><span class="line"></span><span class="line"></span></div></div><ul class="menu"><li class="item title"><a href="/" rel="start">Linsan Zhu's Blog</a></li></ul><ul class="right" id="rightNav"><li class="item theme"><i class="ic i-sun"></i></li><li class="item search"><i class="ic i-search"></i></li></ul></div></nav></div><div class="pjax" id="imgs"><ul><li class="item" style="background-image: url(&quot;https://api.miaomc.cn/image/get?287815&quot;);"></li><li class="item" style="background-image: url(&quot;https://api.miaomc.cn/image/get?789027&quot;);"></li><li class="item" style="background-image: url(&quot;https://api.miaomc.cn/image/get?121733&quot;);"></li><li class="item" style="background-image: url(&quot;https://api.miaomc.cn/image/get?180591&quot;);"></li><li class="item" style="background-image: url(&quot;https://api.miaomc.cn/image/get?911210&quot;);"></li><li class="item" style="background-image: url(&quot;https://api.miaomc.cn/image/get?772200&quot;);"></li></ul></div></header><div id="waves"><svg class="waves" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto"><defs><path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z"></path></defs><g class="parallax"><use xlink:href="#gentle-wave" x="48" y="0"></use><use xlink:href="#gentle-wave" x="48" y="3"></use><use xlink:href="#gentle-wave" x="48" y="5"></use><use xlink:href="#gentle-wave" x="48" y="7"></use></g></svg></div><main><div class="inner"><div class="pjax" id="main"><div class="article wrap"><div class="breadcrumb" itemListElement itemscope itemtype="https://schema.org/BreadcrumbList"><i class="ic i-home"></i><span><a href="/">首页</a></span><i class="ic i-angle-right"></i><span class="current" itemprop="itemListElement" itemscope="itemscope" itemtype="https://schema.org/ListItem"><a href="/categories/linux-sre/" itemprop="item" rel="index" title="分类于Linux运维"><span itemprop="name">Linux运维<meta itemprop="position" content="0"/></span></a></span></div><article class="post block" itemscope="itemscope" itemtype="http://schema.org/Article" lang="zh-CN"><link itemprop="mainEntityOfPage" href="https://linsanzhu.github.io/posts/27368/"/><span hidden="hidden" itemprop="author" itemscope="itemscope" itemtype="http://schema.org/Person"><meta itemprop="image" content="/assets/avatar.png"/><meta itemprop="name" content="Linsan Zhu"/><meta itemprop="description" content="If it feels easy, don't do it. Don't let the world spoil you., LinsanZhu's Blog"/></span><span hidden="hidden" itemprop="publisher" itemscope="itemscope" itemtype="http://schema.org/Organization"><meta itemprop="name" content="烂笔头"/></span><div class="body md" itemprop="articleBody"><h1 id="service命令"><a class="anchor" href="#service命令">#</a> service 命令</h1>
-<h2 id="service命令的使用"><a class="anchor" href="#service命令的使用">#</a> service 命令的使用</h2>
-<p>Linux 系统一般使用 service 命令来管理服务:</p>
-<figure class="highlight shell"><figcaption data-lang="Bash"></figcaption><table><tr><td data-num="1"></td><td><pre><span class="token comment"># 启动服务</span></pre></td></tr><tr><td data-num="2"></td><td><pre><span class="token function">service</span> network start</pre></td></tr><tr><td data-num="3"></td><td><pre></pre></td></tr><tr><td data-num="4"></td><td><pre><span class="token comment"># 停止服务</span></pre></td></tr><tr><td data-num="5"></td><td><pre><span class="token function">service</span> network stop</pre></td></tr><tr><td data-num="6"></td><td><pre></pre></td></tr><tr><td data-num="7"></td><td><pre><span class="token comment"># 重启服务</span></pre></td></tr><tr><td data-num="8"></td><td><pre><span class="token function">service</span> network restart</pre></td></tr><tr><td data-num="9"></td><td><pre></pre></td></tr><tr><td data-num="10"></td><td><pre><span class="token comment"># 查看服务状态</span></pre></td></tr><tr><td data-num="11"></td><td><pre><span class="token function">service</span> network status</pre></td></tr></table></figure><h2 id="service原理"><a class="anchor" href="#service原理">#</a> service 原理</h2>
-<p>Linux 系统的服务实际上是在后台运行的命令，通常一个程序想要作为系统服务运行，首先需要在 /etc/init.d 目录下存放一个与服务同名的文件，例如 network 服务，查看 /etc/init.d/network 文件，其简化后内容如下:</p>
-<figure class="highlight shell"><figcaption data-lang="Bash"></figcaption><table><tr><td data-num="1"></td><td><pre><span class="token keyword">case</span> <span class="token string">"<span class="token variable">$1</span>"</span> <span class="token keyword">in</span></pre></td></tr><tr><td data-num="2"></td><td><pre>start<span class="token punctuation">)</span></pre></td></tr><tr><td data-num="3"></td><td><pre>    <span class="token punctuation">;</span><span class="token punctuation">;</span></pre></td></tr><tr><td data-num="4"></td><td><pre>stop<span class="token punctuation">)</span></pre></td></tr><tr><td data-num="5"></td><td><pre>    <span class="token punctuation">;</span><span class="token punctuation">;</span></pre></td></tr><tr><td data-num="6"></td><td><pre>reload<span class="token punctuation">)</span></pre></td></tr><tr><td data-num="7"></td><td><pre>    <span class="token punctuation">;</span><span class="token punctuation">;</span></pre></td></tr><tr><td data-num="8"></td><td><pre>force-reload<span class="token operator">|</span>restart<span class="token punctuation">)</span></pre></td></tr><tr><td data-num="9"></td><td><pre>    <span class="token punctuation">;</span><span class="token punctuation">;</span></pre></td></tr><tr><td data-num="10"></td><td><pre>*<span class="token punctuation">)</span></pre></td></tr><tr><td data-num="11"></td><td><pre>    <span class="token punctuation">;</span><span class="token punctuation">;</span></pre></td></tr><tr><td data-num="12"></td><td><pre><span class="token keyword">esac</span></pre></td></tr><tr><td data-num="13"></td><td><pre><span class="token builtin class-name">exit</span> <span class="token number">0</span></pre></td></tr></table></figure><p>可见一个系统服务管理程序只要实现对命令行参数 start|stop|restart 等进行处理就可以被 service 命令管理，在使用 service xxx cmd 来管理服务时，其等价于执行 /etc/init.d/xxx cmd</p>
+<!DOCTYPE html><html lang="[&quot;zh-CN&quot;,&quot;default&quot;]"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=2"/><meta name="theme-color" content="#222"/><meta http-equiv="X-UA-COMPATIBLE" content="IE=edge,chrome=1"/><meta name="renderer" content="webkit"/><link rel="icon" type="image/ico" sizes="32x32" href="/assets/favicon.ico"/><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"/><link rel="alternate" href="/rss.xml" title="烂笔头" type="application/rss+xml"><link rel="alternate" href="/atom.xml" title="烂笔头" type="application/atom+xml"><link rel="alternate" type="application/json" title="烂笔头" href="https://linsanzhu.github.io/feed.json"/><link rel="preconnect" href="https://lf9-cdn-tos.bytecdntp.com"/><link rel="preconnect" href="https://at.alicdn.com"/><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CFredericka%20the%20Great:400,400italic,700,700italic%7CMa%20Shan%20Zheng,Noto%20Serif%20JP:400,400italic,700,700italic%7CNoto%20Sans%20Simplified%20Chinese,Noto%20Sans%20Traditional%20Chinese:400,400italic,700,700italic%7CSource%20Code%20Pro,Noto%20Sans%20Simplified%20Chinese:400,400italic,700,700italic&display=swap&subset=latin,latin-ext" media="none" onload="this.media&#x3D;&#39;all&#39;"><link rel="stylesheet" href="/css/app.css?v=0.4.2"><link rel="modulepreload" href="/js/chunk-2YXICMYP.js"></link><link rel="modulepreload" href="/js/chunk-7CEZKU5F.js"></link><link rel="modulepreload" href="/js/chunk-ETYUGVIS.js"></link><link rel="modulepreload" href="/js/chunk-LYME6JKK.js"></link><link rel="modulepreload" href="/js/chunk-YF3OF5AX.js"></link><link rel="modulepreload" href="/js/comments-X2PGRW3X.js"></link><link rel="modulepreload" href="/js/index.esm-NGF4BI5A.js"></link><link rel="modulepreload" href="/js/post-L2T3HVOQ.js"></link><link rel="modulepreload" href="/js/quicklink-3ZU43OGZ.js"></link><link rel="modulepreload" href="/js/search-N7MSBNH2.js"></link><link rel="modulepreload" href="/js/siteInit.js"></link><link rel="stylesheet" href="https://npm.webcache.cn/@waline/client@3.0.0-alpha.11/dist/waline.css" media="none" onload="this.media='all'"/><link rel="preload" href="https://api.miaomc.cn/image/get?324526" as="image" fetchpriority="high"><link rel="preload" href="https://api.miaomc.cn/image/get?875489" as="image" fetchpriority="high"><link rel="preload" href="https://api.miaomc.cn/image/get?914264" as="image" fetchpriority="high"><link rel="preload" href="https://api.miaomc.cn/image/get?63217" as="image" fetchpriority="high"><link rel="preload" href="https://api.miaomc.cn/image/get?947768" as="image" fetchpriority="high"><link rel="preload" href="https://api.miaomc.cn/image/get?898248" as="image" fetchpriority="high"><meta name="keywords" content="Linux"/><meta name="description" content="Linux环境里可以通过service、systemctl等方式使进程在后台运行，并可以做到异常重启等进程守护功能"/><link rel="canonical" href="https://linsanzhu.github.io/posts/27368/"><title>Linux系统服务</title><meta name="generator" content="Hexo 7.2.0"></head><body itemscope itemtype="http://schema.org/WebPage"><div id="loading"><div class="cat"><div class="body"></div><div class="head"><div class="face"></div></div><div class="foot"><div class="tummy-end"></div><div class="bottom"></div><div class="legs left"></div><div class="legs right"></div></div><div class="paw"><div class="hands left"></div><div class="hands right"></div></div></div></div><div id="container"><header id="header" itemscope itemtype="http://schema.org/WPHeader"><div class="inner"><div id="brand"><div class="pjax"><h1 itemprop="name headline">Linux系统服务</h1><div class="meta"><span class="item" title="创建时间：2020-09-30 15:42:41"><span class="icon"><i class="ic i-calendar"></i></span><span class="text">发表于</span><time itemprop="dateCreated datePublished" datetime="2020-09-30T15:42:41+08:00">2020-09-30</time></span><span class="item" title="本文字数"><span class="icon"><i class="ic i-pen"></i></span><span class="text">本文字数</span><span>8.9k</span><span class="text">字</span></span><span class="item" title="阅读时长"><span class="icon"><i class="ic i-clock"></i></span><span class="text">阅读时长</span><span>8 分钟</span></span></div></div></div><nav id="nav"><div class="inner"><div class="toggle"><div class="lines" aria-label="切换导航栏"><span class="line"></span><span class="line"></span><span class="line"></span></div></div><ul class="menu"><li class="item title"><a href="/" rel="start">Linsan Zhu's Blog</a></li></ul><ul class="right" id="rightNav"><li class="item theme"><i class="ic i-sun"></i></li><li class="item search"><i class="ic i-search"></i></li></ul></div></nav></div><div class="pjax" id="imgs"><ul><li class="item" style="background-image: url(&quot;https://api.miaomc.cn/image/get?324526&quot;);"></li><li class="item" style="background-image: url(&quot;https://api.miaomc.cn/image/get?875489&quot;);"></li><li class="item" style="background-image: url(&quot;https://api.miaomc.cn/image/get?914264&quot;);"></li><li class="item" style="background-image: url(&quot;https://api.miaomc.cn/image/get?63217&quot;);"></li><li class="item" style="background-image: url(&quot;https://api.miaomc.cn/image/get?947768&quot;);"></li><li class="item" style="background-image: url(&quot;https://api.miaomc.cn/image/get?898248&quot;);"></li></ul></div></header><div id="waves"><svg class="waves" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto"><defs><path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z"></path></defs><g class="parallax"><use xlink:href="#gentle-wave" x="48" y="0"></use><use xlink:href="#gentle-wave" x="48" y="3"></use><use xlink:href="#gentle-wave" x="48" y="5"></use><use xlink:href="#gentle-wave" x="48" y="7"></use></g></svg></div><main><div class="inner"><div class="pjax" id="main"><div class="article wrap"><div class="breadcrumb" itemListElement itemscope itemtype="https://schema.org/BreadcrumbList"><i class="ic i-home"></i><span><a href="/">首页</a></span><i class="ic i-angle-right"></i><span class="current" itemprop="itemListElement" itemscope="itemscope" itemtype="https://schema.org/ListItem"><a href="/categories/linux-sre/" itemprop="item" rel="index" title="分类于Linux运维"><span itemprop="name">Linux运维<meta itemprop="position" content="0"/></span></a></span></div><article class="post block" itemscope="itemscope" itemtype="http://schema.org/Article" lang="zh-CN"><link itemprop="mainEntityOfPage" href="https://linsanzhu.github.io/posts/27368/"/><span hidden="hidden" itemprop="author" itemscope="itemscope" itemtype="http://schema.org/Person"><meta itemprop="image" content="/assets/avatar.png"/><meta itemprop="name" content="Linsan Zhu"/><meta itemprop="description" content="If it feels easy, don't do it. Don't let the world spoil you., LinsanZhu's Blog"/></span><span hidden="hidden" itemprop="publisher" itemscope="itemscope" itemtype="http://schema.org/Organization"><meta itemprop="name" content="烂笔头"/></span><div class="body md" itemprop="articleBody"><h1 id="service命令"><a class="markdownIt-Anchor" href="#service命令"></a> service命令</h1>
+<h2 id="service命令的使用"><a class="markdownIt-Anchor" href="#service命令的使用"></a> service命令的使用</h2>
+<p>Linux系统一般使用service命令来管理服务:</p>
+<pre class="highlight"><code class="shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">启动服务</span>
+service network start
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">停止服务</span>
+service network stop
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">重启服务</span>
+service network restart
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">查看服务状态</span>
+service network status
+</code></pre>
+<h2 id="service原理"><a class="markdownIt-Anchor" href="#service原理"></a> service原理</h2>
+<p>Linux系统的服务实际上是在后台运行的命令,通常一个程序想要作为系统服务运行,首先需要在/etc/init.d目录下存放一个与服务同名的文件,例如network服务,查看/etc/init.d/network文件,其简化后内容如下:</p>
+<pre class="highlight"><code class="shell">case &quot;$1&quot; in
+start)
+    ;;
+stop)
+    ;;
+reload)
+    ;;
+force-reload|restart)
+    ;;
+*)
+    ;;
+esac
+exit 0
+</code></pre>
+<p>可见一个系统服务管理程序只要实现对命令行参数start|stop|restart等进行处理就可以被service命令管理,在使用service xxx cmd来管理服务时,其等价于执行/etc/init.d/xxx cmd</p>
 <blockquote>
-<p><em>注: /etc/init.d/xxx 文件必须具有可执行权限</em></p>
+<p><em>注: /etc/init.d/xxx文件必须具有可执行权限</em></p>
 </blockquote>
-<h2 id="开机自启动"><a class="anchor" href="#开机自启动">#</a> 开机自启动</h2>
-<h3 id="chkconfig命令"><a class="anchor" href="#chkconfig命令">#</a> chkconfig 命令</h3>
-<p>在 /etc/init.d 下存放服务的管理文件只是可以让程序作为服务运行，一旦系统重启，就必须手动执行 service xxx start 来启动服务，大多数情况服务需要开机自启动，这时候就要用 chkconfig 命令:</p>
-<figure class="highlight shell"><figcaption data-lang="Bash"></figcaption><table><tr><td data-num="1"></td><td><pre><span class="token comment"># 添加启动项</span></pre></td></tr><tr><td data-num="2"></td><td><pre><span class="token function">chkconfig</span> <span class="token parameter variable">--add</span> <span class="token punctuation">[</span>command<span class="token punctuation">]</span></pre></td></tr><tr><td data-num="3"></td><td><pre></pre></td></tr><tr><td data-num="4"></td><td><pre><span class="token comment"># 启用 / 禁用启动项</span></pre></td></tr><tr><td data-num="5"></td><td><pre><span class="token function">chkconfig</span> <span class="token punctuation">[</span>command<span class="token punctuation">]</span> on/off</pre></td></tr></table></figure><p>需要注意的是，要使用 chkconfig 命令，文件首行必须是:</p>
-<figure class="highlight shell"><figcaption data-lang="Bash"></figcaption><table><tr><td data-num="1"></td><td><pre><span class="token comment">#chkconfig: 2345 10 90</span></pre></td></tr></table></figure><p>其中 2345 表示运行级别，Linux 系统有 0~6 七个运行级别 (见:<a href="#linux%E8%BF%90%E8%A1%8C%E7%BA%A7%E5%88%AB">Linux 运行级别</a>)<br />
- 10 表示启动优先级，数字越小优先级越高，越早被启动，取值范围 0~100<br />
-90 表示退出优先级，数字越小优先级越高，越早被退出，取值范围 0~100</p>
-<h3 id="linux运行级别"><a class="anchor" href="#linux运行级别">#</a> Linux 运行级别</h3>
+<h2 id="开机自启动"><a class="markdownIt-Anchor" href="#开机自启动"></a> 开机自启动</h2>
+<h3 id="chkconfig命令"><a class="markdownIt-Anchor" href="#chkconfig命令"></a> chkconfig命令</h3>
+<p>在/etc/init.d下存放服务的管理文件只是可以让程序作为服务运行,一旦系统重启,就必须手动执行service xxx start来启动服务,大多数情况服务需要开机自启动,这时候就要用chkconfig命令:</p>
+<pre class="highlight"><code class="shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">添加启动项</span>
+chkconfig --add [command]
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">启用/禁用启动项</span>
+chkconfig [command] on/off
+</code></pre>
+<p>需要注意的是,要使用chkconfig命令,文件首行必须是:</p>
+<pre class="highlight"><code class="shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">chkconfig: 2345 10 90</span>
+</code></pre>
+<p>其中2345表示运行级别,Linux系统有0~6七个运行级别(见:<a href="#linux%E8%BF%90%E8%A1%8C%E7%BA%A7%E5%88%AB">Linux运行级别</a>)<br />
+10表示启动优先级,数字越小优先级越高,越早被启动, 取值范围0~100<br />
+90表示退出优先级,数字越小优先级越高,越早被退出, 取值范围0~100</p>
+<h3 id="linux运行级别"><a class="markdownIt-Anchor" href="#linux运行级别"></a> Linux运行级别</h3>
 <table>
 <thead>
 <tr>
@@ -25,60 +59,114 @@
 <tbody>
 <tr>
 <td style="text-align:center">0</td>
-<td>停机，通常不用</td>
+<td>停机,通常不用</td>
 </tr>
 <tr>
 <td style="text-align:center">1</td>
-<td>单用户模式，与 Windows 系统的安全模式类似</td>
+<td>单用户模式,与Windows系统的安全模式类似</td>
 </tr>
 <tr>
 <td style="text-align:center">2</td>
-<td>多用户模式，但没有 NFS 支持</td>
+<td>多用户模式,但没有NFS支持</td>
 </tr>
 <tr>
 <td style="text-align:center">3</td>
-<td>完全多用户模式，支持 NFS</td>
+<td>完全多用户模式,支持NFS</td>
 </tr>
 <tr>
 <td style="text-align:center">4</td>
-<td>一般不用，在一些特殊情况下可以用它来做一些事情。例如在笔记本电脑的电池用尽时，可以切换到这个模式来做一些设置</td>
+<td>一般不用,在一些特殊情况下可以用它来做一些事情.例如在笔记本电脑的电池用尽时,可以切换到这个模式来做一些设置</td>
 </tr>
 <tr>
 <td style="text-align:center">5</td>
-<td>有网络支持有 X-Window 支持的多用户模式</td>
+<td>有网络支持有X-Window支持的多用户模式</td>
 </tr>
 <tr>
 <td style="text-align:center">6</td>
-<td>重新引导系统，即重启，运行命令 init 6 就会重启系统，不建议讲服务的运行级别设置为 6</td>
+<td>重新引导系统,即重启,运行命令init 6就会重启系统,不建议讲服务的运行级别设置为6</td>
 </tr>
 </tbody>
 </table>
-<h3 id="rdd目录"><a class="anchor" href="#rdd目录">#</a> rd*.d 目录</h3>
-<p>事实上要让服务开机自启动，只需要在 /etc/rc.d/rc*.d 目录 (Ubuntu 等系统是在 /etc/rd*.d 目录) 下根据一定规则创建 /etc/init.d 目录中服务文件的软连接即可，其中＊表示运行级别，如 rc2.d 目录中表示以运行级别 2 启动。<br />
-通常在 rc*.d 目录中有两种文件:</p>
+<h3 id="rdd目录"><a class="markdownIt-Anchor" href="#rdd目录"></a> rd*.d目录</h3>
+<p>事实上要让服务开机自启动,只需要在/etc/rc.d/rc*.d目录(Ubuntu等系统是在/etc/rd*.d目录)下根据一定规则创建/etc/init.d目录中服务文件的软连接即可,其中＊表示运行级别,如rc2.d目录中表示以运行级别2启动。<br />
+通常在rc*.d目录中有两种文件:</p>
 <ul>
-<li>以 K 开头的文件：在系统退出时被调用</li>
-<li>以 S 开头的文件：在系统启动时被调用</li>
+<li>以K开头的文件:在系统退出时被调用</li>
+<li>以S开头的文件:在系统启动时被调用</li>
 </ul>
-<p>这两种文件都是对 /etc/init.d/ 目录中的服务文件的软链接，K/S 后是相应服务名，与链接的服务文件一致</p>
+<p>这两种文件都是对/etc/init.d/目录中的服务文件的软链接,K/S后是相应服务名,与链接的服务文件一致</p>
 <blockquote>
-<p><em><strong>如果只是需要开机执行某些简单命令，可以直接在 /etc/rc.d/rc.local 文件中添加需要开机执行的命令</strong></em></p>
+<p><em><strong>如果只是需要开机执行某些简单命令,可以直接在/etc/rc.d/rc.local文件中添加需要开机执行的命令</strong></em></p>
 </blockquote>
-<h1 id="systemd"><a class="anchor" href="#systemd">#</a> Systemd</h1>
-<p>过去 Linux 系统启动是采用 init 进程的，而 init 进程是串行化的，所以启动较慢，而且 init 进程只负责执行脚本，启动脚本需要自行处理各种异常情况，导致启动脚本常常很臃肿，为了解决这些问题，RedHat 推出了 Systemd 初始化系统，其特点:</p>
+<h1 id="systemd"><a class="markdownIt-Anchor" href="#systemd"></a> Systemd</h1>
+<p>过去Linux系统启动是采用init进程的,而init进程是串行化的,所以启动较慢,而且init进程只负责执行脚本,启动脚本需要自行处理各种异常情况,导致启动脚本常常很臃肿,为了解决这些问题,RedHat推出了Systemd初始化系统,其特点:</p>
 <ul>
 <li>系统引导时实现服务并行启动</li>
 <li>按需启动守护进程</li>
 <li>自动化的服务依赖关系管理</li>
-<li>同时采用 socket 式与 D-Bus 总线式激活服务</li>
+<li>同时采用socket式与D-Bus总线式激活服务</li>
 <li>系统状态快照和恢复</li>
-<li>利用 Linux 的 cgroups 监视进程</li>
+<li>利用Linux的cgroups监视进程</li>
 <li>维护挂载点和自动挂载点</li>
 <li>各服务间基于依赖关系进行精密控制</li>
 </ul>
-<h2 id="systemctl命令的使用"><a class="anchor" href="#systemctl命令的使用">#</a> systemctl 命令的使用</h2>
-<figure class="highlight shell"><figcaption data-lang="Bash"></figcaption><table><tr><td data-num="1"></td><td><pre><span class="token comment"># 重启系统</span></pre></td></tr><tr><td data-num="2"></td><td><pre><span class="token function">sudo</span> systemctl <span class="token function">reboot</span></pre></td></tr><tr><td data-num="3"></td><td><pre></pre></td></tr><tr><td data-num="4"></td><td><pre><span class="token comment"># 关闭系统，切断电源</span></pre></td></tr><tr><td data-num="5"></td><td><pre><span class="token function">sudo</span> systemctl poweroff</pre></td></tr><tr><td data-num="6"></td><td><pre></pre></td></tr><tr><td data-num="7"></td><td><pre><span class="token comment"># CPU 停止工作</span></pre></td></tr><tr><td data-num="8"></td><td><pre><span class="token function">sudo</span> systemctl <span class="token function">halt</span></pre></td></tr><tr><td data-num="9"></td><td><pre></pre></td></tr><tr><td data-num="10"></td><td><pre><span class="token comment"># 暂停系统</span></pre></td></tr><tr><td data-num="11"></td><td><pre><span class="token function">sudo</span> systemctl <span class="token function">suspend</span></pre></td></tr><tr><td data-num="12"></td><td><pre></pre></td></tr><tr><td data-num="13"></td><td><pre><span class="token comment"># 让系统进入冬眠状态</span></pre></td></tr><tr><td data-num="14"></td><td><pre><span class="token function">sudo</span> systemctl hibernate</pre></td></tr><tr><td data-num="15"></td><td><pre></pre></td></tr><tr><td data-num="16"></td><td><pre><span class="token comment"># 让系统进入交互式休眠状态</span></pre></td></tr><tr><td data-num="17"></td><td><pre><span class="token function">sudo</span> systemctl hybrid-sleep</pre></td></tr><tr><td data-num="18"></td><td><pre></pre></td></tr><tr><td data-num="19"></td><td><pre><span class="token comment"># 启动进入救援状态（单用户状态）</span></pre></td></tr><tr><td data-num="20"></td><td><pre><span class="token function">sudo</span> systemctl rescue</pre></td></tr><tr><td data-num="21"></td><td><pre></pre></td></tr><tr><td data-num="22"></td><td><pre><span class="token comment"># 服务开机自启动</span></pre></td></tr><tr><td data-num="23"></td><td><pre><span class="token function">sudo</span> systemctl <span class="token builtin class-name">enable</span> xxx</pre></td></tr><tr><td data-num="24"></td><td><pre></pre></td></tr><tr><td data-num="25"></td><td><pre><span class="token comment"># 禁用服务开机自启动</span></pre></td></tr><tr><td data-num="26"></td><td><pre><span class="token function">sudo</span> systemctl disable xxx</pre></td></tr><tr><td data-num="27"></td><td><pre></pre></td></tr><tr><td data-num="28"></td><td><pre><span class="token comment"># 启动服务</span></pre></td></tr><tr><td data-num="29"></td><td><pre><span class="token function">sudo</span> systemctl start xxx</pre></td></tr><tr><td data-num="30"></td><td><pre></pre></td></tr><tr><td data-num="31"></td><td><pre><span class="token comment"># 停止服务</span></pre></td></tr><tr><td data-num="32"></td><td><pre><span class="token function">sudo</span> systemctl start xxx</pre></td></tr><tr><td data-num="33"></td><td><pre></pre></td></tr><tr><td data-num="34"></td><td><pre><span class="token comment"># 重启服务</span></pre></td></tr><tr><td data-num="35"></td><td><pre><span class="token function">sudo</span> systemctl restart xxx</pre></td></tr><tr><td data-num="36"></td><td><pre></pre></td></tr><tr><td data-num="37"></td><td><pre><span class="token comment"># 杀死一个服务的所有子进程</span></pre></td></tr><tr><td data-num="38"></td><td><pre><span class="token function">sudo</span> systemctl <span class="token function">kill</span> apache.service</pre></td></tr><tr><td data-num="39"></td><td><pre></pre></td></tr><tr><td data-num="40"></td><td><pre><span class="token comment"># 重新加载一个服务的配置文件</span></pre></td></tr><tr><td data-num="41"></td><td><pre><span class="token function">sudo</span> systemctl reload apache.service</pre></td></tr><tr><td data-num="42"></td><td><pre></pre></td></tr><tr><td data-num="43"></td><td><pre><span class="token comment"># 重载所有修改过的配置文件</span></pre></td></tr><tr><td data-num="44"></td><td><pre><span class="token function">sudo</span> systemctl daemon-reload</pre></td></tr><tr><td data-num="45"></td><td><pre></pre></td></tr><tr><td data-num="46"></td><td><pre><span class="token comment"># 显示某个 Unit 的所有底层参数</span></pre></td></tr><tr><td data-num="47"></td><td><pre>systemctl show httpd.service</pre></td></tr><tr><td data-num="48"></td><td><pre></pre></td></tr><tr><td data-num="49"></td><td><pre><span class="token comment"># 显示某个 Unit 的指定属性的值</span></pre></td></tr><tr><td data-num="50"></td><td><pre>systemctl show <span class="token parameter variable">-p</span> CPUShares httpd.service</pre></td></tr><tr><td data-num="51"></td><td><pre></pre></td></tr><tr><td data-num="52"></td><td><pre><span class="token comment"># 设置某个 Unit 的指定属性</span></pre></td></tr><tr><td data-num="53"></td><td><pre><span class="token function">sudo</span> systemctl set-property httpd.service <span class="token assign-left variable">CPUShares</span><span class="token operator">=</span><span class="token number">500</span></pre></td></tr></table></figure><h2 id="添加系统服务"><a class="anchor" href="#添加系统服务">#</a> 添加系统服务</h2>
-<p>Systemd 可以管理所有系统资源，在 Systemd 中资源被统称为 Unit。Unit 一共分为 12 种:</p>
+<h2 id="systemctl命令的使用"><a class="markdownIt-Anchor" href="#systemctl命令的使用"></a> systemctl命令的使用</h2>
+<pre class="highlight"><code class="shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">重启系统</span>
+sudo systemctl reboot
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">关闭系统,切断电源</span>
+sudo systemctl poweroff
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">CPU停止工作</span>
+sudo systemctl halt
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">暂停系统</span>
+sudo systemctl suspend
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">让系统进入冬眠状态</span>
+sudo systemctl hibernate
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">让系统进入交互式休眠状态</span>
+sudo systemctl hybrid-sleep
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">启动进入救援状态（单用户状态）</span>
+sudo systemctl rescue
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">服务开机自启动</span>
+sudo systemctl enable xxx
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">禁用服务开机自启动</span>
+sudo systemctl disable xxx
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">启动服务</span>
+sudo systemctl start xxx
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">停止服务</span>
+sudo systemctl start xxx
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">重启服务</span>
+sudo systemctl restart xxx
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">杀死一个服务的所有子进程</span>
+sudo systemctl kill apache.service
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">重新加载一个服务的配置文件</span>
+sudo systemctl reload apache.service
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">重载所有修改过的配置文件</span>
+sudo systemctl daemon-reload
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">显示某个 Unit 的所有底层参数</span>
+systemctl show httpd.service
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">显示某个 Unit 的指定属性的值</span>
+systemctl show -p CPUShares httpd.service
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">设置某个 Unit 的指定属性</span>
+sudo systemctl set-property httpd.service CPUShares=500
+</code></pre>
+<h2 id="添加系统服务"><a class="markdownIt-Anchor" href="#添加系统服务"></a> 添加系统服务</h2>
+<p>Systemd可以管理所有系统资源,在Systemd中资源被统称为Unit。Unit一共分为12种:</p>
 <ul>
 <li>Service unit：系统服务</li>
 <li>Target unit：多个 Unit 构成的一个组</li>
@@ -88,21 +176,43 @@
 <li>Path Unit：文件或路径</li>
 <li>Scope Unit：不是由 Systemd 启动的外部进程</li>
 <li>Slice Unit：进程组</li>
-<li>Snapshot Unit：Systemd 快照，可以切回某个快照</li>
+<li>Snapshot Unit：Systemd 快照,可以切回某个快照</li>
 <li>Socket Unit：进程间通信的 socket</li>
 <li>Swap Unit：swap 文件</li>
 <li>Timer Unit：定时器</li>
 </ul>
-<p>每一个 Unit 都有一个配置文件，告诉 Systemd 如何启动该 Unit。默认情况下，Systemd 从 /etc/systemd/system 读取配置文件，然而实际上该目录的文件均为 /usr/lib/systemd/system 目录中文件的软链接，systemctl enable 用于在两个目录间建立符号链接，sytemctl diable 则用于撤销链接关系。</p>
-<h3 id="unit配置文件"><a class="anchor" href="#unit配置文件">#</a> Unit 配置文件</h3>
-<p>以 network 服务的配置文件为例，其内容如下:</p>
-<figure class="highlight shell"><figcaption data-lang="Bash"></figcaption><table><tr><td data-num="1"></td><td><pre><span class="token punctuation">[</span>Unit<span class="token punctuation">]</span></pre></td></tr><tr><td data-num="2"></td><td><pre><span class="token assign-left variable">Description</span><span class="token operator">=</span>Raise network interfaces</pre></td></tr><tr><td data-num="3"></td><td><pre><span class="token assign-left variable">Documentation</span><span class="token operator">=</span>man:interfaces<span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">)</span></pre></td></tr><tr><td data-num="4"></td><td><pre><span class="token assign-left variable">DefaultDependencies</span><span class="token operator">=</span>no</pre></td></tr><tr><td data-num="5"></td><td><pre><span class="token assign-left variable">Wants</span><span class="token operator">=</span>network.target</pre></td></tr><tr><td data-num="6"></td><td><pre><span class="token assign-left variable">After</span><span class="token operator">=</span>local-fs.target network-pre.target apparmor.service systemd-sysctl.service systemd-modules-load.service</pre></td></tr><tr><td data-num="7"></td><td><pre><span class="token assign-left variable">Before</span><span class="token operator">=</span>network.target shutdown.target network-online.target</pre></td></tr><tr><td data-num="8"></td><td><pre><span class="token assign-left variable">Conflicts</span><span class="token operator">=</span>shutdown.target</pre></td></tr><tr><td data-num="9"></td><td><pre></pre></td></tr><tr><td data-num="10"></td><td><pre><span class="token punctuation">[</span>Install<span class="token punctuation">]</span></pre></td></tr><tr><td data-num="11"></td><td><pre><span class="token assign-left variable">WantedBy</span><span class="token operator">=</span>multi-user.target</pre></td></tr><tr><td data-num="12"></td><td><pre><span class="token assign-left variable">WantedBy</span><span class="token operator">=</span>network-online.target</pre></td></tr><tr><td data-num="13"></td><td><pre></pre></td></tr><tr><td data-num="14"></td><td><pre><span class="token punctuation">[</span>Service<span class="token punctuation">]</span></pre></td></tr><tr><td data-num="15"></td><td><pre><span class="token assign-left variable">Type</span><span class="token operator">=</span>oneshot</pre></td></tr><tr><td data-num="16"></td><td><pre><span class="token assign-left variable">EnvironmentFile</span><span class="token operator">=</span>-/etc/default/networking</pre></td></tr><tr><td data-num="17"></td><td><pre><span class="token assign-left variable">ExecStartPre</span><span class="token operator">=</span>-/bin/sh <span class="token parameter variable">-c</span> <span class="token string">'[ "$CONFIGURE_INTERFACES" != "no" ] &amp;&amp; [ -n "$(ifquery --read-environment --list --exclude=lo)" ] &amp;&amp; udevadm settle'</span></pre></td></tr><tr><td data-num="18"></td><td><pre><span class="token assign-left variable">ExecStart</span><span class="token operator">=</span>/sbin/ifup <span class="token parameter variable">-a</span> --read-environment</pre></td></tr><tr><td data-num="19"></td><td><pre><span class="token assign-left variable">ExecStop</span><span class="token operator">=</span>/sbin/ifdown <span class="token parameter variable">-a</span> --read-environment <span class="token parameter variable">--exclude</span><span class="token operator">=</span>lo</pre></td></tr><tr><td data-num="20"></td><td><pre><span class="token assign-left variable">RemainAfterExit</span><span class="token operator">=</span>true</pre></td></tr><tr><td data-num="21"></td><td><pre><span class="token assign-left variable">TimeoutStartSec</span><span class="token operator">=</span>5min</pre></td></tr></table></figure><p>了解 ini 文件格式的话，不难发现 Unit 配置文件分为了三节 (section):</p>
+<p>每一个Unit都有一个配置文件,告诉Systemd如何启动该Unit。默认情况下,Systemd从/etc/systemd/system读取配置文件,然而实际上该目录的文件均为/usr/lib/systemd/system目录中文件的软链接,systemctl enable用于在两个目录间建立符号链接,sytemctl diable则用于撤销链接关系。</p>
+<h3 id="unit配置文件"><a class="markdownIt-Anchor" href="#unit配置文件"></a> Unit配置文件</h3>
+<p>以network服务的配置文件为例,其内容如下:</p>
+<pre class="highlight"><code class="shell">[Unit]
+Description=Raise network interfaces
+Documentation=man:interfaces(5)
+DefaultDependencies=no
+Wants=network.target
+After=local-fs.target network-pre.target apparmor.service systemd-sysctl.service systemd-modules-load.service
+Before=network.target shutdown.target network-online.target
+Conflicts=shutdown.target
+
+[Install]
+WantedBy=multi-user.target
+WantedBy=network-online.target
+
+[Service]
+Type=oneshot
+EnvironmentFile=-/etc/default/networking
+ExecStartPre=-/bin/sh -c &#x27;[ &quot;$CONFIGURE_INTERFACES&quot; != &quot;no&quot; ] &amp;&amp; [ -n &quot;$(ifquery --read-environment --list --exclude=lo)&quot; ] &amp;&amp; udevadm settle&#x27;
+ExecStart=/sbin/ifup -a --read-environment
+ExecStop=/sbin/ifdown -a --read-environment --exclude=lo
+RemainAfterExit=true
+TimeoutStartSec=5min
+</code></pre>
+<p>了解ini文件格式的话,不难发现Unit配置文件分为了三节(section):</p>
 <ul>
 <li>
-<h4 id="unit"><a class="anchor" href="#unit">#</a> Unit</h4>
+<h4 id="unit"><a class="markdownIt-Anchor" href="#unit"></a> Unit</h4>
 </li>
 </ul>
-<p>[Unit] 区块通常是配置文件的第一个区块，用来定义 Unit 的元数据，以及配置与其他 Unit 的关系。它的主要字段如下:</p>
+<p>[Unit]区块通常是配置文件的第一个区块,用来定义Unit的元数据,以及配置与其他Unit的关系。它的主要字段如下:</p>
 <ul>
 <li>
 <p>Description：简短描述</p>
@@ -111,86 +221,103 @@
 <p>Documentation：文档地址</p>
 </li>
 <li>
-<p>Requires：当前 Unit 依赖的其他 Unit, 如果它们没有运行，当前 Unit 会启动失败</p>
+<p>Requires：当前 Unit 依赖的其他 Unit,如果它们没有运行,当前 Unit 会启动失败</p>
 </li>
 <li>
-<p>Wants：与当前 Unit 配合的其他 Unit, 如果它们没有运行，当前 Unit 不会启动失败</p>
+<p>Wants：与当前 Unit 配合的其他 Unit,如果它们没有运行,当前 Unit 不会启动失败</p>
 </li>
 <li>
-<p>BindsTo：与 Requires 类似，它指定的 Unit 如果退出，会导致当前 Unit 停止运行</p>
+<p>BindsTo：与Requires类似,它指定的 Unit 如果退出,会导致当前 Unit 停止运行</p>
 </li>
 <li>
-<p>Before：如果该字段指定的 Unit 也要启动，那么必须在当前 Unit 之后启动</p>
+<p>Before：如果该字段指定的 Unit 也要启动,那么必须在当前 Unit 之后启动</p>
 </li>
 <li>
-<p>After：如果该字段指定的 Unit 也要启动，那么必须在当前 Unit 之前启动</p>
+<p>After：如果该字段指定的 Unit 也要启动,那么必须在当前 Unit 之前启动</p>
 </li>
 <li>
 <p>Conflicts：这里指定的 Unit 不能与当前 Unit 同时运行</p>
 </li>
 <li>
-<p>Condition...：当前 Unit 运行必须满足的条件，否则不会运行</p>
+<p>Condition…：当前 Unit 运行必须满足的条件,否则不会运行</p>
 </li>
 <li>
-<p>Assert...：当前 Unit 运行必须满足的条件，否则会报启动失败</p>
+<p>Assert…：当前 Unit 运行必须满足的条件,否则会报启动失败</p>
 </li>
 <li>
-<h4 id="install"><a class="anchor" href="#install">#</a> Install</h4>
+<h4 id="install"><a class="markdownIt-Anchor" href="#install"></a> Install</h4>
 </li>
 </ul>
-<p>[Install] 通常是配置文件的最后一个区块，用来定义如何启动，以及是否开机启动。它的主要字段如下:</p>
+<p>[Install]通常是配置文件的最后一个区块,用来定义如何启动,以及是否开机启动。它的主要字段如下:</p>
 <ul>
 <li>
-<p>WantedBy：它的值是一个或多个 Target, 当前 Unit 激活时（enable）符号链接会放入 /etc/systemd/system 目录下面以 Target 名 + .wants 后缀构成的子目录中</p>
+<p>WantedBy：它的值是一个或多个 Target,当前 Unit 激活时（enable）符号链接会放入/etc/systemd/system目录下面以 Target 名 + .wants后缀构成的子目录中</p>
 </li>
 <li>
-<p>RequiredBy：它的值是一个或多个 Target, 当前 Unit 激活时，符号链接会放入 /etc/systemd/system 目录下面以 Target 名 + .required 后缀构成的子目录中</p>
+<p>RequiredBy：它的值是一个或多个 Target,当前 Unit 激活时,符号链接会放入/etc/systemd/system目录下面以 Target 名 + .required后缀构成的子目录中</p>
 </li>
 <li>
 <p>Alias：当前 Unit 可用于启动的别名</p>
 </li>
 <li>
-<p>Also：当前 Unit 激活（enable）时，会被同时激活的其他 Unit</p>
+<p>Also：当前 Unit 激活（enable）时,会被同时激活的其他 Unit</p>
 </li>
 <li>
-<h4 id="service"><a class="anchor" href="#service">#</a> Service</h4>
+<h4 id="service"><a class="markdownIt-Anchor" href="#service"></a> Service</h4>
 </li>
 </ul>
-<p>[Service] 区块是 Service 的配置，只有 Service 类型的 Unit 才有这个区块。它的主要字段如下:</p>
+<p>[Service]区块是Service 的配置,只有 Service 类型的 Unit 才有这个区块。它的主要字段如下:</p>
 <ul>
 <li>Type：定义启动时的进程行为。它有以下几种值。
 <ul>
-<li>simple：默认值，执行 ExecStart 指定的命令，启动主进程</li>
-<li>forking：以 fork 方式从父进程创建子进程，创建后父进程会立即退出</li>
-<li>oneshot：一次性进程，Systemd 会等当前服务退出，再继续往下执行</li>
-<li>dbus：当前服务通过 D-Bus 启动</li>
-<li>notify：当前服务启动完毕，会通知 Systemd, 再继续往下执行</li>
-<li>idle：若有其他任务执行完毕，当前服务才会运行</li>
+<li>simple：默认值,执行ExecStart指定的命令,启动主进程</li>
+<li>forking：以 fork 方式从父进程创建子进程,创建后父进程会立即退出</li>
+<li>oneshot：一次性进程,Systemd 会等当前服务退出,再继续往下执行</li>
+<li>dbus：当前服务通过D-Bus启动</li>
+<li>notify：当前服务启动完毕,会通知Systemd,再继续往下执行</li>
+<li>idle：若有其他任务执行完毕,当前服务才会运行</li>
 </ul>
 </li>
-<li>ExecStart：启动当前服务的命令，命令必须使用绝对路径，如:/bin/sh/path/to/xxx.sh</li>
-<li>ExecStartPre：启动当前服务之前执行的命令，命令必须使用绝对路径</li>
-<li>ExecStartPost：启动当前服务之后执行的命令，命令必须使用绝对路径</li>
-<li>ExecReload：重启当前服务时执行的命令，命令必须使用绝对路径</li>
-<li>ExecStop：停止当前服务时执行的命令，命令必须使用绝对路径</li>
-<li>ExecStopPost：停止当前服务之后执行的命令，命令必须使用绝对路径</li>
+<li>ExecStart：启动当前服务的命令,命令必须使用绝对路径,如:/bin/sh /path/to/xxx.sh</li>
+<li>ExecStartPre：启动当前服务之前执行的命令,命令必须使用绝对路径</li>
+<li>ExecStartPost：启动当前服务之后执行的命令,命令必须使用绝对路径</li>
+<li>ExecReload：重启当前服务时执行的命令,命令必须使用绝对路径</li>
+<li>ExecStop：停止当前服务时执行的命令,命令必须使用绝对路径</li>
+<li>ExecStopPost：停止当前服务之后执行的命令,命令必须使用绝对路径</li>
 <li>RestartSec：自动重启当前服务间隔的秒数</li>
-<li>Restart：定义何种情况 Systemd 会自动重启当前服务，可能的值包括 always（总是重启）、on-success、on-failure、on-abnormal、on-abort、on-watchdog</li>
+<li>Restart：定义何种情况 Systemd 会自动重启当前服务,可能的值包括always（总是重启）、on-success、on-failure、on-abnormal、on-abort、on-watchdog</li>
 <li>TimeoutSec：定义 Systemd 停止当前服务之前等待的秒数</li>
 <li>Environment：指定环境变量</li>
 </ul>
-<p>Unit 配置文件的完整字段清单，请参考<a target="_blank" rel="noopener" href="https://www.freedesktop.org/software/systemd/man/systemd.unit.html">官方文档</a>。</p>
-<h3 id="target"><a class="anchor" href="#target">#</a> Target</h3>
-<p>启动计算机的时候，需要启动大量的 Unit。如果每一次启动，都要一一写明本次启动需要哪些 Unit, 显然非常不方便。Systemd 的解决方案就是 Target。<br />
-简单说，Target 就是一个 Unit 组，包含许多相关的 Unit 。启动某个 Target 的时候，Systemd 就会启动里面所有的 Unit。从这个意义上说，Target 这个概念类似于 &quot;状态点&quot;, 启动某个 Target 就好比启动到某种状态。<br />
-传统的 init 启动模式里面，有 RunLevel 的概念，跟 Target 的作用很类似。不同的是，RunLevel 是互斥的，不可能多个 RunLevel 同时启动，但是多个 Target 可以同时启动。</p>
-<figure class="highlight shell"><figcaption data-lang="Bash"></figcaption><table><tr><td data-num="1"></td><td><pre><span class="token comment"># 查看当前系统的所有 Target</span></pre></td></tr><tr><td data-num="2"></td><td><pre>systemctl list-unit-files <span class="token parameter variable">--type</span><span class="token operator">=</span>target</pre></td></tr><tr><td data-num="3"></td><td><pre></pre></td></tr><tr><td data-num="4"></td><td><pre><span class="token comment"># 查看一个 Target 包含的所有 Unit</span></pre></td></tr><tr><td data-num="5"></td><td><pre>systemctl list-dependencies multi-user.target</pre></td></tr><tr><td data-num="6"></td><td><pre></pre></td></tr><tr><td data-num="7"></td><td><pre><span class="token comment"># 查看启动时的默认 Target</span></pre></td></tr><tr><td data-num="8"></td><td><pre>systemctl get-default</pre></td></tr><tr><td data-num="9"></td><td><pre></pre></td></tr><tr><td data-num="10"></td><td><pre><span class="token comment"># 设置启动时的默认 Target</span></pre></td></tr><tr><td data-num="11"></td><td><pre><span class="token function">sudo</span> systemctl set-default multi-user.target</pre></td></tr><tr><td data-num="12"></td><td><pre></pre></td></tr><tr><td data-num="13"></td><td><pre><span class="token comment"># 切换 Target 时，默认不关闭前一个 Target 启动的进程，</span></pre></td></tr><tr><td data-num="14"></td><td><pre><span class="token comment"># systemctl isolate 命令改变这种行为，</span></pre></td></tr><tr><td data-num="15"></td><td><pre><span class="token comment"># 关闭前一个 Target 里面所有不属于后一个 Target 的进程</span></pre></td></tr><tr><td data-num="16"></td><td><pre><span class="token function">sudo</span> systemctl isolate multi-user.target</pre></td></tr></table></figure><p>Target 与 传统 RunLevel 的对应关系如下。</p>
+<p>Unit 配置文件的完整字段清单,请参考<a target="_blank" rel="noopener" href="https://www.freedesktop.org/software/systemd/man/systemd.unit.html">官方文档</a>。</p>
+<h3 id="target"><a class="markdownIt-Anchor" href="#target"></a> Target</h3>
+<p>启动计算机的时候,需要启动大量的 Unit。如果每一次启动,都要一一写明本次启动需要哪些 Unit,显然非常不方便。Systemd 的解决方案就是 Target。<br />
+简单说,Target 就是一个 Unit 组,包含许多相关的 Unit 。启动某个 Target 的时候,Systemd 就会启动里面所有的 Unit。从这个意义上说,Target 这个概念类似于 “状态点”,启动某个Target就好比启动到某种状态。<br />
+传统的init启动模式里面,有 RunLevel 的概念,跟 Target 的作用很类似。不同的是,RunLevel 是互斥的,不可能多个 RunLevel 同时启动,但是多个 Target 可以同时启动。</p>
+<pre class="highlight"><code class="shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">查看当前系统的所有 Target</span>
+systemctl list-unit-files --type=target
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">查看一个 Target 包含的所有 Unit</span>
+systemctl list-dependencies multi-user.target
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">查看启动时的默认 Target</span>
+systemctl get-default
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">设置启动时的默认 Target</span>
+sudo systemctl set-default multi-user.target
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">切换 Target 时,默认不关闭前一个 Target 启动的进程,</span>
+<span class="hljs-meta prompt_"># </span><span class="language-bash">systemctl isolate 命令改变这种行为,</span>
+<span class="hljs-meta prompt_"># </span><span class="language-bash">关闭前一个 Target 里面所有不属于后一个 Target 的进程</span>
+sudo systemctl isolate multi-user.target
+</code></pre>
+<p>Target 与 传统 RunLevel 的对应关系如下。</p>
 <table>
 <thead>
 <tr>
 <th>Traditional runlevel</th>
 <th>New target name</th>
-<th>Symbolically linked to...</th>
+<th>Symbolically linked to…</th>
 </tr>
 </thead>
 <tbody>
@@ -231,16 +358,30 @@
 </tr>
 </tbody>
 </table>
-<p>它与 init 进程的主要差别如下:</p>
+<p>它与init进程的主要差别如下:</p>
 <ol>
-<li>默认的 RunLevel (在 /etc/inittab 文件设置) 现在被默认的 Target 取代，位置是 /etc/systemd/system/default.target, 通常符号链接到 graphical.target (图形界面) 或者 multi-user.target (多用户命令行)。</li>
-<li>启动脚本的位置，以前是 /etc/init.d 目录，符号链接到不同的 RunLevel 目录 (比如 /etc/rc3.d、/etc/rc5.d 等), 现在则存放在 /lib/systemd/system 和 /etc/systemd/system 目录。</li>
-<li>配置文件的位置，以前 init 进程的配置文件是 /etc/inittab, 各种服务的配置文件存放在 /etc/sysconfig 目录。现在的配置文件主要存放在 /lib/systemd 目录，在 /etc/systemd 目录里面的修改可以覆盖原始设置。</li>
+<li>默认的 RunLevel(在/etc/inittab文件设置)现在被默认的 Target 取代,位置是/etc/systemd/system/default.target,通常符号链接到graphical.target(图形界面)或者multi-user.target(多用户命令行)。</li>
+<li>启动脚本的位置,以前是/etc/init.d目录,符号链接到不同的 RunLevel 目录 (比如/etc/rc3.d、/etc/rc5.d等),现在则存放在/lib/systemd/system和/etc/systemd/system目录。</li>
+<li>配置文件的位置,以前init进程的配置文件是/etc/inittab,各种服务的配置文件存放在/etc/sysconfig目录。现在的配置文件主要存放在/lib/systemd目录,在/etc/systemd目录里面的修改可以覆盖原始设置。</li>
 </ol>
-<h3 id="例子"><a class="anchor" href="#例子">#</a> 例子</h3>
-<p>假设当前在 /opt 目录下有可执行程序 demo, 其用于定时从 Wallpaper 网站抓取一张壁纸并替换当前壁纸，我们想要开机自动执行它，首先在 /usr/lib/systemd/system/ 目录创建 demo.service 文件，根据上面的说明，其内容如下:</p>
-<figure class="highlight shell"><figcaption data-lang="Bash"></figcaption><table><tr><td data-num="1"></td><td><pre><span class="token punctuation">[</span>Unit<span class="token punctuation">]</span></pre></td></tr><tr><td data-num="2"></td><td><pre><span class="token assign-left variable">Description</span><span class="token operator">=</span>demo <span class="token function">service</span></pre></td></tr><tr><td data-num="3"></td><td><pre><span class="token comment"># 强依赖网络服务</span></pre></td></tr><tr><td data-num="4"></td><td><pre><span class="token assign-left variable">Requires</span><span class="token operator">=</span>network-online.target</pre></td></tr><tr><td data-num="5"></td><td><pre><span class="token assign-left variable">BindsTo</span><span class="token operator">=</span>network.target</pre></td></tr><tr><td data-num="6"></td><td><pre><span class="token assign-left variable">After</span><span class="token operator">=</span>network.target</pre></td></tr><tr><td data-num="7"></td><td><pre><span class="token punctuation">[</span>Install<span class="token punctuation">]</span></pre></td></tr><tr><td data-num="8"></td><td><pre><span class="token punctuation">[</span>Service<span class="token punctuation">]</span></pre></td></tr><tr><td data-num="9"></td><td><pre><span class="token assign-left variable">Type</span><span class="token operator">=</span>simple</pre></td></tr><tr><td data-num="10"></td><td><pre><span class="token assign-left variable">ExecStart</span><span class="token operator">=</span>/opt/demo</pre></td></tr><tr><td data-num="11"></td><td><pre><span class="token assign-left variable">ExecStart</span><span class="token operator">=</span>/usr/bin/kill <span class="token parameter variable">-9</span> <span class="token variable"><span class="token variable">$(</span>/usr/bin/ps aux <span class="token operator">|</span> <span class="token function">grep</span> demo <span class="token operator">|</span> <span class="token function">awk</span> <span class="token string">'&#123;print $2&#125;'</span><span class="token variable">)</span></span> <span class="token operator">&amp;&amp;</span> /opt/demo</pre></td></tr><tr><td data-num="12"></td><td><pre><span class="token assign-left variable">EXECStop</span><span class="token operator">=</span>/usr/bin/kill <span class="token parameter variable">-9</span> <span class="token variable"><span class="token variable">$(</span>/usr/bin/ps aux <span class="token operator">|</span> <span class="token function">grep</span> demo <span class="token operator">|</span> <span class="token function">awk</span> <span class="token string">'&#123;print $2&#125;'</span><span class="token variable">)</span></span></pre></td></tr><tr><td data-num="13"></td><td><pre><span class="token assign-left variable">Restart</span><span class="token operator">=</span>on-failure</pre></td></tr></table></figure><p>写好 demo.service 文件后，需要执行 systemctl daemon-reload 命令来重新加载所有配置文件，然后执行 systemctl enable demo 命令，这样下次开机时 demo 程序就会自动执行。</p>
-<div class="tags"><a href="/tags/linux/" rel="tag"><i class="ic i-tag"></i>Linux</a></div></div><footer><div class="meta"><span class="icon"><i class="ic i-eye"></i></span><span>此文章已被阅读次数:</span><span class="waline-pageview-count" id="twikoo_visitors" data-path="posts/27368/">正在加载...</span><span class="item"><span class="icon"><i class="ic i-calendar-check"></i></span><span class="text">更新于</span><time title="修改时间：2024-06-23 16:49:26" itemprop="dateModified" datetime="2024-06-23T16:49:26+08:00">2024-06-23</time></span></div><div class="reward"><button><i class="ic i-heartbeat"></i>赞赏</button><p>请我喝[茶]~(￣▽￣)~*</p><div id="qr"><div><img loading="lazy" data-src="/assets/wechatpay.png" alt="Linsan Zhu 微信支付"/><p>微信支付</p></div><div><img loading="lazy" data-src="/assets/alipay.png" alt="Linsan Zhu 支付宝"/><p>支付宝</p></div></div></div><div id="copyright"><ul><li class="author"><strong>本文作者：</strong>Linsan Zhu<i class="ic i-at"><em>@</em></i>烂笔头</li><li class="link"><strong>本文链接：</strong><a href="https://linsanzhu.github.io/posts/27368/" title="Linux系统服务">https://linsanzhu.github.io/posts/27368/</a></li><li class="license"><strong>版权声明：</strong>本站所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh"><i class="ic i-creative-commons"><em>(CC)</em></i>BY-NC-SA</a> 许可协议。转载请注明出处！</li></ul></div></footer></article></div><div class="post-nav"><div class="item left"><a href="/posts/48230/" rel="prev" itemprop="url" data-background-image="https:&#x2F;&#x2F;api.miaomc.cn&#x2F;image&#x2F;get?352710" title="Linux常用命令"><span class="type">上一篇</span><span class="category"><i class="ic i-flag"></i>Linux运维</span><h3>Linux常用命令</h3></a></div><div class="item right"><a href="/posts/32785/" rel="next" itemprop="url" data-background-image="https:&#x2F;&#x2F;api.miaomc.cn&#x2F;image&#x2F;get?784714" title="Golang插件"><span class="type">下一篇</span><span class="category"><i class="ic i-flag"></i>Golang</span><h3>Golang插件</h3></a></div></div><div class="wrap" id="comments"></div></div><div id="sidebar"><div class="inner"><div class="panels"><div class="inner"><div class="contents panel pjax" data-title="文章目录"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#service%E5%91%BD%E4%BB%A4"><span class="toc-number">1.</span> <span class="toc-text"> service 命令</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#service%E5%91%BD%E4%BB%A4%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="toc-number">1.1.</span> <span class="toc-text"> service 命令的使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#service%E5%8E%9F%E7%90%86"><span class="toc-number">1.2.</span> <span class="toc-text"> service 原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%80%E6%9C%BA%E8%87%AA%E5%90%AF%E5%8A%A8"><span class="toc-number">1.3.</span> <span class="toc-text"> 开机自启动</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#chkconfig%E5%91%BD%E4%BB%A4"><span class="toc-number">1.3.1.</span> <span class="toc-text"> chkconfig 命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#linux%E8%BF%90%E8%A1%8C%E7%BA%A7%E5%88%AB"><span class="toc-number">1.3.2.</span> <span class="toc-text"> Linux 运行级别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#rdd%E7%9B%AE%E5%BD%95"><span class="toc-number">1.3.3.</span> <span class="toc-text"> rd*.d 目录</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#systemd"><span class="toc-number">2.</span> <span class="toc-text"> Systemd</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#systemctl%E5%91%BD%E4%BB%A4%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="toc-number">2.1.</span> <span class="toc-text"> systemctl 命令的使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0%E7%B3%BB%E7%BB%9F%E6%9C%8D%E5%8A%A1"><span class="toc-number">2.2.</span> <span class="toc-text"> 添加系统服务</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#unit%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">2.2.1.</span> <span class="toc-text"> Unit 配置文件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#unit"><span class="toc-number">2.2.1.1.</span> <span class="toc-text"> Unit</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#install"><span class="toc-number">2.2.1.2.</span> <span class="toc-text"> Install</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#service"><span class="toc-number">2.2.1.3.</span> <span class="toc-text"> Service</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#target"><span class="toc-number">2.2.2.</span> <span class="toc-text"> Target</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BE%8B%E5%AD%90"><span class="toc-number">2.2.3.</span> <span class="toc-text"> 例子</span></a></li></ol></li></ol></li></ol></div><div class="related panel pjax" data-title="系列文章"><ul><li ><a href="/posts/48230/" rel="bookmark" title="Linux常用命令">Linux常用命令</a></li><li  class="active"><a href="/posts/27368/" rel="bookmark" title="Linux系统服务">Linux系统服务</a></li></ul></div><div class="overview panel" data-title="站点概览"><div class="author" itemprop="author" itemscope="itemscope" itemtype="http://schema.org/Person"><img class="image" loading="lazy" decoding="async" itemprop="image" alt="Linsan Zhu" src="/assets/avatar.png"/><p class="name" itemprop="name">Linsan Zhu</p><div class="description" itemprop="description">LinsanZhu's Blog</div></div><nav class="state"><div class="item posts"><a href="/archives/"><span class="count">5</span><span class="name">文章</span></a></div><div class="item categories"><a href="/categories/"><span class="count">4</span><span class="name">分类</span></a></div><div class="item tags"><a href="/tags/"><span class="count">6</span><span class="name">标签</span></a></div></nav><div class="social"><a target="_blank" rel="noopener" href="https://github.com/linsanzhu" class="item github" title="https:&#x2F;&#x2F;github.com&#x2F;linsanzhu"><i class="ic i-github"></i></a><a href="mailto:bin.zaq@foxmail.com" class="item email" title="mailto:bin.zaq@foxmail.com"><i class="ic i-envelope"></i></a></div><div class="menu"><li class="item"><a href="/" rel="section"><i class="ic i-home"></i>首页</a></li><li class="item dropdown"><a href="#" onclick="return false;"><i class="ic i-feather"></i>文章</a><ul class="submenu"><li class="item"><a href="/archives/" rel="section"><i class="ic i-archive"></i>归档</a></li><li class="item"><a href="/categories/" rel="section"><i class="ic i-th"></i>分类</a></li><li class="item"><a href="/tags/" rel="section"><i class="ic i-tags"></i>标签</a></li><li class="item"><a href="/posts/57784073/" rel="section"><i class="ic i-link-alt"></i>私密</a></li></ul></li></div></div></div></div><ul id="quick"><li class="prev pjax"><a href="/posts/32785/" rel="prev" title="上一篇"><i class="ic i-chevron-left"></i></a></li><li class="up"><i class="ic i-arrow-up"></i></li><li class="down"><i class="ic i-arrow-down"></i></li><li class="next pjax"><a href="/posts/48230/" rel="next" title="下一篇"><i class="ic i-chevron-right"></i></a></li><li class="percent"></li></ul></div></div><div class="dimmer"></div></div></main><footer id="footer"><div class="inner"><div class="widgets"><div class="rpost pjax"><h2>随机文章</h2><ul><li class="item"><div class="breadcrumb"><a href="/categories/linux-sre/" title="分类于Linux运维">Linux运维</a></div><span><a href="/posts/27368/">Linux系统服务</a></span></li><li class="item"><div class="breadcrumb"><a href="/categories/hexo/" title="分类于Hexo">Hexo</a></div><span><a href="/posts/75b2838f/">随机图片接口汇总</a></span></li><li class="item"><div class="breadcrumb"><a href="/categories/linux-sre/" title="分类于Linux运维">Linux运维</a></div><span><a href="/posts/48230/">Linux常用命令</a></span></li><li class="item"><div class="breadcrumb"><a href="/categories/golang/" title="分类于Golang">Golang</a></div><span><a href="/posts/32785/">Golang插件</a></span></li><li class="item"><div class="breadcrumb"><a href="/categories/golang/" title="分类于Golang">Golang</a></div><span><a href="/posts/12887/">Golang深拷贝</a></span></li></ul></div><div class="rpost pjax"><h2>最新评论</h2><ul class="leancloud-recent-comment" id="new-comment"></ul></div></div><div class="status"><div class="copyright">&copy; 2021 -<span itemprop="copyrightYear">2024</span><span class="with-love"><i class="ic i-sakura rotate"></i></span><span class="author" itemprop="copyrightHolder">Linsan Zhu @ Linsan Zhu's Blog</span></div><div class="count"><span class="post-meta-item-icon"><i class="ic i-chart-area"></i></span><span title="站点总字数">44k 字</span><span class="post-meta-divider"> | </span><span class="post-meta-item-icon"><i class="ic i-coffee"></i></span><span title="站点阅读时长">40 分钟</span></div><div class="powered-by">基于 <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a> & Theme.<a target="_blank" rel="noopener" href="https://github.com/theme-shoka-x/hexo-theme-shokaX/">ShokaX</a></div></div></div></footer></div><script data-config type="text/javascript">var LOCAL = {
+<h3 id="例子"><a class="markdownIt-Anchor" href="#例子"></a> 例子</h3>
+<p>假设当前在/opt目录下有可执行程序demo,其用于定时从Wallpaper网站抓取一张壁纸并替换当前壁纸,我们想要开机自动执行它,首先在/usr/lib/systemd/system/目录创建demo.service文件,根据上面的说明,其内容如下:</p>
+<pre class="highlight"><code class="shell">[Unit]
+Description=demo service
+<span class="hljs-meta prompt_"># </span><span class="language-bash">强依赖网络服务</span>
+Requires=network-online.target
+BindsTo=network.target
+After=network.target
+[Install]
+[Service]
+Type=simple
+ExecStart=/opt/demo
+ExecStart=/usr/bin/kill -9 $(/usr/bin/ps aux | grep demo | awk &#x27;&#123;print $2&#125;&#x27;) &amp;&amp; /opt/demo
+EXECStop=/usr/bin/kill -9 $(/usr/bin/ps aux | grep demo | awk &#x27;&#123;print $2&#125;&#x27;)
+Restart=on-failure
+</code></pre>
+<p>写好demo.service文件后,需要执行 systemctl daemon-reload命令来重新加载所有配置文件,然后执行systemctl enable demo命令,这样下次开机时demo程序就会自动执行。</p>
+<div class="tags"><a href="/tags/linux/" rel="tag"><i class="ic i-tag"></i>Linux</a></div></div><footer><div class="meta"><span class="icon"><i class="ic i-eye"></i></span><span>此文章已被阅读次数:</span><span class="waline-pageview-count" id="twikoo_visitors" data-path="posts/27368/">正在加载...</span><span class="item"><span class="icon"><i class="ic i-calendar-check"></i></span><span class="text">更新于</span><time title="修改时间：2024-06-23 16:49:26" itemprop="dateModified" datetime="2024-06-23T16:49:26+08:00">2024-06-23</time></span></div><div class="reward"><button><i class="ic i-heartbeat"></i>赞赏</button><p>请我喝[茶]~(￣▽￣)~*</p><div id="qr"><div><img loading="lazy" data-src="/assets/wechatpay.png" alt="Linsan Zhu 微信支付"/><p>微信支付</p></div><div><img loading="lazy" data-src="/assets/alipay.png" alt="Linsan Zhu 支付宝"/><p>支付宝</p></div></div></div><div id="copyright"><ul><li class="author"><strong>本文作者：</strong>Linsan Zhu<i class="ic i-at"><em>@</em></i>烂笔头</li><li class="link"><strong>本文链接：</strong><a href="https://linsanzhu.github.io/posts/27368/" title="Linux系统服务">https://linsanzhu.github.io/posts/27368/</a></li><li class="license"><strong>版权声明：</strong>本站所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh"><i class="ic i-creative-commons"><em>(CC)</em></i>BY-NC-SA</a> 许可协议。转载请注明出处！</li></ul></div></footer></article></div><div class="post-nav"><div class="item left"><a href="/posts/48230/" rel="prev" itemprop="url" data-background-image="https:&#x2F;&#x2F;api.miaomc.cn&#x2F;image&#x2F;get?887448" title="Linux常用命令"><span class="type">上一篇</span><span class="category"><i class="ic i-flag"></i>Linux运维</span><h3>Linux常用命令</h3></a></div><div class="item right"><a href="/posts/32785/" rel="next" itemprop="url" data-background-image="https:&#x2F;&#x2F;api.miaomc.cn&#x2F;image&#x2F;get?272808" title="Golang插件"><span class="type">下一篇</span><span class="category"><i class="ic i-flag"></i>Golang</span><h3>Golang插件</h3></a></div></div><div class="wrap" id="comments"></div></div><div id="sidebar"><div class="inner"><div class="panels"><div class="inner"><div class="contents panel pjax" data-title="文章目录"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#service%E5%91%BD%E4%BB%A4"><span class="toc-number">1.</span> <span class="toc-text"> service命令</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#service%E5%91%BD%E4%BB%A4%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="toc-number">1.1.</span> <span class="toc-text"> service命令的使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#service%E5%8E%9F%E7%90%86"><span class="toc-number">1.2.</span> <span class="toc-text"> service原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%80%E6%9C%BA%E8%87%AA%E5%90%AF%E5%8A%A8"><span class="toc-number">1.3.</span> <span class="toc-text"> 开机自启动</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#chkconfig%E5%91%BD%E4%BB%A4"><span class="toc-number">1.3.1.</span> <span class="toc-text"> chkconfig命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#linux%E8%BF%90%E8%A1%8C%E7%BA%A7%E5%88%AB"><span class="toc-number">1.3.2.</span> <span class="toc-text"> Linux运行级别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#rdd%E7%9B%AE%E5%BD%95"><span class="toc-number">1.3.3.</span> <span class="toc-text"> rd*.d目录</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#systemd"><span class="toc-number">2.</span> <span class="toc-text"> Systemd</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#systemctl%E5%91%BD%E4%BB%A4%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="toc-number">2.1.</span> <span class="toc-text"> systemctl命令的使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0%E7%B3%BB%E7%BB%9F%E6%9C%8D%E5%8A%A1"><span class="toc-number">2.2.</span> <span class="toc-text"> 添加系统服务</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#unit%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">2.2.1.</span> <span class="toc-text"> Unit配置文件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#unit"><span class="toc-number">2.2.1.1.</span> <span class="toc-text"> Unit</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#install"><span class="toc-number">2.2.1.2.</span> <span class="toc-text"> Install</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#service"><span class="toc-number">2.2.1.3.</span> <span class="toc-text"> Service</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#target"><span class="toc-number">2.2.2.</span> <span class="toc-text"> Target</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BE%8B%E5%AD%90"><span class="toc-number">2.2.3.</span> <span class="toc-text"> 例子</span></a></li></ol></li></ol></li></ol></div><div class="related panel pjax" data-title="系列文章"><ul><li ><a href="/posts/48230/" rel="bookmark" title="Linux常用命令">Linux常用命令</a></li><li  class="active"><a href="/posts/27368/" rel="bookmark" title="Linux系统服务">Linux系统服务</a></li></ul></div><div class="overview panel" data-title="站点概览"><div class="author" itemprop="author" itemscope="itemscope" itemtype="http://schema.org/Person"><img class="image" loading="lazy" decoding="async" itemprop="image" alt="Linsan Zhu" src="/assets/avatar.png"/><p class="name" itemprop="name">Linsan Zhu</p><div class="description" itemprop="description">LinsanZhu's Blog</div></div><nav class="state"><div class="item posts"><a href="/archives/"><span class="count">5</span><span class="name">文章</span></a></div><div class="item categories"><a href="/categories/"><span class="count">4</span><span class="name">分类</span></a></div><div class="item tags"><a href="/tags/"><span class="count">6</span><span class="name">标签</span></a></div></nav><div class="social"><a target="_blank" rel="noopener" href="https://github.com/linsanzhu" class="item github" title="https:&#x2F;&#x2F;github.com&#x2F;linsanzhu"><i class="ic i-github"></i></a><a href="mailto:bin.zaq@foxmail.com" class="item email" title="mailto:bin.zaq@foxmail.com"><i class="ic i-envelope"></i></a></div><div class="menu"><li class="item"><a href="/" rel="section"><i class="ic i-home"></i>首页</a></li><li class="item dropdown"><a href="#" onclick="return false;"><i class="ic i-feather"></i>文章</a><ul class="submenu"><li class="item"><a href="/archives/" rel="section"><i class="ic i-archive"></i>归档</a></li><li class="item"><a href="/categories/" rel="section"><i class="ic i-th"></i>分类</a></li><li class="item"><a href="/tags/" rel="section"><i class="ic i-tags"></i>标签</a></li><li class="item"><a href="/posts/57784073/" rel="section"><i class="ic i-link-alt"></i>私密</a></li></ul></li></div></div></div></div><ul id="quick"><li class="prev pjax"><a href="/posts/32785/" rel="prev" title="上一篇"><i class="ic i-chevron-left"></i></a></li><li class="up"><i class="ic i-arrow-up"></i></li><li class="down"><i class="ic i-arrow-down"></i></li><li class="next pjax"><a href="/posts/48230/" rel="next" title="下一篇"><i class="ic i-chevron-right"></i></a></li><li class="percent"></li></ul></div></div><div class="dimmer"></div></div></main><footer id="footer"><div class="inner"><div class="widgets"><div class="rpost pjax"><h2>随机文章</h2><ul><li class="item"><div class="breadcrumb"><a href="/categories/golang/" title="分类于Golang">Golang</a></div><span><a href="/posts/32785/">Golang插件</a></span></li><li class="item"><div class="breadcrumb"><a href="/categories/hexo/" title="分类于Hexo">Hexo</a></div><span><a href="/posts/75b2838f/">随机图片接口汇总</a></span></li><li class="item"><div class="breadcrumb"><a href="/categories/linux-sre/" title="分类于Linux运维">Linux运维</a></div><span><a href="/posts/27368/">Linux系统服务</a></span></li><li class="item"><div class="breadcrumb"><a href="/categories/linux-sre/" title="分类于Linux运维">Linux运维</a></div><span><a href="/posts/48230/">Linux常用命令</a></span></li><li class="item"><div class="breadcrumb"><a href="/categories/golang/" title="分类于Golang">Golang</a></div><span><a href="/posts/12887/">Golang深拷贝</a></span></li></ul></div><div class="rpost pjax"><h2>最新评论</h2><ul class="leancloud-recent-comment" id="new-comment"></ul></div></div><div class="status"><div class="copyright">&copy; 2021 -<span itemprop="copyrightYear">2024</span><span class="with-love"><i class="ic i-sakura rotate"></i></span><span class="author" itemprop="copyrightHolder">Linsan Zhu @ Linsan Zhu's Blog</span></div><div class="count"><span class="post-meta-item-icon"><i class="ic i-chart-area"></i></span><span title="站点总字数">44k 字</span><span class="post-meta-divider"> | </span><span class="post-meta-item-icon"><i class="ic i-coffee"></i></span><span title="站点阅读时长">40 分钟</span></div><div class="powered-by">基于 <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a> & Theme.<a target="_blank" rel="noopener" href="https://github.com/theme-shoka-x/hexo-theme-shokaX/">ShokaX</a></div></div></div></footer></div><script data-config type="text/javascript">var LOCAL = {
     ispost: true,
         path: `posts/27368/`,
         favicon: {
